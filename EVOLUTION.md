@@ -34,6 +34,12 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 - Added `pyproject.toml` metadata so external plugin packages can register filters.
 - Updated docs with third-party plugin registration pattern.
 
+### 2026-02-23 — Encrypted Framework Expansion (v0.1.7)
+- Added encrypted VoiceDNA save/load flow with password-derived keys and `.voicedna.enc` support.
+- Introduced `VoiceDNAProcessor` in `voicedna/framework.py` for higher-level plugin chain execution.
+- Added compatibility for both `voicedna.filters` and `voicedna.plugins` entry-point groups.
+- Added encrypted processor demo to keep adoption path simple for OpenClaw-like hosts.
+
 ## Active Feedback Inputs Addressed
 - Keep repo minimal and runnable.
 - Keep zero-dependency runtime for core VoiceDNA.
@@ -45,3 +51,4 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 - Add package publishing workflow for PyPI.
 - Add formal plugin compatibility contract tests.
 - Add one-click "birth my AI" CLI flow.
+- Add optional key-management strategy docs (rotation, recovery, operational guidance).

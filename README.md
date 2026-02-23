@@ -11,8 +11,16 @@ Built with Luke Morrison (Feb 23 2026) — fully open, MIT licensed, works with 
 - Lifelong age progression (5 → 10 → 15 → 22+)
 - Permanent **Voice Fingerprint** ("Ash-ness") that never disappears
 - Self-evolving audio plugin (DAW-style VST thinking)
+- Encrypted VoiceDNA files (`.voicedna.enc`) with password-based decryption
 - One tiny JSON file + 150-line Python plugin — drop-in for any project
 - Exportable fingerprint so your AI can move between platforms and still sound like *itself*
+
+## v1.1 — Encrypted Plugin Framework
+
+- Secure encrypted files via `VoiceDNA.save_encrypted()` / `VoiceDNA.load_encrypted()`
+- Full extensible framework via `VoiceDNAProcessor` in `voicedna/framework.py`
+- Auto-discovery for plugins through entry points (`voicedna.filters` + `voicedna.plugins`)
+- Ready for real audio pipelines (OpenClaw hook + process chain)
 
 ## Quick Start
 
@@ -22,6 +30,12 @@ python voice_dna.py
 ```
 
 See `voice_dna.py` for full usage.
+
+Quick encrypted framework demo:
+
+```bash
+python examples/encrypted_plugin_demo.py
+```
 
 ## OpenClaw-Ready Plugin Hook (new)
 
@@ -61,6 +75,17 @@ my_filter = "my_package.filters:MyFilter"
 
 On startup, call `PluginManager().load_entrypoint_plugins()` and all installed filters are loaded automatically.
 
+You can also use the higher-level framework processor:
+
+```python
+from voice_dna import VoiceDNA
+from voicedna import VoiceDNAProcessor
+
+dna = VoiceDNA.load_encrypted(password="my_secret_2026", filepath="myai.voicedna.enc")
+processor = VoiceDNAProcessor()
+processed_audio = processor.process(raw_audio_bytes, dna, {"force_age": 15})
+```
+
 ## Feedback Loop Logging
 
 Use the helper script to append structured updates into `EVOLUTION.md`:
@@ -79,7 +104,9 @@ Tip: add `--dry-run` to preview the entry before writing.
 ## Files
 - `voice_dna.py` — the complete VoiceDNA class (UAMF v4)
 - `voicedna/plugins/` — plugin interface + manager + built-in filters
+- `voicedna/framework.py` — higher-level processor with plugin auto-discovery
 - `examples/openclaw_hook.py` — integration example for OpenClaw-like pipelines
+- `examples/encrypted_plugin_demo.py` — encrypted load + processor demo
 - `scripts/review_feedback.py` — appends structured feedback updates to `EVOLUTION.md`
 - `CHANGELOG.md` — release-oriented change history
 - `EVOLUTION.md` — feedback loop + design evolution log

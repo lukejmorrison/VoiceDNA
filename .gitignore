@@ -13,3 +13,4 @@ env/
 .mypy_cache/
 
 *.voicedna.json
+*.voicedna.enc

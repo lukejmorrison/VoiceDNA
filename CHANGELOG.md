@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here.
 
+## [0.1.7] - 2026-02-23
+### Added
+- Encrypted VoiceDNA persistence with `save_encrypted()` and `load_encrypted()` in `voice_dna.py` using `cryptography` (Fernet + PBKDF2-HMAC key derivation).
+- `voicedna/framework.py` with `VoiceDNAProcessor` for plugin auto-discovery and chained processing.
+- `examples/encrypted_plugin_demo.py` for encrypted load + full processor pipeline demonstration.
+
+### Changed
+- `requirements.txt` now includes `cryptography>=43.0.0`.
+- `pyproject.toml` now exposes both `voicedna.plugins` and `voicedna.filters` entry-point groups for compatibility.
+- `README.md` updated with encrypted framework usage and v1.1 feature overview.
+
 ## [0.1.6] - 2026-02-23
 ### Added
 - GitHub Action workflow (`.github/workflows/auto-label-feedback.yml`) that auto-adds the `feedback` label when issue title/body contains feedback-oriented keywords.

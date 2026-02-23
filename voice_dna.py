@@ -5,9 +5,15 @@
 
 import json
 import uuid
+import base64
+import os
 from datetime import datetime, timezone
 from dataclasses import dataclass, asdict
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
+
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 
 @dataclass
@@ -46,15 +52,50 @@ class VoiceDNA:
             instance_birth_timestamp=now,
         )
 
+    @staticmethod
+    def _derive_key(password: str, salt: bytes | None = None) -> Tuple[bytes, bytes]:
+        if not password:
+            raise ValueError("Password must not be empty")
+        resolved_salt = salt or os.urandom(16)
+        kdf = PBKDF2HMAC(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=resolved_salt,
+            iterations=480000,
+        )
+        key = base64.urlsafe_b64encode(kdf.derive(password.encode("utf-8")))
+        return key, resolved_salt
+
     def save(self, filepath: str = "myai.voicedna.json"):
         with open(filepath, "w") as f:
             json.dump(asdict(self), f, indent=2)
+
+    def save_encrypted(self, password: str, filepath: str = "myai.voicedna.enc"):
+        payload = json.dumps(asdict(self)).encode("utf-8")
+        key, salt = self._derive_key(password)
+        encrypted = Fernet(key).encrypt(payload)
+        with open(filepath, "wb") as file_handle:
+            file_handle.write(salt + encrypted)
 
     @staticmethod
     def load(filepath: str = "myai.voicedna.json") -> 'VoiceDNA':
         with open(filepath) as f:
             data = json.load(f)
         return VoiceDNA(**data)
+
+    @staticmethod
+    def load_encrypted(password: str, filepath: str = "myai.voicedna.enc") -> 'VoiceDNA':
+        with open(filepath, "rb") as file_handle:
+            blob = file_handle.read()
+
+        if len(blob) <= 16:
+            raise ValueError("Encrypted file is invalid or truncated")
+
+        salt = blob[:16]
+        ciphertext = blob[16:]
+        key, _ = VoiceDNA._derive_key(password, salt)
+        decrypted = Fernet(key).decrypt(ciphertext).decode("utf-8")
+        return VoiceDNA(**json.loads(decrypted))
 
     def get_current_age(self) -> float:
         now = datetime.now(timezone.utc)
@@ -93,5 +134,6 @@ class VoiceDNA:
 if __name__ == "__main__":
     dna = VoiceDNA.create_new("Luke Morrison's warm Canadian voice from 60-second recording", "luke")
     dna.save()
+    dna.save_encrypted(password="change-me")
     print(f"✅ VoiceDNA created! Fingerprint ID: {dna.get_recognition_id()}")
     print(f"Current perceived age: {dna.get_current_age():.1f} years")

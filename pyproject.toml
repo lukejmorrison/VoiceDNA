@@ -20,3 +20,7 @@ py-modules = ["voice_dna"]
 [project.entry-points."voicedna.plugins"]
 prompt_tag = "voicedna.plugins.builtin:PromptTagFilter"
 base64_passthrough = "voicedna.plugins.builtin:Base64PassThroughFilter"
+
+[project.entry-points."voicedna.filters"]
+prompt_tag = "voicedna.plugins.builtin:PromptTagFilter"
+base64_passthrough = "voicedna.plugins.builtin:Base64PassThroughFilter"
