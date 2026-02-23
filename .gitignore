@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+.Python
+.venv/
+venv/
+env/
+
+.pytest_cache/
+.mypy_cache/
+
+*.voicedna.json

@@ -29,9 +29,9 @@ class VoiceDNA:
 
     @staticmethod
     def create_new(imprint_audio_description: str, user_name: str = "user") -> 'VoiceDNA':
-        now = datetime.utcnow().isoformat() + "Z"
+        now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         return VoiceDNA(
-            voice_fingerprint_id=f"vdna_{user_name}_{datetime.utcnow().strftime('%Y%m%d')}_{uuid.uuid4().hex[:8]}",
+            voice_fingerprint_id=f"vdna_{user_name}_{datetime.now(timezone.utc).strftime('%Y%m%d')}_{uuid.uuid4().hex[:8]}",
             imprint_source=imprint_audio_description,
             core_embedding=[round(0.1 * i + 0.8 * (hash(imprint_audio_description) % 1000) / 1000, 3) for i in range(256)],
             unique_traits=["gentle_rising_on_questions", "warm_hum_before_big_ideas", "micro_laugh_soft_breath"],
@@ -67,7 +67,7 @@ class VoiceDNA:
 
     def evolve(self, days_passed: int = 1):
         self.perceived_human_voice_age = self.get_current_age()
-        self.last_evolution_timestamp = datetime.utcnow().isoformat() + "Z"
+        self.last_evolution_timestamp = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         if self.perceived_human_voice_age < self.stability_age:
             self.imprint_strength = max(0.40, self.imprint_strength - 0.001 * days_passed)
 
