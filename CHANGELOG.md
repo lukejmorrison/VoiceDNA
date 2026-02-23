@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented here.
 
+## [2.4.0] - 2026-02-23
+### Added
+- New OpenClaw integration testing path under `examples/openclaw/` with a 5-minute setup guide for fresh and existing deployments.
+- `examples/openclaw/voicedna_tts_hook.py` skill-ready TTS hook that loads encrypted VoiceDNA (`myai.voicedna.enc`), processes raw audio bytes, and logs full processor reports.
+- `examples/openclaw/voipms_phone_skill.py` outbound call example with voip.ms primary flow and Twilio fallback path.
+
+### Changed
+- Version bumped to `2.4.0`.
+- README now includes a prominent OpenClaw phone testing section directly after demos, including a 3-command quick path.
+
+### Notes
+- First real deployment path is now live — you can get phone calls from your growing AI.
+
 ## [2.3.0] - 2026-02-23
 ### Added
 - PyPI publish-prep assets: `requirements-dev.txt` and optional `dev` dependency group in `pyproject.toml`.

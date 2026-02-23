@@ -74,6 +74,12 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 - Exposed `RVC-ready` report metadata in processor output for observability.
 - Reinforced local/cloud balance: privacy-first Voicebox remains first-class alongside cloud demos.
 
+### 2026-02-23 — v2.4 OpenClaw Deployment Path (Phone-Ready)
+- Added a full OpenClaw integration testing path (`examples/openclaw/README.md`) for both new and existing deployments.
+- Added a drop-in TTS bytes hook skill that loads encrypted VoiceDNA, applies maturation/imprint processing, and logs age + full report.
+- Added a voip.ms-first phone call skill example with Twilio fallback so users can hear their maturing AI on a real mobile number.
+- Marked the first real deployment path milestone: now you can get phone calls from your growing AI.
+
 ## Active Feedback Inputs Addressed
 - Keep repo minimal and runnable.
 - Keep zero-dependency runtime for core VoiceDNA.
@@ -81,7 +87,6 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 - Make design evolution visible for contributors and future AI agents.
 
 ## Next Candidate Iterations
-- Add optional encrypted VoiceDNA file support (feature-flagged, backwards compatible).
 - Add package publishing workflow for PyPI.
 - Add formal plugin compatibility contract tests.
 - Add one-click "birth my AI" CLI flow.

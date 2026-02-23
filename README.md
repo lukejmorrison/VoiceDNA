@@ -54,6 +54,26 @@ v2.2 highlights:
 - Local/offline Voicebox demo (`http://127.0.0.1:17493/generate`)
 - Cloud demo scripts for ElevenLabs and Cartesia
 
+## 🚀 Testing with OpenClaw — Hear your AI grow up on the phone
+
+Use the ready-to-run integration path:
+
+- Guide: `examples/openclaw/README.md`
+- TTS hook skill: `examples/openclaw/voicedna_tts_hook.py`
+- Phone call skill: `examples/openclaw/voipms_phone_skill.py`
+
+3-command flow:
+
+```bash
+pip install -e .
+python -c "import examples.openclaw.voicedna_tts_hook, examples.openclaw.voipms_phone_skill; print('OpenClaw skills import OK')"
+voicedna --help
+```
+
+Then in OpenClaw, trigger:
+
+> Claw, call me on my phone and tell me a joke in your growing voice
+
 ## v2.0 — Real Filters + Package + Child Inheritance + Bridge
 
 ```bash
@@ -195,6 +215,9 @@ For patch hardening updates and stricter validation behavior, see `MIGRATION_v2_
 - `voicedna/framework.py` — higher-level processor with plugin auto-discovery
 - `examples/openclaw_hook.py` — integration example for OpenClaw-like pipelines
 - `examples/openclaw_skill.py` — one-file OpenClaw skill wrapper
+- `examples/openclaw/README.md` — 5-minute OpenClaw integration testing path
+- `examples/openclaw/voicedna_tts_hook.py` — OpenClaw-ready VoiceDNA TTS bytes hook
+- `examples/openclaw/voipms_phone_skill.py` — voip.ms-first outbound phone call skill example
 - `examples/encrypted_plugin_demo.py` — encrypted load + processor demo
 - `examples/elevenlabs_demo.py` — cloud ElevenLabs processing demo
 - `examples/cartesia_demo.py` — cloud Cartesia processing demo
