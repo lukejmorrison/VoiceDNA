@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/uamf_v4_voice_dna.schema.json",
+  "title": "UAMF v4 VoiceDNA",
+  "description": "Schema for VoiceDNA lifelong sonic identity profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "voice_fingerprint_id",
+    "imprint_source",
+    "core_embedding",
+    "unique_traits",
+    "imprint_strength",
+    "morph_allowance",
+    "established_timestamp",
+    "last_evolution_timestamp",
+    "perceived_human_voice_age",
+    "maturation_multiplier",
+    "stability_age",
+    "era_birth_timestamp",
+    "instance_birth_timestamp"
+  ],
+  "properties": {
+    "voice_fingerprint_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Persistent stable identifier for the VoiceDNA profile"
+    },
+    "imprint_source": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable description of imprint audio origin"
+    },
+    "core_embedding": {
+      "type": "array",
+      "description": "Core identity embedding vector",
+      "minItems": 1,
+      "items": {
+        "type": "number"
+      }
+    },
+    "unique_traits": {
+      "type": "array",
+      "description": "Expressive traits preserved across evolution",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "imprint_strength": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "How strongly the original imprint influences current voice"
+    },
+    "morph_allowance": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Allowed timbral/style drift budget"
+    },
+    "established_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this fingerprint was first established"
+    },
+    "last_evolution_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Most recent evolution update timestamp"
+    },
+    "perceived_human_voice_age": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Current perceived human-like age of the voice"
+    },
+    "maturation_multiplier": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Scaling factor for voice maturation speed"
+    },
+    "stability_age": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Target age where identity stabilizes"
+    },
+    "era_birth_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Reference epoch birth for generation/era anchoring"
+    },
+    "instance_birth_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Birth timestamp of this specific VoiceDNA instance"
+    }
+  }
+}
