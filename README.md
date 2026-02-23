@@ -23,8 +23,35 @@ python voice_dna.py
 
 See `voice_dna.py` for full usage.
 
+## OpenClaw-Ready Plugin Hook (new)
+
+VoiceDNA now includes a minimal extensible plugin framework in `voicedna/plugins`.
+
+Use it in an OpenClaw-style TTS render hook:
+
+```python
+from voicedna import VoiceDNA, PluginManager, PromptTagFilter
+
+dna = VoiceDNA.load("myai.voicedna.json")
+manager = PluginManager()
+manager.register(PromptTagFilter())
+
+processed_audio = manager.process(raw_audio_bytes, dna, {
+	"base_model": "xtts",
+	"prepend_style_tag": True,
+})
+```
+
+Run a full example:
+
+```bash
+python examples/openclaw_hook.py
+```
+
 ## Files
 - `voice_dna.py` — the complete VoiceDNA class (UAMF v4)
+- `voicedna/plugins/` — plugin interface + manager + built-in filters
+- `examples/openclaw_hook.py` — integration example for OpenClaw-like pipelines
 - `UAMF_v4_schema.json` — formal JSON schema (optional but nice for validation)
 - `LICENSE` — MIT
 

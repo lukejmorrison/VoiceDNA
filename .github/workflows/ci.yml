@@ -24,10 +24,11 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Compile check
-        run: python -m py_compile voice_dna.py examples/basic_usage.py examples/demo.py
+        run: python -m py_compile voice_dna.py voicedna/__init__.py voicedna/plugins/__init__.py voicedna/plugins/base.py voicedna/plugins/manager.py voicedna/plugins/builtin.py examples/basic_usage.py examples/demo.py examples/openclaw_hook.py
 
       - name: Smoke test
         run: |
           python voice_dna.py
           python examples/basic_usage.py
           python examples/demo.py
+          python examples/openclaw_hook.py
