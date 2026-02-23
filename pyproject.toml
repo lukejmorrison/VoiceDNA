@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "voicedna"
-version = "2.0.1"
+version = "2.1.0"
 description = "Lifelong sonic identity and plugin framework for AI voices"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -15,6 +15,8 @@ authors = [
 dependencies = [
   "cryptography>=43.0.0",
   "numpy>=2.0.0",
+  "pydub>=0.25.1",
+  "typer>=0.12.3",
 ]
 keywords = ["ai-voice", "tts", "voice-fingerprint", "uamf", "elevenlabs"]
 
@@ -24,7 +26,10 @@ Repository = "https://github.com/lukejmorrison/VoiceDNA.git"
 
 [tool.setuptools]
 packages = ["voicedna", "voicedna.plugins", "voicedna.filters"]
-py-modules = ["voice_dna"]
+py-modules = ["voice_dna", "cli"]
+
+[project.scripts]
+voicedna = "cli:app"
 
 [project.entry-points."voicedna.plugins"]
 prompt_tag = "voicedna.plugins.builtin:PromptTagFilter"
@@ -35,3 +40,6 @@ prompt_tag = "voicedna.plugins.builtin:PromptTagFilter"
 base64_passthrough = "voicedna.plugins.builtin:Base64PassThroughFilter"
 age_maturation = "voicedna.filters.age_maturation:AgeMaturationFilter"
 imprint_converter = "voicedna.filters.imprint_converter:ImprintConverterFilter"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

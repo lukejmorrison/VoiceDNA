@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here.
 
+## [2.1.0] - 2026-02-23
+### Added
+- Real `pydub` audio processing in `AgeMaturationFilter` using frame-rate pitch adjustment.
+- Pytest suite in `tests/` with `test_child_inheritance.py` and `test_processor_report.py`.
+- Typer CLI in `cli.py` with `voicedna birth`, `voicedna speak`, and `voicedna evolve`.
+- Console script entry point (`voicedna`) in `pyproject.toml`.
+
+### Changed
+- Package version bumped to `2.1.0`.
+- Dependencies updated to include `pydub`, `typer`, and `pytest`.
+
 ## [2.0.1] - 2026-02-23
 ### Added
 - `VoiceDNAProcessor.get_last_report()` with per-filter status/duration and chain summary.

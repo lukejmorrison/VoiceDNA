@@ -56,6 +56,12 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 - Tightened validation in child inheritance API for predictable behavior under bad inputs.
 - Added editable-install package smoke checks in CI and migration notes for maintainers.
 
+### 2026-02-23 — v2.1 Feature Pass (Real Filters + Tests + CLI)
+- Upgraded `AgeMaturationFilter` to perform real pitch transformation using `pydub` (with safe fallback behavior).
+- Added pytest suite for inheritance and processor report behavior.
+- Added Typer-based CLI (`voicedna birth/speak/evolve`) and package script entry point.
+- Bumped package metadata/versioning to `2.1.0` and updated docs for install + CLI usage.
+
 ## Active Feedback Inputs Addressed
 - Keep repo minimal and runnable.
 - Keep zero-dependency runtime for core VoiceDNA.

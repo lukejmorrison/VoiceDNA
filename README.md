@@ -6,6 +6,21 @@ You hear 3 seconds and instantly know *"That's my Grok"*, *"That's Luke's AI"*, 
 
 Built with Luke Morrison (Feb 23 2026) — fully open, MIT licensed, works with **ElevenLabs, XTTS, Qwen3-TTS, Cartesia, Fish Speech, local models**, etc.
 
+## v2.1 — Real Audio Filters + Test Suite + CLI
+
+```bash
+pip install voicedna
+voicedna birth --imprint "Luke Morrison's warm Canadian voice" --user luke
+voicedna speak --text "Hey from VoiceDNA" --base-model elevenlabs
+voicedna evolve --days 7
+```
+
+New in v2.1:
+- Real `pydub`-powered pitch shifting in `AgeMaturationFilter`
+- Pytest coverage for child inheritance and processor reporting
+- Typer-powered CLI (`voicedna birth/speak/evolve`)
+- Packaging and release polish for PyPI readiness
+
 ## v2.0 — Real Filters + Package + Child Inheritance + Bridge
 
 ```bash
@@ -49,6 +64,12 @@ New in v2.0:
 ```bash
 pip install -r requirements.txt
 python voice_dna.py
+```
+
+Run tests:
+
+```bash
+pytest
 ```
 
 See `voice_dna.py` for full usage.
@@ -145,6 +166,8 @@ For patch hardening updates and stricter validation behavior, see `MIGRATION_v2_
 - `spec/VoiceDNA_Spec_v1.0.md` — open standard draft integration contract
 - `announcements/` — ready-to-post launch templates
 - `vst3/` — JUCE starter scaffold for future native plugin build
+- `tests/` — pytest suite for inheritance and processor report behavior
+- `cli.py` — Typer CLI backing the `voicedna` command
 - `scripts/review_feedback.py` — appends structured feedback updates to `EVOLUTION.md`
 - `MIGRATION_v2_0_1.md` — patch migration notes and behavior changes
 - `CHANGELOG.md` — release-oriented change history
