@@ -21,6 +21,25 @@ New in v2.1:
 - Typer-powered CLI (`voicedna birth/speak/evolve`)
 - Packaging and release polish for PyPI readiness
 
+## v2.2 — Cloud + Local Demos (Voicebox)
+
+```bash
+pip install voicedna
+voicedna birth --imprint "Luke Morrison's warm Canadian voice" --user luke
+voicedna speak --text "Hello from VoiceDNA v2.2"
+voicedna evolve --days 7
+
+python examples/elevenlabs_demo.py
+python examples/cartesia_demo.py
+python examples/voicebox_demo.py
+```
+
+v2.2 highlights:
+- Real `ImprintConverterFilter` volume-mix processing path
+- WAV fixture + round-trip waveform assertion tests
+- Local/offline Voicebox demo (`http://127.0.0.1:17493/generate`)
+- Cloud demo scripts for ElevenLabs and Cartesia
+
 ## v2.0 — Real Filters + Package + Child Inheritance + Bridge
 
 ```bash
@@ -163,6 +182,9 @@ For patch hardening updates and stricter validation behavior, see `MIGRATION_v2_
 - `examples/openclaw_hook.py` — integration example for OpenClaw-like pipelines
 - `examples/openclaw_skill.py` — one-file OpenClaw skill wrapper
 - `examples/encrypted_plugin_demo.py` — encrypted load + processor demo
+- `examples/elevenlabs_demo.py` — cloud ElevenLabs processing demo
+- `examples/cartesia_demo.py` — cloud Cartesia processing demo
+- `examples/voicebox_demo.py` — local/offline Voicebox processing demo
 - `spec/VoiceDNA_Spec_v1.0.md` — open standard draft integration contract
 - `announcements/` — ready-to-post launch templates
 - `vst3/` — JUCE starter scaffold for future native plugin build

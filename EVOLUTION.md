@@ -62,6 +62,12 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 - Added Typer-based CLI (`voicedna birth/speak/evolve`) and package script entry point.
 - Bumped package metadata/versioning to `2.1.0` and updated docs for install + CLI usage.
 
+### 2026-02-23 — v2.2 Cloud + Local Expansion
+- Added real imprint conversion mix path with safe fallbacks.
+- Added audio fixture + round-trip waveform assertion tests for filter confidence.
+- Added cloud demos (ElevenLabs, Cartesia) and local Voicebox demo for privacy-first users.
+- Established explicit support story for both hosted APIs and fully local Pinokio-style pipelines.
+
 ## Active Feedback Inputs Addressed
 - Keep repo minimal and runnable.
 - Keep zero-dependency runtime for core VoiceDNA.

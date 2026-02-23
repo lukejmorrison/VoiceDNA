@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented here.
 
+## [2.2.0] - 2026-02-23
+### Added
+- Cloud demo scripts: `examples/elevenlabs_demo.py` and `examples/cartesia_demo.py`.
+- Local/offline Voicebox demo: `examples/voicebox_demo.py` for `http://127.0.0.1:17493/generate`.
+- WAV fixture-based test support in `tests/conftest.py`.
+- Audio round-trip test in `tests/test_audio_roundtrip.py` proving waveform transformation.
+
+### Changed
+- `ImprintConverterFilter` now performs real audio imprint mixing with `pydub` plus WAV fallback path.
+- Dependencies updated for v2.2 demos and integrations (`requests` included).
+- Package version bumped to `2.2.0`.
+
+### Notes
+- VoiceDNA now supports both cloud services and privacy-first local Voicebox flows.
+
 ## [2.1.0] - 2026-02-23
 ### Added
 - Real `pydub` audio processing in `AgeMaturationFilter` using frame-rate pitch adjustment.

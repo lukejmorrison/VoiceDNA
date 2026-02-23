@@ -27,7 +27,7 @@ jobs:
         run: pip install -e .
 
       - name: Compile check
-        run: python -m py_compile voice_dna.py cli.py voicedna/__init__.py voicedna/voice_dna.py voicedna/framework.py voicedna/filters/__init__.py voicedna/filters/age_maturation.py voicedna/filters/imprint_converter.py voicedna/plugins/__init__.py voicedna/plugins/base.py voicedna/plugins/manager.py voicedna/plugins/builtin.py examples/basic_usage.py examples/demo.py examples/openclaw_hook.py examples/openclaw_skill.py examples/encrypted_plugin_demo.py scripts/review_feedback.py vst3/python_bridge.py tests/test_child_inheritance.py tests/test_processor_report.py
+        run: python -m py_compile voice_dna.py cli.py voicedna/__init__.py voicedna/voice_dna.py voicedna/framework.py voicedna/filters/__init__.py voicedna/filters/audio_helpers.py voicedna/filters/age_maturation.py voicedna/filters/imprint_converter.py voicedna/plugins/__init__.py voicedna/plugins/base.py voicedna/plugins/manager.py voicedna/plugins/builtin.py examples/basic_usage.py examples/demo.py examples/openclaw_hook.py examples/openclaw_skill.py examples/encrypted_plugin_demo.py examples/elevenlabs_demo.py examples/cartesia_demo.py examples/voicebox_demo.py scripts/review_feedback.py vst3/python_bridge.py tests/conftest.py tests/test_child_inheritance.py tests/test_processor_report.py tests/test_audio_roundtrip.py
 
       - name: Run tests
         run: pytest -q
@@ -50,3 +50,4 @@ jobs:
           python examples/openclaw_hook.py
           python examples/openclaw_skill.py
           python examples/encrypted_plugin_demo.py
+          python examples/voicebox_demo.py

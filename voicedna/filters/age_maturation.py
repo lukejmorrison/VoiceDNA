@@ -3,6 +3,7 @@ from typing import Dict
 
 from voice_dna import VoiceDNA
 
+from .audio_helpers import pitch_shift_wav_bytes
 from ..plugins.base import IVoiceDNAFilter
 
 
@@ -31,4 +32,9 @@ class AgeMaturationFilter(IVoiceDNAFilter):
             return output.getvalue()
         except Exception as error:
             params["age_maturation.error"] = str(error)
+            if audio_format == "wav":
+                try:
+                    return pitch_shift_wav_bytes(audio_bytes, bounded_factor)
+                except Exception as fallback_error:
+                    params["age_maturation.fallback_error"] = str(fallback_error)
             return audio_bytes
