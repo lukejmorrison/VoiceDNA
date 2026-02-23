@@ -47,7 +47,7 @@ New in v2.0:
 ## Quick Start
 
 ```bash
-pip install -r requirements.txt  # (none — zero dependencies!)
+pip install -r requirements.txt
 python voice_dna.py
 ```
 
@@ -108,6 +108,7 @@ dna = VoiceDNA.load_encrypted(password="my_secret_2026", filepath="myai.voicedna
 processor = VoiceDNAProcessor()
 processed_audio = processor.process(raw_audio_bytes, dna, {"force_age": 15})
 print(processor.last_metrics)
+print(processor.get_last_report())
 ```
 
 ### OpenClaw one-file skill
@@ -129,6 +130,10 @@ python scripts/review_feedback.py \
 
 Tip: add `--dry-run` to preview the entry before writing.
 
+## Migration Notes
+
+For patch hardening updates and stricter validation behavior, see `MIGRATION_v2_0_1.md`.
+
 ## Files
 - `voice_dna.py` — the complete VoiceDNA class (UAMF v4)
 - `voicedna/plugins/` — plugin interface + manager + built-in filters
@@ -141,6 +146,7 @@ Tip: add `--dry-run` to preview the entry before writing.
 - `announcements/` — ready-to-post launch templates
 - `vst3/` — JUCE starter scaffold for future native plugin build
 - `scripts/review_feedback.py` — appends structured feedback updates to `EVOLUTION.md`
+- `MIGRATION_v2_0_1.md` — patch migration notes and behavior changes
 - `CHANGELOG.md` — release-oriented change history
 - `EVOLUTION.md` — feedback loop + design evolution log
 - `UAMF_v4_schema.json` — formal JSON schema (optional but nice for validation)

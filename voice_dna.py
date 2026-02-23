@@ -130,16 +130,22 @@ class VoiceDNA:
         return self.voice_fingerprint_id
 
     def create_child(self, child_user_name: str, inherit_strength: float = 0.40) -> 'VoiceDNA':
-        bounded_strength = max(0.0, min(1.0, inherit_strength))
+        if not child_user_name or not child_user_name.strip():
+            raise ValueError("child_user_name must not be empty")
+        if not 0.0 <= inherit_strength <= 1.0:
+            raise ValueError("inherit_strength must be between 0.0 and 1.0")
+
         child = VoiceDNA.create_new(
-            imprint_audio_description=f"Child of {self.imprint_source} (inherit {bounded_strength*100:.0f}%)",
+            imprint_audio_description=f"Child of {self.imprint_source} (inherit {inherit_strength*100:.0f}%)",
             user_name=child_user_name,
         )
+        if len(self.core_embedding) != len(child.core_embedding):
+            raise ValueError("Parent and child embeddings have incompatible lengths")
         child.core_embedding = [
-            parent_value * bounded_strength + child_value * (1 - bounded_strength)
+            parent_value * inherit_strength + child_value * (1 - inherit_strength)
             for parent_value, child_value in zip(self.core_embedding, child.core_embedding)
         ]
-        child.imprint_strength = bounded_strength
+        child.imprint_strength = inherit_strength
         child.unique_traits = list(dict.fromkeys(self.unique_traits + child.unique_traits))
         return child
 

@@ -23,11 +23,24 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Install package (editable)
+        run: pip install -e .
+
       - name: Compile check
         run: python -m py_compile voice_dna.py voicedna/__init__.py voicedna/voice_dna.py voicedna/framework.py voicedna/filters/__init__.py voicedna/filters/age_maturation.py voicedna/filters/imprint_converter.py voicedna/plugins/__init__.py voicedna/plugins/base.py voicedna/plugins/manager.py voicedna/plugins/builtin.py examples/basic_usage.py examples/demo.py examples/openclaw_hook.py examples/openclaw_skill.py examples/encrypted_plugin_demo.py scripts/review_feedback.py vst3/python_bridge.py
 
       - name: Smoke test
         run: |
+          python - <<'PY'
+          from voicedna import VoiceDNA, VoiceDNAProcessor
+          dna = VoiceDNA.create_new("CI smoke voice", "ci")
+          child = dna.create_child("ci_child", 0.4)
+          processor = VoiceDNAProcessor()
+          output = processor.process(b"AUDIO", dna, {"force_age": 9})
+          assert isinstance(output, bytes)
+          assert child.get_recognition_id().startswith("vdna_ci_child_")
+          print("package-import-smoke-ok")
+          PY
           python voice_dna.py
           python examples/basic_usage.py
           python examples/demo.py

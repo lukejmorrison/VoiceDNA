@@ -3,7 +3,7 @@ from __future__ import annotations
 from importlib import metadata
 import logging
 import time
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from voice_dna import VoiceDNA
 
@@ -18,9 +18,13 @@ class VoiceDNAProcessor:
     def __init__(self):
         self.filters: List[IVoiceDNAFilter] = []
         self.last_metrics: Dict[str, float] = {}
+        self.last_report: Dict[str, Any] = {}
         self.load_plugins()
 
     def register_filter(self, plugin: IVoiceDNAFilter):
+        plugin_name = plugin.name()
+        if plugin_name in self.get_filter_names():
+            return
         self.filters.append(plugin)
         self.filters.sort(key=lambda filter_plugin: filter_plugin.priority())
 
@@ -52,9 +56,11 @@ class VoiceDNAProcessor:
                 continue
 
     def process(self, audio_bytes: bytes, dna: VoiceDNA, params: Dict | None = None) -> bytes:
+        chain_started_at = time.perf_counter()
         current_audio = audio_bytes
         process_params = params or {}
         metrics: Dict[str, float] = {}
+        report_filters: List[Dict[str, Any]] = []
 
         for filter_obj in self.filters:
             started_at = time.perf_counter()
@@ -62,11 +68,37 @@ class VoiceDNAProcessor:
                 current_audio = filter_obj.process(current_audio, dna, process_params)
             except Exception as error:
                 logger.warning("Filter %s failed: %s", filter_obj.name(), error)
+                report_filters.append(
+                    {
+                        "name": filter_obj.name(),
+                        "status": "error",
+                        "duration_ms": round((time.perf_counter() - started_at) * 1000, 3),
+                        "error": str(error),
+                    }
+                )
                 continue
-            metrics[filter_obj.name()] = time.perf_counter() - started_at
+            duration_seconds = time.perf_counter() - started_at
+            metrics[filter_obj.name()] = duration_seconds
+            report_filters.append(
+                {
+                    "name": filter_obj.name(),
+                    "status": "ok",
+                    "duration_ms": round(duration_seconds * 1000, 3),
+                }
+            )
 
         self.last_metrics = metrics
+        self.last_report = {
+            "filters": report_filters,
+            "filter_count": len(self.filters),
+            "total_duration_ms": round((time.perf_counter() - chain_started_at) * 1000, 3),
+            "input_bytes": len(audio_bytes),
+            "output_bytes": len(current_audio),
+        }
         return current_audio
 
     def get_filter_names(self) -> List[str]:
         return [filter_obj.name() for filter_obj in self.filters]
+
+    def get_last_report(self) -> Dict[str, Any]:
+        return self.last_report

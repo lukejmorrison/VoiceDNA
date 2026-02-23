@@ -14,3 +14,4 @@ env/
 
 *.voicedna.json
 *.voicedna.enc
+*.egg-info/

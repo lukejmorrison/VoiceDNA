@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here.
 
+## [2.0.1] - 2026-02-23
+### Added
+- `VoiceDNAProcessor.get_last_report()` with per-filter status/duration and chain summary.
+- `MIGRATION_v2_0_1.md` with patch upgrade notes.
+
+### Changed
+- `VoiceDNA.create_child()` now strictly validates `child_user_name` and `inherit_strength`.
+- Processor filter registration now de-duplicates by filter name to avoid double execution.
+- CI now performs editable package install (`pip install -e .`) and package import smoke checks.
+- Package version bumped to `2.0.1`.
+
 ## [2.0.0] - 2026-02-23
 ### Added
 - Real built-in example filters: `AgeMaturationFilter` and `ImprintConverterFilter` in `voicedna/filters/`.

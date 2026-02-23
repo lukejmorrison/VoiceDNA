@@ -51,6 +51,11 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 - Added Python VST bridge scaffold and public spec draft for cross-host integration.
 - Added announcement templates for launch coordination across X/Reddit/OpenClaw issue channels.
 
+### 2026-02-23 — v2.0.1 Hardening Pass
+- Added processor execution reports (`get_last_report`) for better runtime observability.
+- Tightened validation in child inheritance API for predictable behavior under bad inputs.
+- Added editable-install package smoke checks in CI and migration notes for maintainers.
+
 ## Active Feedback Inputs Addressed
 - Keep repo minimal and runnable.
 - Keep zero-dependency runtime for core VoiceDNA.
