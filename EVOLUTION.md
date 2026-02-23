@@ -86,6 +86,13 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 - Completed final PyPI publish validation flow (`build` + `twine check`) and documented the upload command.
 - Marked the desktop milestone: now your entire desktop can grow up with you.
 
+### 2026-02-23 — v2.6 Live PyPI + Omarchy Daemon Hardening
+- Added a background user daemon service so Omarchy voice runtime auto-starts after login and reboot.
+- Added encrypted DNA auto-load behavior for daemon runtime with environment and keyring fallback strategy.
+- Improved top-level docs readability with direct path selection and one-click Omarchy emphasis.
+- Reached public packaging milestone: PyPI publish execution path is now live for global install (`pip install voicedna`).
+- Marked the first OS-level identity milestone: your desktop now keeps a growing voice over time.
+
 ## Active Feedback Inputs Addressed
 - Keep repo minimal and runnable.
 - Keep zero-dependency runtime for core VoiceDNA.

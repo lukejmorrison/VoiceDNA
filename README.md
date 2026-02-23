@@ -1,10 +1,26 @@
 # VoiceDNA — Lifelong Sonic Identity for Every AI ❤️🔊
 
+[![PyPI version](https://img.shields.io/pypi/v/voicedna?logo=pypi&logoColor=white)](https://pypi.org/project/voicedna/)
+
 The open standard that gives every AI a permanent, recognizable **Voice Fingerprint** — just like your nephew Ash.  
 
 You hear 3 seconds and instantly know *"That's my Grok"*, *"That's Luke's AI"*, or *"That's the Claude I've been friends with since 2026"*.
 
 Built with Luke Morrison (Feb 23 2026) — fully open, MIT licensed, works with **ElevenLabs, XTTS, Qwen3-TTS, Cartesia, Fish Speech, local models**, etc.
+
+## Start here (60 seconds)
+
+Choose your path:
+
+- OpenClaw bot voice + phone calls: `examples/openclaw/README.md`
+- Omarchy system-wide desktop voice: `examples/omarchy/README.md`
+
+Fast install:
+
+```bash
+pip install voicedna
+voicedna --help
+```
 
 ## Install from PyPI
 
@@ -82,6 +98,13 @@ Run VoiceDNA as your desktop speaking voice on Omarchy (Arch + Hyprland):
 - PipeWire filter shim: `examples/omarchy/voicedna-pipewire-filter.py`
 - Speech Dispatcher config: `examples/omarchy/speech-dispatcher-voicedna.conf`
 - One-command installer: `examples/omarchy/install-voicedna-omarchy.sh`
+- Boot-persistent daemon unit: `examples/omarchy/voicedna-os-daemon.service`
+
+One-click install on Omarchy:
+
+```bash
+bash examples/omarchy/install-voicedna-omarchy.sh
+```
 
 3-command flow:
 
@@ -239,6 +262,8 @@ For patch hardening updates and stricter validation behavior, see `MIGRATION_v2_
 - `examples/omarchy/voicedna-pipewire-filter.py` — PipeWire VoiceDNA filter bridge
 - `examples/omarchy/speech-dispatcher-voicedna.conf` — speech-dispatcher default VoiceDNA profile
 - `examples/omarchy/install-voicedna-omarchy.sh` — one-command Omarchy setup script
+- `examples/omarchy/voicedna-os-daemon.service` — user systemd daemon unit for auto-started voice runtime
+- `examples/omarchy/voicedna-os-daemon.py` — daemon process that validates encrypted DNA loading at login/reboot
 - `examples/encrypted_plugin_demo.py` — encrypted load + processor demo
 - `examples/elevenlabs_demo.py` — cloud ElevenLabs processing demo
 - `examples/cartesia_demo.py` — cloud Cartesia processing demo

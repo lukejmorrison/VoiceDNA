@@ -1,12 +1,18 @@
 # Make your Omarchy desktop speak with your growing AI voice in 5 minutes
 
+## Try it now (one sentence)
+
+```bash
+bash examples/omarchy/install-voicedna-omarchy.sh && spd-say "Your Omarchy voice now has lifelong VoiceDNA."
+```
+
 This guide gives your whole Omarchy desktop (Arch + Hyprland) a unique, maturing VoiceDNA voice for screen reader output, desktop speech, and quick terminal speech tests.
 
 ## What you get
 
 - PipeWire filter bridge that can process TTS audio through `VoiceDNAProcessor`
 - Speech Dispatcher profile that points speech output to VoiceDNA hooks
-- Optional tiny background daemon pattern for custom events/notifications
+- User-level systemd daemon that auto-starts after login/reboot
 - One-command installer script for Omarchy users
 
 ## 1) Install VoiceDNA + speech dependencies
@@ -27,6 +33,8 @@ This script:
 - installs/updates `voicedna` in your active Python environment
 - copies `speech-dispatcher-voicedna.conf` into `~/.config/speech-dispatcher/modules/`
 - installs `voicedna-pipewire-filter.py` into `~/.local/bin/`
+- installs `voicedna-os-daemon.py` and enables `voicedna-os-daemon.service`
+- writes `~/.config/voicedna/daemon.env` (env-based password path)
 - restarts user services (`speech-dispatcher`, `wireplumber`, `pipewire`)
 
 ## 3) PipeWire filter module path
@@ -48,15 +56,27 @@ After installation, test:
 spd-say "Hello Luke, your desktop voice is now growing with you."
 ```
 
-## 5) Optional lightweight daemon
+## 5) Background daemon (auto-start)
 
-You can run a tiny loop that sends notifications/highlight-to-speak text through `spd-say`, while the VoiceDNA speech module is active:
+The installer enables:
+
+- `~/.config/systemd/user/voicedna-os-daemon.service`
+
+It auto-loads encrypted VoiceDNA on login/reboot using:
+
+1. `VOICEDNA_PASSWORD` in `~/.config/voicedna/daemon.env` (default path)
+2. `keyring` secret (service=`voicedna`, user=`default`) if available
+
+Check status:
 
 ```bash
-while true; do
-  sleep 60
-  spd-say "VoiceDNA daemon heartbeat: your desktop voice is alive."
-done
+systemctl --user status voicedna-os-daemon.service
+```
+
+View logs:
+
+```bash
+journalctl --user -u voicedna-os-daemon.service -f
 ```
 
 ## One-command install recap
@@ -68,3 +88,7 @@ bash examples/omarchy/install-voicedna-omarchy.sh
 When complete, you should see:
 
 `Your Omarchy desktop now speaks with your lifelong VoiceDNA voice!`
+
+## Future RVC mode note
+
+Desktop voice cloning is currently wired through the RVC-ready path. A future mode will enable direct RVC desktop conversion for richer system-wide voice timbre.

@@ -1,0 +1,13 @@
+[Unit]
+Description=VoiceDNA Omarchy OS Daemon
+After=default.target
+
+[Service]
+Type=simple
+EnvironmentFile=-%h/.config/voicedna/daemon.env
+ExecStart=%h/.local/bin/voicedna-os-daemon.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented here.
 
+## [2.6.0] - 2026-02-23
+### Added
+- Omarchy hardening pass with boot-persistent background daemon support via `voicedna-os-daemon.service`.
+- Daemon runtime script for encrypted DNA auto-load on login/reboot with env/keyring fallback support.
+- README polish: PyPI badge, clearer quick-start pathing, and one-click Omarchy highlight.
+
+### Changed
+- Version bumped to `2.6.0`.
+- Omarchy installer now installs daemon artifacts, writes daemon env config, and enables the systemd user service.
+
+### Notes
+- Real PyPI publish attempted using `python -m twine upload dist/* --skip-existing`.
+- VoiceDNA reaches a new milestone: first OS path where your desktop can grow up with you.
+
 ## [2.5.0] - 2026-02-23
 ### Added
 - Full Omarchy (Arch + Hyprland) system-voice integration path under `examples/omarchy/`.
