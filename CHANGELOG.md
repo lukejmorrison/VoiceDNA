@@ -2,6 +2,22 @@
 
 All notable changes to this project are documented here.
 
+## [2.5.0] - 2026-02-23
+### Added
+- Full Omarchy (Arch + Hyprland) system-voice integration path under `examples/omarchy/`.
+- PipeWire VoiceDNA filter shim (`voicedna-pipewire-filter.py`) for desktop TTS interception + processing.
+- Drop-in speech-dispatcher profile (`speech-dispatcher-voicedna.conf`) so Orca/desktop speech can default to VoiceDNA.
+- One-command Omarchy installer (`install-voicedna-omarchy.sh`) for setup + service restarts.
+
+### Changed
+- Version bumped to `2.5.0`.
+- README now includes a dedicated Omarchy system-wide voice section directly after OpenClaw.
+
+### Notes
+- PyPI publish validation is fully prepared (`python -m build`, `twine check dist/*`).
+- Upload is intentionally manual: `python -m twine upload dist/*`.
+- Now your entire desktop can grow up with you.
+
 ## [2.4.0] - 2026-02-23
 ### Added
 - New OpenClaw integration testing path under `examples/openclaw/` with a 5-minute setup guide for fresh and existing deployments.

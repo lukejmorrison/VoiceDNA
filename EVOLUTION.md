@@ -80,6 +80,12 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 - Added a voip.ms-first phone call skill example with Twilio fallback so users can hear their maturing AI on a real mobile number.
 - Marked the first real deployment path milestone: now you can get phone calls from your growing AI.
 
+### 2026-02-23 — v2.5 Omarchy System Voice + PyPI Final Prep
+- Added a complete Omarchy integration path for system-wide desktop speech in a lifelong VoiceDNA voice.
+- Added PipeWire + speech-dispatcher examples and a one-command install script for fast local rollout.
+- Completed final PyPI publish validation flow (`build` + `twine check`) and documented the upload command.
+- Marked the desktop milestone: now your entire desktop can grow up with you.
+
 ## Active Feedback Inputs Addressed
 - Keep repo minimal and runnable.
 - Keep zero-dependency runtime for core VoiceDNA.

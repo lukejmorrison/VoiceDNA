@@ -74,6 +74,23 @@ Then in OpenClaw, trigger:
 
 > Claw, call me on my phone and tell me a joke in your growing voice
 
+## 🖥️ Omarchy Arch OS – System-wide unique voice
+
+Run VoiceDNA as your desktop speaking voice on Omarchy (Arch + Hyprland):
+
+- Guide: `examples/omarchy/README.md`
+- PipeWire filter shim: `examples/omarchy/voicedna-pipewire-filter.py`
+- Speech Dispatcher config: `examples/omarchy/speech-dispatcher-voicedna.conf`
+- One-command installer: `examples/omarchy/install-voicedna-omarchy.sh`
+
+3-command flow:
+
+```bash
+pip install -e .
+bash examples/omarchy/install-voicedna-omarchy.sh
+spd-say "Hello Luke, your desktop voice is now growing with you."
+```
+
 ## v2.0 — Real Filters + Package + Child Inheritance + Bridge
 
 ```bash
@@ -218,6 +235,10 @@ For patch hardening updates and stricter validation behavior, see `MIGRATION_v2_
 - `examples/openclaw/README.md` — 5-minute OpenClaw integration testing path
 - `examples/openclaw/voicedna_tts_hook.py` — OpenClaw-ready VoiceDNA TTS bytes hook
 - `examples/openclaw/voipms_phone_skill.py` — voip.ms-first outbound phone call skill example
+- `examples/omarchy/README.md` — Omarchy 5-minute system-wide voice path
+- `examples/omarchy/voicedna-pipewire-filter.py` — PipeWire VoiceDNA filter bridge
+- `examples/omarchy/speech-dispatcher-voicedna.conf` — speech-dispatcher default VoiceDNA profile
+- `examples/omarchy/install-voicedna-omarchy.sh` — one-command Omarchy setup script
 - `examples/encrypted_plugin_demo.py` — encrypted load + processor demo
 - `examples/elevenlabs_demo.py` — cloud ElevenLabs processing demo
 - `examples/cartesia_demo.py` — cloud Cartesia processing demo
