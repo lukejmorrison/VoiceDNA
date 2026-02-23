@@ -61,10 +61,26 @@ my_filter = "my_package.filters:MyFilter"
 
 On startup, call `PluginManager().load_entrypoint_plugins()` and all installed filters are loaded automatically.
 
+## Feedback Loop Logging
+
+Use the helper script to append structured updates into `EVOLUTION.md`:
+
+```bash
+python scripts/review_feedback.py \
+	--source "Grok 4.20 Beta" \
+	--summary "Suggested plugin auto-discovery and ecosystem visibility" \
+	--actions "Added entry-point loader in PluginManager" \
+	--actions "Added pyproject entry-point metadata" \
+	--next "Add plugin compatibility contract tests"
+```
+
+Tip: add `--dry-run` to preview the entry before writing.
+
 ## Files
 - `voice_dna.py` — the complete VoiceDNA class (UAMF v4)
 - `voicedna/plugins/` — plugin interface + manager + built-in filters
 - `examples/openclaw_hook.py` — integration example for OpenClaw-like pipelines
+- `scripts/review_feedback.py` — appends structured feedback updates to `EVOLUTION.md`
 - `CHANGELOG.md` — release-oriented change history
 - `EVOLUTION.md` — feedback loop + design evolution log
 - `UAMF_v4_schema.json` — formal JSON schema (optional but nice for validation)

@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here.
 
+## [0.1.4] - 2026-02-23
+### Added
+- `scripts/review_feedback.py` to append structured feedback updates into `EVOLUTION.md`.
+- README documentation for running the feedback logger with repeatable `--actions` and `--next` fields.
+
 ## [0.1.3] - 2026-02-23
 ### Added
 - Entry-point plugin auto-discovery in `PluginManager` via `load_entrypoint_plugins()`.
