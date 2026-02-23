@@ -8,8 +8,10 @@ from voicedna import Base64PassThroughFilter, PluginManager, PromptTagFilter, Vo
 
 def openclaw_render_hook(raw_audio_bytes: bytes, dna: VoiceDNA) -> bytes:
     manager = PluginManager()
-    manager.register(PromptTagFilter())
-    manager.register(Base64PassThroughFilter())
+    loaded, _failed = manager.load_entrypoint_plugins()
+    if not loaded:
+        manager.register(PromptTagFilter())
+        manager.register(Base64PassThroughFilter())
 
     return manager.process(
         raw_audio_bytes,

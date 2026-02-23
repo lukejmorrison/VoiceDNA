@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "voicedna"
+version = "0.1.0"
+description = "Lifelong sonic identity and plugin framework for AI voices"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [
+  { name = "Luke Morrison + Grok" }
+]
+
+[tool.setuptools]
+packages = ["voicedna", "voicedna.plugins"]
+py-modules = ["voice_dna"]
+
+[project.entry-points."voicedna.plugins"]
+prompt_tag = "voicedna.plugins.builtin:PromptTagFilter"
+base64_passthrough = "voicedna.plugins.builtin:Base64PassThroughFilter"

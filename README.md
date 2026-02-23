@@ -34,7 +34,9 @@ from voicedna import VoiceDNA, PluginManager, PromptTagFilter
 
 dna = VoiceDNA.load("myai.voicedna.json")
 manager = PluginManager()
-manager.register(PromptTagFilter())
+loaded, failed = manager.load_entrypoint_plugins()  # auto-discover pip-installed plugins
+if not loaded:
+	manager.register(PromptTagFilter())
 
 processed_audio = manager.process(raw_audio_bytes, dna, {
 	"base_model": "xtts",
@@ -48,10 +50,23 @@ Run a full example:
 python examples/openclaw_hook.py
 ```
 
+### Third-party plugin registration (entry points)
+
+Any external package can auto-register a filter by adding this to its `pyproject.toml`:
+
+```toml
+[project.entry-points."voicedna.plugins"]
+my_filter = "my_package.filters:MyFilter"
+```
+
+On startup, call `PluginManager().load_entrypoint_plugins()` and all installed filters are loaded automatically.
+
 ## Files
 - `voice_dna.py` — the complete VoiceDNA class (UAMF v4)
 - `voicedna/plugins/` — plugin interface + manager + built-in filters
 - `examples/openclaw_hook.py` — integration example for OpenClaw-like pipelines
+- `CHANGELOG.md` — release-oriented change history
+- `EVOLUTION.md` — feedback loop + design evolution log
 - `UAMF_v4_schema.json` — formal JSON schema (optional but nice for validation)
 - `LICENSE` — MIT
 
