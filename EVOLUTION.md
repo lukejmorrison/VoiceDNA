@@ -40,6 +40,11 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 - Added compatibility for both `voicedna.filters` and `voicedna.plugins` entry-point groups.
 - Added encrypted processor demo to keep adoption path simple for OpenClaw-like hosts.
 
+### 2026-02-23 — Robust Chain + Integration Scaffolds (v0.1.8)
+- Hardened plugin chain to continue safely if a filter fails, while capturing per-filter timing metrics.
+- Added one-file OpenClaw skill integration entry point (`examples/openclaw_skill.py`).
+- Added VST3 starter scaffold (`vst3/`) so native plugin work can begin without restructuring the repo.
+
 ## Active Feedback Inputs Addressed
 - Keep repo minimal and runnable.
 - Keep zero-dependency runtime for core VoiceDNA.
@@ -52,3 +57,4 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 - Add formal plugin compatibility contract tests.
 - Add one-click "birth my AI" CLI flow.
 - Add optional key-management strategy docs (rotation, recovery, operational guidance).
+- Add release automation workflow for tagging and publishing GitHub releases from changelog entries.

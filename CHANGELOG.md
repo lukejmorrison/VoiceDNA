@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented here.
 
+## [0.1.8] - 2026-02-23
+### Added
+- `examples/openclaw_skill.py` one-file integration hook for OpenClaw-style TTS pipelines.
+- `vst3/` starter scaffold (`README.md` + `VoiceDNAProcessor.h`) for future JUCE-based binary plugin work.
+
+### Changed
+- `voicedna/framework.py` now runs a robust chain with per-filter timing metrics and fail-open behavior when a filter errors.
+- `README.md` updated with robust chaining notes, OpenClaw skill usage, and VST3 starter references.
+
 ## [0.1.7] - 2026-02-23
 ### Added
 - Encrypted VoiceDNA persistence with `save_encrypted()` and `load_encrypted()` in `voice_dna.py` using `cryptography` (Fernet + PBKDF2-HMAC key derivation).

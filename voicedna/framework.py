@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from importlib import metadata
+import logging
+import time
 from typing import Dict, List
 
 from voice_dna import VoiceDNA
@@ -8,9 +10,13 @@ from voice_dna import VoiceDNA
 from .plugins.base import IVoiceDNAFilter
 
 
+logger = logging.getLogger("VoiceDNA")
+
+
 class VoiceDNAProcessor:
     def __init__(self):
         self.filters: List[IVoiceDNAFilter] = []
+        self.last_metrics: Dict[str, float] = {}
         self.load_plugins()
 
     def register_filter(self, plugin: IVoiceDNAFilter):
@@ -38,8 +44,18 @@ class VoiceDNAProcessor:
     def process(self, audio_bytes: bytes, dna: VoiceDNA, params: Dict | None = None) -> bytes:
         current_audio = audio_bytes
         process_params = params or {}
+        metrics: Dict[str, float] = {}
+
         for filter_obj in self.filters:
-            current_audio = filter_obj.process(current_audio, dna, process_params)
+            started_at = time.perf_counter()
+            try:
+                current_audio = filter_obj.process(current_audio, dna, process_params)
+            except Exception as error:
+                logger.warning("Filter %s failed: %s", filter_obj.name(), error)
+                continue
+            metrics[filter_obj.name()] = time.perf_counter() - started_at
+
+        self.last_metrics = metrics
         return current_audio
 
     def get_filter_names(self) -> List[str]:

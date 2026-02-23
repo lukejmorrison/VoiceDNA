@@ -20,7 +20,9 @@ Built with Luke Morrison (Feb 23 2026) — fully open, MIT licensed, works with 
 - Secure encrypted files via `VoiceDNA.save_encrypted()` / `VoiceDNA.load_encrypted()`
 - Full extensible framework via `VoiceDNAProcessor` in `voicedna/framework.py`
 - Auto-discovery for plugins through entry points (`voicedna.filters` + `voicedna.plugins`)
+- Robust plugin chaining: fault-tolerant filter execution + per-filter timing metrics
 - Ready for real audio pipelines (OpenClaw hook + process chain)
+- VST3 starter scaffold in `vst3/` for JUCE-based binary plugin work
 
 ## Quick Start
 
@@ -35,6 +37,7 @@ Quick encrypted framework demo:
 
 ```bash
 python examples/encrypted_plugin_demo.py
+python examples/openclaw_skill.py
 ```
 
 ## OpenClaw-Ready Plugin Hook (new)
@@ -84,7 +87,12 @@ from voicedna import VoiceDNAProcessor
 dna = VoiceDNA.load_encrypted(password="my_secret_2026", filepath="myai.voicedna.enc")
 processor = VoiceDNAProcessor()
 processed_audio = processor.process(raw_audio_bytes, dna, {"force_age": 15})
+print(processor.last_metrics)
 ```
+
+### OpenClaw one-file skill
+
+See `examples/openclaw_skill.py` for a minimal skill-style wrapper that loads encrypted VoiceDNA and returns a `voice_dna_tts(text, raw_tts_bytes)` hook.
 
 ## Feedback Loop Logging
 
@@ -106,7 +114,9 @@ Tip: add `--dry-run` to preview the entry before writing.
 - `voicedna/plugins/` — plugin interface + manager + built-in filters
 - `voicedna/framework.py` — higher-level processor with plugin auto-discovery
 - `examples/openclaw_hook.py` — integration example for OpenClaw-like pipelines
+- `examples/openclaw_skill.py` — one-file OpenClaw skill wrapper
 - `examples/encrypted_plugin_demo.py` — encrypted load + processor demo
+- `vst3/` — JUCE starter scaffold for future native plugin build
 - `scripts/review_feedback.py` — appends structured feedback updates to `EVOLUTION.md`
 - `CHANGELOG.md` — release-oriented change history
 - `EVOLUTION.md` — feedback loop + design evolution log
