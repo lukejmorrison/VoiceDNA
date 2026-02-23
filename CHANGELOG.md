@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here.
 
+## [0.1.5] - 2026-02-23
+### Added
+- GitHub Action workflow (`.github/workflows/feedback-helper.yml`) that auto-comments a ready `scripts/review_feedback.py` command on issues labeled `feedback`.
+- Duplicate-comment guard via hidden marker to avoid repeated helper comments on the same issue.
+
 ## [0.1.4] - 2026-02-23
 ### Added
 - `scripts/review_feedback.py` to append structured feedback updates into `EVOLUTION.md`.

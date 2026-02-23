@@ -1,0 +1,55 @@
+name: Feedback Helper
+
+on:
+  issues:
+    types:
+      - opened
+      - labeled
+      - reopened
+
+permissions:
+  issues: write
+
+jobs:
+  suggest-feedback-command:
+    if: contains(github.event.issue.labels.*.name, 'feedback')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Post feedback logger helper comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue_number = context.payload.issue.number;
+            const marker = '<!-- voicedna-feedback-helper -->';
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100,
+            });
+
+            if (comments.some(c => c.body && c.body.includes(marker))) {
+              core.info('Helper comment already exists; skipping.');
+              return;
+            }
+
+            const title = (context.payload.issue.title || 'feedback update').replace(/"/g, '\\"');
+            const source = `GitHub Issue #${issue_number}`;
+
+            const body = `${marker}
+Thanks for the feedback! Here is a ready command to append this to EVOLUTION.md:
+
+\`python scripts/review_feedback.py --source "${source}" --summary "${title}" --actions "Implemented update from issue #${issue_number}" --next "Capture follow-up improvements"\`
+
+Tip: run with \`--dry-run\` first to preview.`;
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number,
+              body,
+            });
