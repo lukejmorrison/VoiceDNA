@@ -68,6 +68,12 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 - Added cloud demos (ElevenLabs, Cartesia) and local Voicebox demo for privacy-first users.
 - Established explicit support story for both hosted APIs and fully local Pinokio-style pipelines.
 
+### 2026-02-23 — v2.3 Publish + RVC Readiness
+- Added explicit PyPI publish-prep workflow support (build + twine verification tooling).
+- Added RVC-ready stub branch in `ImprintConverterFilter` with documented integration path.
+- Exposed `RVC-ready` report metadata in processor output for observability.
+- Reinforced local/cloud balance: privacy-first Voicebox remains first-class alongside cloud demos.
+
 ## Active Feedback Inputs Addressed
 - Keep repo minimal and runnable.
 - Keep zero-dependency runtime for core VoiceDNA.

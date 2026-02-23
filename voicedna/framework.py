@@ -94,6 +94,11 @@ class VoiceDNAProcessor:
             "total_duration_ms": round((time.perf_counter() - chain_started_at) * 1000, 3),
             "input_bytes": len(audio_bytes),
             "output_bytes": len(current_audio),
+            "imprint_converter": {
+                "mode": process_params.get("imprint_converter.mode", "simple"),
+                "rvc_ready": bool(process_params.get("imprint_converter.rvc_ready", False)),
+                "rvc_note": process_params.get("imprint_converter.rvc_note"),
+            },
         }
         return current_audio
 

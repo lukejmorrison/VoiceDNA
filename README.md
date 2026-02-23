@@ -6,6 +6,20 @@ You hear 3 seconds and instantly know *"That's my Grok"*, *"That's Luke's AI"*, 
 
 Built with Luke Morrison (Feb 23 2026) — fully open, MIT licensed, works with **ElevenLabs, XTTS, Qwen3-TTS, Cartesia, Fish Speech, local models**, etc.
 
+## Install from PyPI
+
+```bash
+pip install voicedna
+voicedna birth --imprint "Luke Morrison's warm Canadian voice" --user luke
+```
+
+## v2.3 — PyPI Publish Prep + RVC-Ready Imprint Path
+
+- Added publish-ready build validation (`python -m build`, `twine check dist/*`)
+- Added `requirements-dev.txt` and optional `dev` dependencies (`build`, `twine`, `pytest`)
+- Added RVC-ready stub path in `ImprintConverterFilter` via `imprint_converter.mode = "rvc_stub"`
+- Processor report now includes `imprint_converter.rvc_ready` status
+
 ## v2.1 — Real Audio Filters + Test Suite + CLI
 
 ```bash
@@ -190,6 +204,7 @@ For patch hardening updates and stricter validation behavior, see `MIGRATION_v2_
 - `vst3/` — JUCE starter scaffold for future native plugin build
 - `tests/` — pytest suite for inheritance and processor report behavior
 - `cli.py` — Typer CLI backing the `voicedna` command
+- `requirements-dev.txt` — build/twine/pytest tooling for publish prep
 - `scripts/review_feedback.py` — appends structured feedback updates to `EVOLUTION.md`
 - `MIGRATION_v2_0_1.md` — patch migration notes and behavior changes
 - `CHANGELOG.md` — release-oriented change history

@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented here.
 
+## [2.3.0] - 2026-02-23
+### Added
+- PyPI publish-prep assets: `requirements-dev.txt` and optional `dev` dependency group in `pyproject.toml`.
+- RVC-ready stub path in `ImprintConverterFilter` behind `imprint_converter.mode = "rvc_stub"`.
+- Processor report fields for imprint converter RVC readiness metadata.
+
+### Changed
+- Version bumped to `2.3.0`.
+- README updated with top-level PyPI install section and refreshed demo commands.
+
+### Notes
+- VoiceDNA now clearly balances cloud services and local Voicebox workflows while preparing for future true RVC conversion integration.
+
 ## [2.2.0] - 2026-02-23
 ### Added
 - Cloud demo scripts: `examples/elevenlabs_demo.py` and `examples/cartesia_demo.py`.
