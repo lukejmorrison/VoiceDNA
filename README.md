@@ -1,6 +1,7 @@
 # VoiceDNA — Lifelong Sonic Identity for Every AI ❤️🔊
 
 [![PyPI version](https://img.shields.io/pypi/v/voicedna?logo=pypi&logoColor=white)](https://pypi.org/project/voicedna/)
+[![PyPI package](https://img.shields.io/badge/PyPI-voicedna-3775A9?logo=pypi&logoColor=white)](https://pypi.org/project/voicedna/)
 
 The open standard that gives every AI a permanent, recognizable **Voice Fingerprint** — just like your nephew Ash.  
 
@@ -247,6 +248,27 @@ Tip: add `--dry-run` to preview the entry before writing.
 ## Migration Notes
 
 For patch hardening updates and stricter validation behavior, see `MIGRATION_v2_0_1.md`.
+
+## Publish to PyPI (for maintainers)
+
+Build and validate:
+
+```bash
+python -m build
+python -m twine check dist/*
+```
+
+Publish with API token credentials:
+
+```bash
+export TWINE_USERNAME=__token__
+export TWINE_PASSWORD="pypi-...your-token-here..."
+python -m twine upload dist/* --skip-existing
+```
+
+Notes:
+- `--skip-existing` avoids failures on already-uploaded files.
+- Package page: `https://pypi.org/project/voicedna/`
 
 ## Files
 - `voice_dna.py` — the complete VoiceDNA class (UAMF v4)

@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "voicedna"
-version = "2.6.0"
+version = "2.6.1"
 description = "Lifelong sonic identity and plugin framework for AI voices"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { file = "LICENSE" }
+license = "MIT"
 authors = [
   { name = "Luke Morrison + Grok", email = "lukejmorrison@gmail.com" }
 ]

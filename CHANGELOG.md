@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented here.
 
+## [2.6.1] - 2026-02-23
+### Added
+- New maintainer section in README with exact PyPI publish commands using `TWINE_USERNAME` / `TWINE_PASSWORD`.
+- Prepared secondary PyPI package badge link beside the existing PyPI version badge.
+
+### Changed
+- Version bumped to `2.6.1`.
+- Updated `pyproject.toml` license metadata to modern SPDX string format (`license = "MIT"`) to remove setuptools deprecation warnings.
+- Omarchy README "Try it now" one-liner clarified and daemon silent-background behavior explicitly documented.
+
+### Notes
+- v2.6.1 hardening + PyPI publish instructions.
+
 ## [2.6.0] - 2026-02-23
 ### Added
 - Omarchy hardening pass with boot-persistent background daemon support via `voicedna-os-daemon.service`.

@@ -3,8 +3,10 @@
 ## Try it now (one sentence)
 
 ```bash
-bash examples/omarchy/install-voicedna-omarchy.sh && spd-say "Your Omarchy voice now has lifelong VoiceDNA."
+bash examples/omarchy/install-voicedna-omarchy.sh && spd-say "VoiceDNA is active. Your Omarchy desktop now speaks in your growing voice."
 ```
+
+The installer enables a user daemon that runs silently in the background after login/reboot.
 
 This guide gives your whole Omarchy desktop (Arch + Hyprland) a unique, maturing VoiceDNA voice for screen reader output, desktop speech, and quick terminal speech tests.
 

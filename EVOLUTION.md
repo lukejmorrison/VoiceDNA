@@ -93,6 +93,12 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 - Reached public packaging milestone: PyPI publish execution path is now live for global install (`pip install voicedna`).
 - Marked the first OS-level identity milestone: your desktop now keeps a growing voice over time.
 
+### 2026-02-23 — v2.6.1 Hardening + PyPI Publish Instructions
+- Updated package metadata to modern SPDX license format to remove setuptools deprecation noise in build output.
+- Added explicit maintainer publish commands (`TWINE_USERNAME` + `TWINE_PASSWORD`) to README for frictionless release execution.
+- Polished Omarchy quick-start wording and called out silent background daemon behavior to reduce setup ambiguity.
+- Locked in production-ready maintainer docs for the live PyPI release flow.
+
 ## Active Feedback Inputs Addressed
 - Keep repo minimal and runnable.
 - Keep zero-dependency runtime for core VoiceDNA.
