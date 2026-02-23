@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented here.
 
+## [2.0.0] - 2026-02-23
+### Added
+- Real built-in example filters: `AgeMaturationFilter` and `ImprintConverterFilter` in `voicedna/filters/`.
+- Child AI inheritance API: `VoiceDNA.create_child(child_user_name, inherit_strength=0.40)`.
+- VST3 Python bridge scaffold in `vst3/python_bridge.py` and expanded `vst3/README.md`.
+- Open standard draft in `spec/VoiceDNA_Spec_v1.0.md`.
+- Announcement templates in `announcements/` for X, OpenClaw issue request, and Reddit.
+
+### Changed
+- `VoiceDNAProcessor` now auto-registers built-in filters and keeps robust fail-open chaining with per-filter metrics.
+- `pyproject.toml` updated for v2.0 packaging metadata and filter entry points.
+- `requirements.txt` now includes `numpy>=2.0.0` for future audio math extension.
+
 ## [0.1.8] - 2026-02-23
 ### Added
 - `examples/openclaw_skill.py` one-file integration hook for OpenClaw-style TTS pipelines.

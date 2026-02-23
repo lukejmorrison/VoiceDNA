@@ -129,6 +129,20 @@ class VoiceDNA:
     def get_recognition_id(self) -> str:
         return self.voice_fingerprint_id
 
+    def create_child(self, child_user_name: str, inherit_strength: float = 0.40) -> 'VoiceDNA':
+        bounded_strength = max(0.0, min(1.0, inherit_strength))
+        child = VoiceDNA.create_new(
+            imprint_audio_description=f"Child of {self.imprint_source} (inherit {bounded_strength*100:.0f}%)",
+            user_name=child_user_name,
+        )
+        child.core_embedding = [
+            parent_value * bounded_strength + child_value * (1 - bounded_strength)
+            for parent_value, child_value in zip(self.core_embedding, child.core_embedding)
+        ]
+        child.imprint_strength = bounded_strength
+        child.unique_traits = list(dict.fromkeys(self.unique_traits + child.unique_traits))
+        return child
+
 
 # Example usage
 if __name__ == "__main__":

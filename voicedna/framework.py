@@ -7,6 +7,7 @@ from typing import Dict, List
 
 from voice_dna import VoiceDNA
 
+from .filters import AgeMaturationFilter, ImprintConverterFilter
 from .plugins.base import IVoiceDNAFilter
 
 
@@ -24,8 +25,13 @@ class VoiceDNAProcessor:
         self.filters.sort(key=lambda filter_plugin: filter_plugin.priority())
 
     def load_plugins(self):
+        self._register_builtin_filters()
         self._load_plugins_from_group("voicedna.filters")
         self._load_plugins_from_group("voicedna.plugins")
+
+    def _register_builtin_filters(self):
+        self.register_filter(AgeMaturationFilter())
+        self.register_filter(ImprintConverterFilter())
 
     def _load_plugins_from_group(self, group: str):
         try:
@@ -37,8 +43,12 @@ class VoiceDNAProcessor:
             try:
                 plugin_factory = entrypoint.load()
                 plugin = plugin_factory() if callable(plugin_factory) else plugin_factory
+                plugin_name = plugin.name()
+                if plugin_name in self.get_filter_names():
+                    continue
                 self.register_filter(plugin)
-            except Exception:
+            except Exception as error:
+                logger.warning("Failed loading plugin %s from %s: %s", entrypoint.name, group, error)
                 continue
 
     def process(self, audio_bytes: bytes, dna: VoiceDNA, params: Dict | None = None) -> bytes:

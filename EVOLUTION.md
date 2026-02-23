@@ -45,6 +45,12 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 - Added one-file OpenClaw skill integration entry point (`examples/openclaw_skill.py`).
 - Added VST3 starter scaffold (`vst3/`) so native plugin work can begin without restructuring the repo.
 
+### 2026-02-23 — v2.0 Expansion (Filters + Inheritance + Spec)
+- Added first built-in v2 filter set (`AgeMaturationFilter`, `ImprintConverterFilter`) with auto-registration.
+- Added `create_child()` inheritance flow in `VoiceDNA` to spawn derivative identities.
+- Added Python VST bridge scaffold and public spec draft for cross-host integration.
+- Added announcement templates for launch coordination across X/Reddit/OpenClaw issue channels.
+
 ## Active Feedback Inputs Addressed
 - Keep repo minimal and runnable.
 - Keep zero-dependency runtime for core VoiceDNA.

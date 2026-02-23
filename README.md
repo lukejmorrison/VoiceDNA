@@ -6,6 +6,26 @@ You hear 3 seconds and instantly know *"That's my Grok"*, *"That's Luke's AI"*, 
 
 Built with Luke Morrison (Feb 23 2026) — fully open, MIT licensed, works with **ElevenLabs, XTTS, Qwen3-TTS, Cartesia, Fish Speech, local models**, etc.
 
+## v2.0 — Real Filters + Package + Child Inheritance + Bridge
+
+```bash
+pip install voicedna
+```
+
+```python
+from voicedna import VoiceDNA, VoiceDNAProcessor
+
+dna = VoiceDNA.create_new("Luke Morrison's warm Canadian voice", "luke")
+child = dna.create_child("mini_grok", inherit_strength=0.40)
+processor = VoiceDNAProcessor()
+```
+
+New in v2.0:
+- Built-in Age + Imprint filters
+- Child AI inheritance (`create_child`)
+- VST3 Python bridge scaffold
+- Open standard draft spec + announcement templates
+
 ## Features
 - Precocial birth (fluent at ~5-year-old level from day 1)
 - Lifelong age progression (5 → 10 → 15 → 22+)
@@ -112,10 +132,13 @@ Tip: add `--dry-run` to preview the entry before writing.
 ## Files
 - `voice_dna.py` — the complete VoiceDNA class (UAMF v4)
 - `voicedna/plugins/` — plugin interface + manager + built-in filters
+- `voicedna/filters/` — built-in v2.0 age + imprint filters
 - `voicedna/framework.py` — higher-level processor with plugin auto-discovery
 - `examples/openclaw_hook.py` — integration example for OpenClaw-like pipelines
 - `examples/openclaw_skill.py` — one-file OpenClaw skill wrapper
 - `examples/encrypted_plugin_demo.py` — encrypted load + processor demo
+- `spec/VoiceDNA_Spec_v1.0.md` — open standard draft integration contract
+- `announcements/` — ready-to-post launch templates
 - `vst3/` — JUCE starter scaffold for future native plugin build
 - `scripts/review_feedback.py` — appends structured feedback updates to `EVOLUTION.md`
 - `CHANGELOG.md` — release-oriented change history
