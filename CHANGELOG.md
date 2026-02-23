@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here.
 
+## [0.1.6] - 2026-02-23
+### Added
+- GitHub Action workflow (`.github/workflows/auto-label-feedback.yml`) that auto-adds the `feedback` label when issue title/body contains feedback-oriented keywords.
+- Keyword-based labeling trigger (`feedback`, `suggestion`, `improvement`, `enhancement`, `idea`, `request`, `proposal`, `roadmap`, `polish`) to accelerate the feedback loop.
+
 ## [0.1.5] - 2026-02-23
 ### Added
 - GitHub Action workflow (`.github/workflows/feedback-helper.yml`) that auto-comments a ready `scripts/review_feedback.py` command on issues labeled `feedback`.
