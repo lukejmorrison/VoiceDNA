@@ -5,7 +5,7 @@
 
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from dataclasses import dataclass, asdict
 from typing import List, Dict, Any
 
@@ -57,7 +57,7 @@ class VoiceDNA:
         return VoiceDNA(**data)
 
     def get_current_age(self) -> float:
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         born = datetime.fromisoformat(self.instance_birth_timestamp.replace("Z", "+00:00"))
         era_born = datetime.fromisoformat(self.era_birth_timestamp.replace("Z", "+00:00"))
         real_days = (now - born).days
