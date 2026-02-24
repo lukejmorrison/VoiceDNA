@@ -15,6 +15,11 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 
 ## Iteration Log
 
+### 2026-02-24 — v2.9 Post-Release Validation + Real Voice Onboarding
+- Confirmed clean-room install flow from PyPI for `voicedna==2.9.0` with import and CLI checks.
+- Added practical helper script `examples/create_from_audio.py` to create encrypted VoiceDNA directly from a local voice recording file.
+- Added README quickstart commands for user-owned voice imprint creation using both `voicedna birth` and helper script paths.
+
 ### 2026-02-24 — v2.9 PersonaPlex Natural Voice Mode (Omarchy)
 - Added optional PersonaPlex provider integration (`PersonaPlexTTS`) to support higher-naturalness TTS synthesis before VoiceDNA processing.
 - Extended `VoiceDNAProcessor` with provider-first `synthesize_and_process(...)` flow so natural TTS output still keeps lifelong VoiceDNA identity layers.

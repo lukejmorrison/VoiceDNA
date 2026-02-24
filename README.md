@@ -49,6 +49,24 @@ pip install voicedna
 voicedna birth --imprint "Luke Morrison's warm Canadian voice" --user luke
 ```
 
+Create from your own local voice recording (recommended):
+
+```bash
+voicedna birth \
+	--imprint /absolute/path/to/my_voice_sample.wav \
+	--user luke_real_voice \
+	--out myai.voicedna.enc
+```
+
+Or use the helper example script:
+
+```bash
+python examples/create_from_audio.py \
+	--audio /absolute/path/to/my_voice_sample.wav \
+	--user luke_real_voice \
+	--out myai.voicedna.enc
+```
+
 ## 🔒 Voice Consistency & Identifiability (v2.7)
 
 - New `VoiceConsistencyEngine` (`voicedna/consistency.py`) with optional SpeechBrain / Resemblyzer embeddings and deterministic fallback.
