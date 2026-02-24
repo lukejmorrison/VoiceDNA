@@ -125,7 +125,26 @@ record_with_pw_record() {
 		return 1
 	fi
 	echo "Recording ${SECONDS_TO_RECORD}s using pw-record..."
-	pw-record --rate "$SAMPLE_RATE" --channels "$CHANNELS" --target "$PULSE_DEVICE" --duration "$SECONDS_TO_RECORD" "$AUDIO_PATH"
+	PW_ARGS=(--rate "$SAMPLE_RATE" --channels "$CHANNELS" "$AUDIO_PATH")
+	if [[ "$PULSE_DEVICE" != "default" ]]; then
+		PW_ARGS=(--target "$PULSE_DEVICE" "${PW_ARGS[@]}")
+	fi
+
+	if command -v timeout >/dev/null 2>&1; then
+		timeout "${SECONDS_TO_RECORD}s" pw-record "${PW_ARGS[@]}" || {
+			status=$?
+			if [[ "$status" -ne 124 ]]; then
+				return "$status"
+			fi
+		}
+		return 0
+	fi
+
+	pw-record "${PW_ARGS[@]}" &
+	recorder_pid=$!
+	sleep "$SECONDS_TO_RECORD"
+	kill -INT "$recorder_pid" >/dev/null 2>&1 || true
+	wait "$recorder_pid" || true
 }
 
 record_with_ffmpeg_pulse() {

@@ -76,6 +76,7 @@ bash examples/record_and_birth.sh --seconds 12 --user luke_real_voice --out myai
 Notes:
 - Uses `arecord` first, then `pw-record`, then `ffmpeg` (`pulse`/`alsa` input).
 - Prompts for password securely unless `VOICEDNA_PASSWORD` is already set.
+- `pw-record` capture is compatible with older PipeWire builds that do not support `--duration`.
 
 ## 🔒 Voice Consistency & Identifiability (v2.7)
 
