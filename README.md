@@ -67,6 +67,16 @@ python examples/create_from_audio.py \
 	--out myai.voicedna.enc
 ```
 
+One-command record + birth (Linux, mic capture + encryption):
+
+```bash
+bash examples/record_and_birth.sh --seconds 12 --user luke_real_voice --out myai.voicedna.enc
+```
+
+Notes:
+- Uses `arecord` first, then falls back to `ffmpeg` if available.
+- Prompts for password securely unless `VOICEDNA_PASSWORD` is already set.
+
 ## 🔒 Voice Consistency & Identifiability (v2.7)
 
 - New `VoiceConsistencyEngine` (`voicedna/consistency.py`) with optional SpeechBrain / Resemblyzer embeddings and deterministic fallback.
