@@ -78,6 +78,12 @@ Notes:
 - Prompts for password securely unless `VOICEDNA_PASSWORD` is already set.
 - `pw-record` capture is compatible with older PipeWire builds that do not support `--duration`.
 
+Verify password + file path before speaking/evolving:
+
+```bash
+voicedna verify-password --dna-path examples/myai.voicedna.enc
+```
+
 ## 🔒 Voice Consistency & Identifiability (v2.7)
 
 - New `VoiceConsistencyEngine` (`voicedna/consistency.py`) with optional SpeechBrain / Resemblyzer embeddings and deterministic fallback.

@@ -77,5 +77,16 @@ def evolve(
     typer.echo(f"Updated imprint_strength: {dna.imprint_strength:.3f}")
 
 
+@app.command("verify-password")
+def verify_password(
+    password: str = typer.Option(..., prompt=True, hide_input=True),
+    dna_path: str = typer.Option("myai.voicedna.enc", help="Encrypted VoiceDNA path"),
+):
+    dna = _load_encrypted_or_exit(password=password, dna_path=dna_path)
+    typer.secho("Password verification successful.", fg=typer.colors.GREEN)
+    typer.echo(f"VoiceDNA: {dna.get_recognition_id()}")
+    typer.echo(f"Path: {dna_path}")
+
+
 if __name__ == "__main__":
     app()
