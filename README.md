@@ -74,7 +74,7 @@ bash examples/record_and_birth.sh --seconds 12 --user luke_real_voice --out myai
 ```
 
 Notes:
-- Uses `arecord` first, then falls back to `ffmpeg` if available.
+- Uses `arecord` first, then `pw-record`, then `ffmpeg` (`pulse`/`alsa` input).
 - Prompts for password securely unless `VOICEDNA_PASSWORD` is already set.
 
 ## 🔒 Voice Consistency & Identifiability (v2.7)

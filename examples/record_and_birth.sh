@@ -8,6 +8,7 @@ AUDIO_PATH=""
 KEEP_AUDIO=0
 RECORDER="auto"
 PULSE_DEVICE="default"
+ALSA_DEVICE="default"
 SAMPLE_RATE=16000
 CHANNELS=1
 
@@ -22,8 +23,9 @@ usage() {
 	echo "  --out PATH          Output encrypted VoiceDNA file (default: myai.voicedna.enc)"
 	echo "  --audio-out PATH    Keep/use this WAV path for recorded audio"
 	echo "  --keep-audio        Keep recorded WAV file after birth"
-	echo "  --recorder NAME     auto | arecord | ffmpeg (default: auto)"
+	echo "  --recorder NAME     auto | arecord | pw-record | ffmpeg (default: auto)"
 	echo "  --pulse-device DEV  Pulse device for ffmpeg mode (default: default)"
+	echo "  --alsa-device DEV   ALSA device for ffmpeg/arecord mode (default: default)"
 	echo "  --sample-rate N     Recording sample rate (default: 16000)"
 	echo "  --channels N        Recording channels (default: 1)"
 	echo "  -h, --help          Show help"
@@ -62,6 +64,10 @@ while [[ $# -gt 0 ]]; do
 			;;
 		--pulse-device)
 			PULSE_DEVICE="$2"
+			shift 2
+			;;
+		--alsa-device)
+			ALSA_DEVICE="$2"
 			shift 2
 			;;
 		--sample-rate)
@@ -111,21 +117,41 @@ record_with_arecord() {
 		return 1
 	fi
 	echo "Recording ${SECONDS_TO_RECORD}s using arecord..."
-	arecord -q -d "$SECONDS_TO_RECORD" -f S16_LE -r "$SAMPLE_RATE" -c "$CHANNELS" "$AUDIO_PATH"
+	arecord -q -D "$ALSA_DEVICE" -d "$SECONDS_TO_RECORD" -f S16_LE -r "$SAMPLE_RATE" -c "$CHANNELS" "$AUDIO_PATH"
 }
 
-record_with_ffmpeg() {
+record_with_pw_record() {
+	if ! command -v pw-record >/dev/null 2>&1; then
+		return 1
+	fi
+	echo "Recording ${SECONDS_TO_RECORD}s using pw-record..."
+	pw-record --rate "$SAMPLE_RATE" --channels "$CHANNELS" --target "$PULSE_DEVICE" --duration "$SECONDS_TO_RECORD" "$AUDIO_PATH"
+}
+
+record_with_ffmpeg_pulse() {
 	if ! command -v ffmpeg >/dev/null 2>&1; then
 		return 1
 	fi
 	echo "Recording ${SECONDS_TO_RECORD}s using ffmpeg (pulse:${PULSE_DEVICE})..."
-	ffmpeg -loglevel error -f pulse -i "$PULSE_DEVICE" -t "$SECONDS_TO_RECORD" -ac "$CHANNELS" -ar "$SAMPLE_RATE" -y "$AUDIO_PATH"
+	ffmpeg -loglevel error -f pulse -i "$PULSE_DEVICE" -t "$SECONDS_TO_RECORD" -ac "$CHANNELS" -ar "$SAMPLE_RATE" -y "$AUDIO_PATH" || return 1
+}
+
+record_with_ffmpeg_alsa() {
+	if ! command -v ffmpeg >/dev/null 2>&1; then
+		return 1
+	fi
+	echo "Recording ${SECONDS_TO_RECORD}s using ffmpeg (alsa:${ALSA_DEVICE})..."
+	ffmpeg -loglevel error -f alsa -i "$ALSA_DEVICE" -t "$SECONDS_TO_RECORD" -ac "$CHANNELS" -ar "$SAMPLE_RATE" -y "$AUDIO_PATH" || return 1
+}
+
+record_with_ffmpeg() {
+	record_with_ffmpeg_pulse || record_with_ffmpeg_alsa
 }
 
 case "$RECORDER" in
 	auto)
-		record_with_arecord || record_with_ffmpeg || {
-			echo "No supported recorder found. Install either arecord (alsa-utils) or ffmpeg."
+		record_with_arecord || record_with_pw_record || record_with_ffmpeg || {
+			echo "No supported recorder found. Install one of: arecord (alsa-utils), pw-record (pipewire), or ffmpeg with pulse/alsa input support."
 			exit 1
 		}
 		;;
@@ -135,9 +161,15 @@ case "$RECORDER" in
 			exit 1
 		}
 		;;
+	pw-record)
+		record_with_pw_record || {
+			echo "pw-record mode requested but pw-record is not available."
+			exit 1
+		}
+		;;
 	ffmpeg)
 		record_with_ffmpeg || {
-			echo "ffmpeg mode requested but ffmpeg is not available."
+			echo "ffmpeg mode requested but compatible ffmpeg input was not available (pulse/alsa)."
 			exit 1
 		}
 		;;
