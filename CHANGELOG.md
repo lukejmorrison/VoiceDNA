@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented here.
 
+## [2.7.1] - 2026-02-24
+### Added
+- New Omarchy real-machine test helper: `examples/omarchy/test-voicedna.sh`.
+- New Omarchy README section: `🔬 Quick Test on Your Real Omarchy Machine (5–10 minutes)` with exact verification commands.
+- New installer `--test-mode` flow in `examples/omarchy/install-voicedna-omarchy.sh` that runs a 30-second smoke test sequence after install.
+
+### Changed
+- Omarchy installer now supports immediate end-to-end verification (birth if needed, notification speech, terminal speech, daemon status, consistency report output).
+- Version bumped to `2.7.1`.
+
+### Notes
+- Added real-machine Omarchy test flow so you can verify desktop voice in minutes.
+
 ## [2.8.0] - 2026-02-24
 ### Added
 - New optional `rvc` dependency extra in `pyproject.toml` for real Retrieval-based Voice Conversion runtime (`rvc-python`).

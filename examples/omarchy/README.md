@@ -1,5 +1,51 @@
 # Make your Omarchy desktop speak with your growing AI voice in 5 minutes
 
+## 🔬 Quick Test on Your Real Omarchy Machine (5–10 minutes)
+
+### Prerequisites
+
+- Omarchy (Arch + Hyprland) is installed
+- PipeWire is running (`systemctl --user status pipewire`)
+- `speech-dispatcher` is installed (`sudo pacman -S --needed speech-dispatcher`)
+
+### One-liner install + test mode
+
+```bash
+bash examples/omarchy/install-voicedna-omarchy.sh --test-mode
+```
+
+### Step-by-step verification commands
+
+1) Birth a fresh VoiceDNA:
+
+```bash
+voicedna birth --imprint "Luke real Omarchy machine test voice" --user luke_omarchy_test --password
+```
+
+2) Test notification voice:
+
+```bash
+notify-send --hint=string:sound-name:voice "VoiceDNA Test" "This should speak in your maturing voice"
+```
+
+3) Test terminal speech-dispatcher speak path:
+
+```bash
+spd-say "VoiceDNA terminal test. Omarchy desktop voice check."
+```
+
+4) Check daemon status:
+
+```bash
+systemctl --user status voicedna-os-daemon
+```
+
+5) Check consistency report (`consistency_score`):
+
+```bash
+/home/$USER/.local/bin/test-voicedna.sh --consistency-only
+```
+
 ## Try it now (one sentence)
 
 ```bash
