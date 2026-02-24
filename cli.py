@@ -1,12 +1,31 @@
 import json
 
 import typer
+from cryptography.fernet import InvalidToken
 
 from voice_dna import VoiceDNA
 from voicedna import VoiceDNAProcessor
 
 
 app = typer.Typer(help="VoiceDNA command line interface")
+
+
+def _load_encrypted_or_exit(password: str, dna_path: str) -> VoiceDNA:
+    try:
+        return VoiceDNA.load_encrypted(password=password, filepath=dna_path)
+    except FileNotFoundError:
+        typer.secho(
+            f"Encrypted VoiceDNA file not found: {dna_path}\n"
+            "Tip: pass the correct path with --dna-path (for example: examples/myai.voicedna.enc).",
+            fg=typer.colors.RED,
+        )
+        raise typer.Exit(code=2)
+    except InvalidToken:
+        typer.secho(
+            "Failed to decrypt VoiceDNA file. Password is incorrect or file is not a valid .voicedna.enc artifact.",
+            fg=typer.colors.RED,
+        )
+        raise typer.Exit(code=2)
 
 
 @app.command("birth")
@@ -29,7 +48,7 @@ def speak(
     dna_path: str = typer.Option("myai.voicedna.enc", help="Encrypted VoiceDNA path"),
     base_model: str = typer.Option("elevenlabs", help="Target TTS base model"),
 ):
-    dna = VoiceDNA.load_encrypted(password=password, filepath=dna_path)
+    dna = _load_encrypted_or_exit(password=password, dna_path=dna_path)
     processor = VoiceDNAProcessor()
 
     prompt = dna.generate_tts_prompt(base_model)
@@ -50,7 +69,7 @@ def evolve(
     password: str = typer.Option(..., prompt=True, hide_input=True),
     dna_path: str = typer.Option("myai.voicedna.enc", help="Encrypted VoiceDNA path"),
 ):
-    dna = VoiceDNA.load_encrypted(password=password, filepath=dna_path)
+    dna = _load_encrypted_or_exit(password=password, dna_path=dna_path)
     dna.evolve(days_passed=days)
     dna.save_encrypted(password=password, filepath=dna_path)
 

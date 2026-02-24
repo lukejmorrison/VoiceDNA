@@ -21,6 +21,11 @@ def main() -> int:
     if not password:
         raise ValueError("Password must not be empty")
 
+    if args.password is None:
+        confirm_password = getpass.getpass("Confirm encryption password: ")
+        if password != confirm_password:
+            raise ValueError("Passwords do not match")
+
     dna = VoiceDNA.create_new(str(audio_path), args.user)
     dna.save_encrypted(password=password, filepath=args.out)
 

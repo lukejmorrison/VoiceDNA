@@ -20,6 +20,8 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 - Created first real encrypted identity artifact: `myai.voicedna.enc` for user `luke_real_voice`.
 - Confirmed practical end-to-end onboarding path now works on this Omarchy machine with PipeWire `pw-record` capture.
 - Captured real output sample for release feedback loop and next-phase voice quality iteration.
+- Improved usability hardening: CLI now reports friendly guidance for missing `--dna-path` files and incorrect decryption passwords instead of raw tracebacks.
+- Added password confirmation prompt to `examples/create_from_audio.py` for interactive encryption flow safety.
 
 ### 2026-02-24 — v2.9 Post-Release Validation + Real Voice Onboarding
 - Confirmed clean-room install flow from PyPI for `voicedna==2.9.0` with import and CLI checks.
