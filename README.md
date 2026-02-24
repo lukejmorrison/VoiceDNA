@@ -53,18 +53,20 @@ Create from your own local voice recording (recommended):
 
 ```bash
 voicedna birth \
+	--voice-name "Luke Real Voice" \
 	--imprint /absolute/path/to/my_voice_sample.wav \
-	--user luke_real_voice \
-	--out myai.voicedna.enc
+	--user luke_real_voice
 ```
+
+All newly created encrypted artifacts are stored under `voices/` (for example `voices/luke_real_voice.voicedna.enc`).
 
 Or use the helper example script:
 
 ```bash
 python examples/create_from_audio.py \
+	--voice-name "Luke Real Voice" \
 	--audio /absolute/path/to/my_voice_sample.wav \
-	--user luke_real_voice \
-	--out myai.voicedna.enc
+	--user luke_real_voice
 ```
 
 One-command record + birth (Linux, mic capture + encryption):
@@ -72,6 +74,8 @@ One-command record + birth (Linux, mic capture + encryption):
 ```bash
 bash examples/record_and_birth.sh --seconds 12 --user luke_real_voice --out myai.voicedna.enc
 ```
+
+If `--voice-name` is omitted, the script prompts interactively and still writes into `voices/`.
 
 Notes:
 - Uses `arecord` first, then `pw-record`, then `ffmpeg` (`pulse`/`alsa` input).
@@ -81,7 +85,7 @@ Notes:
 Verify password + file path before speaking/evolving:
 
 ```bash
-voicedna verify-password --dna-path examples/myai.voicedna.enc
+voicedna verify-password --dna-path voices/luke_real_voice.voicedna.enc
 ```
 
 ## 🔒 Voice Consistency & Identifiability (v2.7)

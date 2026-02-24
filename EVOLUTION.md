@@ -23,6 +23,7 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 - Improved usability hardening: CLI now reports friendly guidance for missing `--dna-path` files and incorrect decryption passwords instead of raw tracebacks.
 - Added password confirmation prompt to `examples/create_from_audio.py` for interactive encryption flow safety.
 - Added `voicedna verify-password --dna-path ...` command for quick password/path validation before `speak`/`evolve`.
+- Standardized creation outputs to always store encrypted artifacts inside `voices/` and added interactive voice-name prompting for new identity creation flows.
 
 ### 2026-02-24 — v2.9 Post-Release Validation + Real Voice Onboarding
 - Confirmed clean-room install flow from PyPI for `voicedna==2.9.0` with import and CLI checks.

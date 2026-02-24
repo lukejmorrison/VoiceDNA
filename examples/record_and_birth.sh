@@ -3,7 +3,8 @@ set -euo pipefail
 
 SECONDS_TO_RECORD=10
 USER_NAME="${USER:-user}"
-OUT_PATH="myai.voicedna.enc"
+VOICE_NAME=""
+OUT_PATH=""
 AUDIO_PATH=""
 KEEP_AUDIO=0
 RECORDER="auto"
@@ -19,8 +20,9 @@ usage() {
 	echo
 	echo "Options:"
 	echo "  --seconds N         Recording length in seconds (default: 10)"
+	echo "  --voice-name NAME   Human-friendly voice name (prompts if omitted)"
 	echo "  --user NAME         VoiceDNA user/identity name (default: current user)"
-	echo "  --out PATH          Output encrypted VoiceDNA file (default: myai.voicedna.enc)"
+	echo "  --out PATH          Output file name (always saved under voices/)"
 	echo "  --audio-out PATH    Keep/use this WAV path for recorded audio"
 	echo "  --keep-audio        Keep recorded WAV file after birth"
 	echo "  --recorder NAME     auto | arecord | pw-record | ffmpeg (default: auto)"
@@ -43,6 +45,10 @@ while [[ $# -gt 0 ]]; do
 			;;
 		--user)
 			USER_NAME="$2"
+			shift 2
+			;;
+		--voice-name)
+			VOICE_NAME="$2"
 			shift 2
 			;;
 		--out)
@@ -101,6 +107,34 @@ fi
 if [[ -z "$AUDIO_PATH" ]]; then
 	AUDIO_PATH="/tmp/voicedna-record-$(date +%Y%m%d-%H%M%S).wav"
 fi
+
+if [[ -z "$VOICE_NAME" ]]; then
+	read -r -p "Voice name: " VOICE_NAME
+fi
+
+if [[ -z "$VOICE_NAME" ]]; then
+	echo "Voice name must not be empty."
+	exit 1
+fi
+
+VOICE_SLUG="$(echo "$VOICE_NAME" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/_/g; s/^_+|_+$//g; s/_+/_/g')"
+if [[ -z "$VOICE_SLUG" ]]; then
+	VOICE_SLUG="voice"
+fi
+
+mkdir -p voices
+
+if [[ -n "$OUT_PATH" ]]; then
+	OUT_FILE="$(basename "$OUT_PATH")"
+else
+	OUT_FILE="${VOICE_SLUG}.voicedna.enc"
+fi
+
+if [[ "$OUT_FILE" != *.voicedna.enc ]]; then
+	OUT_FILE="${OUT_FILE}.voicedna.enc"
+fi
+
+OUT_PATH="voices/${OUT_FILE}"
 
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
@@ -206,6 +240,7 @@ fi
 echo "Creating encrypted VoiceDNA from: $AUDIO_PATH"
 
 CREATE_CMD=("$PYTHON_BIN" "$CREATE_SCRIPT" --audio "$AUDIO_PATH" --user "$USER_NAME" --out "$OUT_PATH")
+CREATE_CMD+=(--voice-name "$VOICE_NAME")
 
 if [[ -n "${VOICEDNA_PASSWORD:-}" ]]; then
 	CREATE_CMD+=(--password "$VOICEDNA_PASSWORD")
