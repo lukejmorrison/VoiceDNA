@@ -109,6 +109,21 @@ class VoiceDNAProcessor:
         }
         return current_audio
 
+    def synthesize_and_process(
+        self,
+        text: str,
+        dna: VoiceDNA,
+        tts_provider: Any,
+        params: Dict | None = None,
+    ) -> bytes:
+        if not hasattr(tts_provider, "synthesize"):
+            raise ValueError("tts_provider must implement synthesize(text) -> wav bytes")
+
+        process_params = dict(params or {})
+        process_params["tts.backend"] = tts_provider.__class__.__name__
+        raw_audio = tts_provider.synthesize(text)
+        return self.process(raw_audio, dna, process_params)
+
     def get_filter_names(self) -> List[str]:
         return [filter_obj.name() for filter_obj in self.filters]
 

@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented here.
 
+## [2.9.0] - 2026-02-24
+### Added
+- New optional PersonaPlex provider package `voicedna/providers` with `PersonaPlexTTS` backend support.
+- New `VoiceDNAProcessor.synthesize_and_process(...)` path for text-to-speech provider integration before VoiceDNA filter processing.
+- New Omarchy installer mode `--natural-voice` in `examples/omarchy/install-voicedna-omarchy.sh`.
+
+### Changed
+- Omarchy speech-dispatcher shim now supports backend selection and PersonaPlex text synthesis path.
+- Omarchy daemon now supports `--tts-backend` / `VOICEDNA_TTS_BACKEND` and can probe PersonaPlex readiness.
+- Version bumped to `2.9.0`.
+
+### Notes
+- PersonaPlex support is optional and designed to preserve simple CPU-first defaults while unlocking higher naturalness on capable hardware.
+
 ## [2.7.1] - 2026-02-24
 ### Added
 - New Omarchy real-machine test helper: `examples/omarchy/test-voicedna.sh`.

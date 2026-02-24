@@ -14,6 +14,15 @@
 bash examples/omarchy/install-voicedna-omarchy.sh --test-mode
 ```
 
+### Natural voice mode (PersonaPlex, optional)
+
+```bash
+bash examples/omarchy/install-voicedna-omarchy.sh --natural-voice --test-mode
+```
+
+This enables the optional PersonaPlex backend for speech-dispatcher and daemon probe flows.
+GPU acceleration is strongly recommended for real-time desktop usage.
+
 ### Step-by-step verification commands
 
 1) Birth a fresh VoiceDNA:
@@ -78,8 +87,15 @@ sudo pacman -S --needed speech-dispatcher pipewire wireplumber
 bash examples/omarchy/install-voicedna-omarchy.sh
 ```
 
+Natural voice mode (optional PersonaPlex backend):
+
+```bash
+bash examples/omarchy/install-voicedna-omarchy.sh --natural-voice
+```
+
 This script:
 - installs/updates `voicedna` in your active Python environment
+- optionally installs PersonaPlex dependencies with `--natural-voice`
 - copies `speech-dispatcher-voicedna.conf` into `~/.config/speech-dispatcher/modules/`
 - installs `voicedna-pipewire-filter.py` into `~/.local/bin/`
 - installs `voicedna-os-daemon.py` and enables `voicedna-os-daemon.service`
@@ -98,6 +114,8 @@ Use it in your own PipeWire `filter-chain` or desktop TTS wrapper command.
 ## 4) Speech Dispatcher config
 
 The included `speech-dispatcher-voicedna.conf` sets VoiceDNA as default output module behavior for desktop speech flow.
+
+In natural voice mode, the module invokes the PersonaPlex synth path and then runs VoiceDNA processing.
 
 After installation, test:
 
@@ -141,3 +159,12 @@ When complete, you should see:
 ## Future RVC mode note
 
 Desktop voice cloning is currently wired through the RVC-ready path. A future mode will enable direct RVC desktop conversion for richer system-wide voice timbre.
+
+## PersonaPlex environment knobs
+
+Edit `~/.config/voicedna/daemon.env` if needed:
+
+- `VOICEDNA_TTS_BACKEND=personaplex`
+- `VOICEDNA_PERSONAPLEX_MODEL=nvidia/personaplex-7b-v1`
+- `VOICEDNA_PERSONAPLEX_DEVICE=auto`
+- `VOICEDNA_PERSONAPLEX_DTYPE=auto`

@@ -36,6 +36,12 @@ Install with optional real RVC voice cloning:
 pip install "voicedna[rvc]"
 ```
 
+Install with optional PersonaPlex natural voice backend:
+
+```bash
+pip install "voicedna[personaplex]"
+```
+
 ## Install from PyPI
 
 ```bash
@@ -58,6 +64,13 @@ voicedna birth --imprint "Luke Morrison's warm Canadian voice" --user luke
 - Set `imprint_converter.rvc_model_path` to your `.pth` model and `imprint_converter.rvc_reference_path` to a reference voice WAV.
 - Optional tuning: `imprint_converter.rvc_index_path`, `imprint_converter.rvc_device`, `imprint_converter.rvc_pitch`.
 - Processor report now exposes `rvc_mode` and marks it as `active` when real conversion is enabled.
+
+## 🧠 PersonaPlex Natural Voice (v2.9)
+
+- New optional provider `PersonaPlexTTS` in `voicedna/providers/personaplex.py`.
+- Use `pip install "voicedna[personaplex]"` to install model runtime dependencies.
+- Omarchy installer now supports `--natural-voice` to enable PersonaPlex speech-dispatcher + daemon integration.
+- `VoiceDNAProcessor.synthesize_and_process(...)` lets providers synthesize text first, then apply the standard VoiceDNA maturation/imprint chain.
 
 ## v2.3 — PyPI Publish Prep + RVC-Ready Imprint Path
 
@@ -134,6 +147,12 @@ One-click install on Omarchy:
 
 ```bash
 bash examples/omarchy/install-voicedna-omarchy.sh
+```
+
+Natural voice mode on Omarchy:
+
+```bash
+bash examples/omarchy/install-voicedna-omarchy.sh --natural-voice
 ```
 
 3-command flow:

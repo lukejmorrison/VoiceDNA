@@ -2,19 +2,24 @@
 set -euo pipefail
 
 TEST_MODE=0
+NATURAL_VOICE_MODE=0
 for arg in "$@"; do
 	case "$arg" in
 		--test-mode)
 			TEST_MODE=1
 			;;
+		--natural-voice)
+			NATURAL_VOICE_MODE=1
+			;;
 		-h|--help)
-			echo "Usage: $0 [--test-mode]"
+			echo "Usage: $0 [--test-mode] [--natural-voice]"
 			echo "  --test-mode   Run 30-second verification after install"
+			echo "  --natural-voice  Enable PersonaPlex natural voice backend (optional deps)"
 			exit 0
 			;;
 		*)
 			echo "Unknown argument: $arg"
-			echo "Usage: $0 [--test-mode]"
+			echo "Usage: $0 [--test-mode] [--natural-voice]"
 			exit 1
 			;;
 	esac
@@ -34,8 +39,17 @@ mkdir -p "$SPEECHD_DIR" "$LOCAL_BIN_DIR" "$SYSTEMD_USER_DIR" "$VOICEDNA_CONFIG_D
 echo "Installing/updating voicedna editable package..."
 python -m pip install -e "$ROOT_DIR"
 
+if [[ "$NATURAL_VOICE_MODE" -eq 1 ]]; then
+	echo "Installing optional PersonaPlex runtime dependencies..."
+	python -m pip install -e "$ROOT_DIR[personaplex]"
+fi
+
 echo "Copying speech-dispatcher VoiceDNA module config..."
 cp "$OMARCHY_DIR/speech-dispatcher-voicedna.conf" "$SPEECHD_DIR/voicedna.conf"
+
+if [[ "$NATURAL_VOICE_MODE" -eq 1 ]]; then
+	sed -i 's/--tts-backend simple/--tts-backend personaplex/' "$SPEECHD_DIR/voicedna.conf"
+fi
 
 echo "Installing VoiceDNA PipeWire filter shim..."
 cp "$OMARCHY_DIR/voicedna-pipewire-filter.py" "$LOCAL_BIN_DIR/voicedna-pipewire-filter.py"
@@ -58,6 +72,10 @@ VOICEDNA_ENC_PATH=$HOME/myai.voicedna.enc
 VOICEDNA_PASSWORD=${VOICEDNA_PASSWORD:-}
 VOICEDNA_DAEMON_INTERVAL_SECONDS=120
 VOICEDNA_DAEMON_ANNOUNCE=0
+VOICEDNA_TTS_BACKEND=simple
+VOICEDNA_PERSONAPLEX_MODEL=nvidia/personaplex-7b-v1
+VOICEDNA_PERSONAPLEX_DEVICE=auto
+VOICEDNA_PERSONAPLEX_DTYPE=auto
 EOF
 	chmod 600 "$DAEMON_ENV_FILE"
 	echo "Created daemon env file: $DAEMON_ENV_FILE"
@@ -65,6 +83,12 @@ fi
 
 if [[ -n "${VOICEDNA_PASSWORD:-}" ]]; then
 	sed -i "s#^VOICEDNA_PASSWORD=.*#VOICEDNA_PASSWORD=${VOICEDNA_PASSWORD}#" "$DAEMON_ENV_FILE"
+	chmod 600 "$DAEMON_ENV_FILE"
+fi
+
+if [[ "$NATURAL_VOICE_MODE" -eq 1 ]]; then
+	sed -i 's#^VOICEDNA_TTS_BACKEND=.*#VOICEDNA_TTS_BACKEND=personaplex#' "$DAEMON_ENV_FILE" || true
+	grep -q '^VOICEDNA_TTS_BACKEND=' "$DAEMON_ENV_FILE" || echo 'VOICEDNA_TTS_BACKEND=personaplex' >> "$DAEMON_ENV_FILE"
 	chmod 600 "$DAEMON_ENV_FILE"
 fi
 
@@ -103,5 +127,8 @@ fi
 
 echo
 echo "Your Omarchy desktop now speaks with your lifelong VoiceDNA voice!"
+if [[ "$NATURAL_VOICE_MODE" -eq 1 ]]; then
+	echo "Natural voice mode: PersonaPlex backend enabled (GPU recommended)."
+fi
 echo "Quick test: spd-say 'Hello Luke, your desktop voice is now growing with you.'"
 echo "Daemon status: systemctl --user status voicedna-os-daemon.service"

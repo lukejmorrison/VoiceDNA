@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "voicedna"
-version = "2.7.1"
+version = "2.9.0"
 description = "Lifelong sonic identity and plugin framework for AI voices"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -26,13 +26,18 @@ Homepage = "https://github.com/lukejmorrison/VoiceDNA"
 Repository = "https://github.com/lukejmorrison/VoiceDNA.git"
 
 [tool.setuptools]
-packages = ["voicedna", "voicedna.plugins", "voicedna.filters"]
+packages = ["voicedna", "voicedna.plugins", "voicedna.filters", "voicedna.providers"]
 py-modules = ["voice_dna", "cli"]
 
 [project.scripts]
 voicedna = "cli:app"
 
 [project.optional-dependencies]
+personaplex = [
+  "transformers>=4.47.0",
+  "accelerate>=1.0.0",
+  "torch>=2.4.0",
+]
 consistency = [
   "speechbrain>=1.0.0",
   "resemblyzer>=0.1.4",

@@ -15,6 +15,13 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 
 ## Iteration Log
 
+### 2026-02-24 — v2.9 PersonaPlex Natural Voice Mode (Omarchy)
+- Added optional PersonaPlex provider integration (`PersonaPlexTTS`) to support higher-naturalness TTS synthesis before VoiceDNA processing.
+- Extended `VoiceDNAProcessor` with provider-first `synthesize_and_process(...)` flow so natural TTS output still keeps lifelong VoiceDNA identity layers.
+- Added Omarchy natural voice installation path via `install-voicedna-omarchy.sh --natural-voice`.
+- Updated Omarchy speech shim and daemon with backend-aware controls (`VOICEDNA_TTS_BACKEND`) and PersonaPlex probe support.
+- Preserved default lightweight mode for users without PersonaPlex dependencies or GPU acceleration.
+
 ### 2026-02-24 — Omarchy Real-Device Debug Session (Desktop Audio Path Validation)
 - Completed live on-device Omarchy install test (`install-voicedna-omarchy.sh --test-mode`) and verified daemon/service artifacts were installed correctly.
 - Diagnosed daemon crash loop root cause from logs: systemd service was launching a Python runtime that did not include `voice_dna` (`ModuleNotFoundError`).
