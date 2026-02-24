@@ -1,6 +1,7 @@
 # 5-Minute OpenClaw + VoiceDNA Testing Path (new or existing deployment)
 
 This is the fastest path to hear your bot speak with a maturing VoiceDNA voice and then call your real phone for a full conversation.
+VoiceDNA v2.7 adds a consistency layer that keeps the same recognizable core embedding over time and applies subtle identity watermarking for machine recognition.
 
 ## Prerequisites
 

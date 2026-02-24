@@ -23,12 +23,26 @@ pip install voicedna
 voicedna --help
 ```
 
+Install with open-source speaker-recognition backends (optional):
+
+```bash
+pip install "voicedna[consistency]"
+```
+
 ## Install from PyPI
 
 ```bash
 pip install voicedna
 voicedna birth --imprint "Luke Morrison's warm Canadian voice" --user luke
 ```
+
+## 🔒 Voice Consistency & Identifiability (v2.7)
+
+- New `VoiceConsistencyEngine` (`voicedna/consistency.py`) with optional SpeechBrain / Resemblyzer embeddings and deterministic fallback.
+- `VoiceDNA.create_new(...)` now attempts real imprint-based embedding extraction when imprint points to audio.
+- `ImprintConverterFilter` enforces a `0.92` cosine similarity target to the core embedding using gentle parametric correction.
+- A subtle low-depth sonic watermark now encodes `voice_fingerprint_id` for machine-side identifiability.
+- Processor reports now include top-level `consistency_score` and `rvc_ready` status.
 
 ## v2.3 — PyPI Publish Prep + RVC-Ready Imprint Path
 

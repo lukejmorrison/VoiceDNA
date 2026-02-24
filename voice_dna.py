@@ -7,8 +7,10 @@ import json
 import uuid
 import base64
 import os
+import hashlib
 from datetime import datetime, timezone
 from dataclasses import dataclass, asdict
+from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
 from cryptography.fernet import Fernet
@@ -39,7 +41,7 @@ class VoiceDNA:
         return VoiceDNA(
             voice_fingerprint_id=f"vdna_{user_name}_{datetime.now(timezone.utc).strftime('%Y%m%d')}_{uuid.uuid4().hex[:8]}",
             imprint_source=imprint_audio_description,
-            core_embedding=[round(0.1 * i + 0.8 * (hash(imprint_audio_description) % 1000) / 1000, 3) for i in range(256)],
+            core_embedding=VoiceDNA._extract_core_embedding(imprint_audio_description, dims=256),
             unique_traits=["gentle_rising_on_questions", "warm_hum_before_big_ideas", "micro_laugh_soft_breath"],
             imprint_strength=0.68,
             morph_allowance=0.08,
@@ -51,6 +53,76 @@ class VoiceDNA:
             era_birth_timestamp="2022-11-30T00:00:00Z",
             instance_birth_timestamp=now,
         )
+
+    @staticmethod
+    def _extract_core_embedding(imprint_source: str, dims: int = 256) -> List[float]:
+        path = Path(imprint_source)
+        if path.exists() and path.is_file():
+            try:
+                return VoiceDNA._extract_with_resemblyzer(path, dims=dims)
+            except Exception:
+                pass
+            try:
+                return VoiceDNA._extract_with_speechbrain(path, dims=dims)
+            except Exception:
+                pass
+
+        return VoiceDNA._legacy_core_embedding(imprint_source, dims=dims)
+
+    @staticmethod
+    def _extract_with_resemblyzer(audio_path: Path, dims: int = 256) -> List[float]:
+        import numpy as np
+        from resemblyzer import VoiceEncoder, preprocess_wav
+
+        embedding = VoiceEncoder().embed_utterance(preprocess_wav(str(audio_path)))
+        return VoiceDNA._fit_embedding_dims(np.asarray(embedding, dtype=np.float32), dims=dims)
+
+    @staticmethod
+    def _extract_with_speechbrain(audio_path: Path, dims: int = 256) -> List[float]:
+        import numpy as np
+        import torch
+        import torchaudio
+        from speechbrain.pretrained import EncoderClassifier
+
+        waveform, sample_rate = torchaudio.load(str(audio_path))
+        if waveform.shape[0] > 1:
+            waveform = waveform.mean(dim=0, keepdim=True)
+        if sample_rate != 16000:
+            waveform = torchaudio.functional.resample(waveform, sample_rate, 16000)
+
+        classifier = EncoderClassifier.from_hparams(source="speechbrain/spkrec-ecapa-voxceleb")
+        embedding = classifier.encode_batch(waveform.to(torch.float32)).detach().cpu().numpy().reshape(-1)
+        return VoiceDNA._fit_embedding_dims(np.asarray(embedding, dtype=np.float32), dims=dims)
+
+    @staticmethod
+    def _legacy_core_embedding(imprint_source: str, dims: int = 256) -> List[float]:
+        chunks: List[float] = []
+        seed = imprint_source.encode("utf-8")
+        counter = 0
+        while len(chunks) < dims:
+            digest = hashlib.sha256(seed + counter.to_bytes(4, "big")).digest()
+            for offset in range(0, len(digest), 2):
+                value = int.from_bytes(digest[offset:offset + 2], "big")
+                chunks.append((value / 32767.5) - 1.0)
+                if len(chunks) >= dims:
+                    break
+            counter += 1
+        return chunks[:dims]
+
+    @staticmethod
+    def _fit_embedding_dims(values: Any, dims: int = 256) -> List[float]:
+        import numpy as np
+
+        array = np.asarray(values, dtype=np.float32).reshape(-1)
+        if array.size == 0:
+            return [0.0] * dims
+        if array.size == dims:
+            return array.tolist()
+
+        old_positions = np.linspace(0.0, 1.0, num=array.size, dtype=np.float32)
+        new_positions = np.linspace(0.0, 1.0, num=dims, dtype=np.float32)
+        resized = np.interp(new_positions, old_positions, array)
+        return resized.astype(np.float32).tolist()
 
     @staticmethod
     def _derive_key(password: str, salt: bytes | None = None) -> Tuple[bytes, bytes]:

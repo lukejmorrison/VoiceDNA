@@ -7,6 +7,7 @@ bash examples/omarchy/install-voicedna-omarchy.sh && spd-say "VoiceDNA is active
 ```
 
 The installer enables a user daemon that runs silently in the background after login/reboot.
+VoiceDNA v2.7 adds a consistency layer that continuously reinforces your core voice embedding and stamps subtle machine-recognizable identity watermarking.
 
 This guide gives your whole Omarchy desktop (Arch + Hyprland) a unique, maturing VoiceDNA voice for screen reader output, desktop speech, and quick terminal speech tests.
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "voicedna"
-version = "2.6.1"
+version = "2.7.0"
 description = "Lifelong sonic identity and plugin framework for AI voices"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -33,6 +33,10 @@ py-modules = ["voice_dna", "cli"]
 voicedna = "cli:app"
 
 [project.optional-dependencies]
+consistency = [
+  "speechbrain>=1.0.0",
+  "resemblyzer>=0.1.4",
+]
 dev = [
   "pytest>=8.2.0",
   "build>=1.2.1",

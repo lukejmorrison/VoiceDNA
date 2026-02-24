@@ -94,9 +94,14 @@ class VoiceDNAProcessor:
             "total_duration_ms": round((time.perf_counter() - chain_started_at) * 1000, 3),
             "input_bytes": len(audio_bytes),
             "output_bytes": len(current_audio),
+            "consistency_score": process_params.get("imprint_converter.consistency_score"),
+            "rvc_ready": bool(process_params.get("imprint_converter.rvc_ready", False)),
             "imprint_converter": {
                 "mode": process_params.get("imprint_converter.mode", "simple"),
                 "rvc_ready": bool(process_params.get("imprint_converter.rvc_ready", False)),
+                "consistency_score": process_params.get("imprint_converter.consistency_score"),
+                "consistency_corrected": bool(process_params.get("imprint_converter.consistency_corrected", False)),
+                "watermark_applied": bool(process_params.get("imprint_converter.watermark_applied", False)),
                 "rvc_note": process_params.get("imprint_converter.rvc_note"),
             },
         }

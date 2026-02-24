@@ -4,6 +4,7 @@ from typing import Dict
 from voice_dna import VoiceDNA
 
 from .audio_helpers import imprint_mix_wav_bytes
+from ..consistency import VoiceConsistencyEngine
 from ..plugins.base import IVoiceDNAFilter
 
 
@@ -19,13 +20,16 @@ class ImprintConverterFilter(IVoiceDNAFilter):
         params["imprint_converter.strength"] = strength
         params["imprint_converter.source"] = dna.imprint_source
         params["imprint_converter.rvc_ready"] = True
+        params["imprint_converter.consistency_threshold"] = float(params.get("imprint_converter.consistency_threshold", 0.92))
+        params["imprint_converter.consistency_enabled"] = bool(params.get("imprint_converter.consistency_enabled", True))
 
         mode = params.get("imprint_converter.mode", "simple")
         params["imprint_converter.mode"] = mode
 
         if mode == "rvc_stub":
             params["imprint_converter.rvc_note"] = "RVC stub path selected; using placeholder conversion"
-            return self._process_rvc_stub(audio_bytes, dna, params)
+            converted = self._process_rvc_stub(audio_bytes, dna, params)
+            return self._enforce_consistency(converted, dna, params)
 
         audio_format = params.get("audio_format", "wav")
         try:
@@ -37,15 +41,37 @@ class ImprintConverterFilter(IVoiceDNAFilter):
             mixed = source.overlay(wet, gain_during_overlay=-(6 - 4 * strength))
             output = io.BytesIO()
             mixed.export(output, format=audio_format)
-            return output.getvalue()
+            converted = output.getvalue()
+            return self._enforce_consistency(converted, dna, params)
         except Exception as error:
             params["imprint_converter.error"] = str(error)
             if audio_format == "wav":
                 try:
-                    return imprint_mix_wav_bytes(audio_bytes, strength)
+                    converted = imprint_mix_wav_bytes(audio_bytes, strength)
+                    return self._enforce_consistency(converted, dna, params)
                 except Exception as fallback_error:
                     params["imprint_converter.fallback_error"] = str(fallback_error)
             return audio_bytes
+
+    def _enforce_consistency(self, audio_bytes: bytes, dna: VoiceDNA, params: Dict) -> bytes:
+        if not params.get("imprint_converter.consistency_enabled", True):
+            return audio_bytes
+
+        threshold = float(params.get("imprint_converter.consistency_threshold", 0.92))
+        engine = VoiceConsistencyEngine(threshold=threshold)
+        output_audio, score, rvc_ready, correction_applied = engine.enforce_consistency(
+            audio_bytes,
+            dna.core_embedding,
+            dna.voice_fingerprint_id,
+        )
+
+        params["imprint_converter.consistency_score"] = round(score, 4)
+        params["imprint_converter.rvc_ready"] = rvc_ready
+        params["imprint_converter.consistency_corrected"] = correction_applied
+        params["imprint_converter.watermark_applied"] = output_audio != audio_bytes
+        if correction_applied and params.get("imprint_converter.rvc_note") is None:
+            params["imprint_converter.rvc_note"] = "Applied gentle parametric correction to reinforce core voice identity"
+        return output_audio
 
     def _process_rvc_stub(self, audio_bytes: bytes, dna: VoiceDNA, params: Dict) -> bytes:
         """

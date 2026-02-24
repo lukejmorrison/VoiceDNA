@@ -1,4 +1,5 @@
 from .voice_dna import VoiceDNA
+from .consistency import VoiceConsistencyEngine
 from .framework import VoiceDNAProcessor
 from .filters import AgeMaturationFilter, ImprintConverterFilter
 
@@ -11,6 +12,7 @@ from .plugins import (
 
 __all__ = [
     "VoiceDNA",
+    "VoiceConsistencyEngine",
     "VoiceDNAProcessor",
     "AgeMaturationFilter",
     "ImprintConverterFilter",
@@ -20,4 +22,4 @@ __all__ = [
     "PromptTagFilter",
 ]
 
-__version__ = "2.6.1"
+__version__ = "2.7.0"

@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented here.
 
+## [2.7.0] - 2026-02-24
+### Added
+- New `voicedna/consistency.py` with `VoiceConsistencyEngine`, cosine similarity helpers, optional SpeechBrain/Resemblyzer extraction, and deterministic fallback embedding behavior.
+- New optional dependency extra `consistency` in `pyproject.toml` for speaker-recognition backends.
+- Subtle sonic watermarking pass that embeds `voice_fingerprint_id` markers into WAV output.
+
+### Changed
+- `VoiceDNA.create_new()` now upgrades `core_embedding` generation through the consistency engine (audio imprint extraction when available, deterministic fallback otherwise).
+- `ImprintConverterFilter` now enforces embedding consistency with threshold `0.92`, applying gentle parametric correction when needed.
+- Processor report now includes top-level `consistency_score` and `rvc_ready` fields plus extra consistency metadata under `imprint_converter`.
+- Version bumped to `2.7.0`.
+
+### Notes
+- v2.7 locks in stronger long-term voice identifiability while preserving natural maturation.
+
 ## [2.6.1] - 2026-02-23
 ### Added
 - New maintainer section in README with exact PyPI publish commands using `TWINE_USERNAME` / `TWINE_PASSWORD`.

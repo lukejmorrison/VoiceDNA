@@ -15,6 +15,13 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 
 ## Iteration Log
 
+### 2026-02-24 — v2.7 Consistency + Identifiability Lock-In
+- Added `VoiceConsistencyEngine` with optional open-source speaker embedding backends (SpeechBrain ECAPA-TDNN and Resemblyzer).
+- Upgraded `core_embedding` generation to use real imprint extraction when imprint points to audio, with deterministic fallback for zero-extra-dependency installs.
+- Added runtime consistency enforcement in `ImprintConverterFilter` using cosine similarity against `core_embedding` and gentle corrective shaping below the target threshold.
+- Added low-depth sonic watermark encoding for `voice_fingerprint_id` to support machine-side identity recognition.
+- Extended processor reports with `consistency_score` and `rvc_ready` so host integrations can track voice identity stability over time.
+
 ### 2026-02-23 — Foundation (v0.1.0)
 - Established core `VoiceDNA` dataclass lifecycle (`create_new`, `load/save`, `evolve`, `generate_tts_prompt`).
 - Added MIT license, schema, and repository baseline docs.

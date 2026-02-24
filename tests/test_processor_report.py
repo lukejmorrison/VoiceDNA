@@ -31,6 +31,8 @@ def test_processor_generates_report_with_filter_details():
     report = processor.get_last_report()
     assert "filters" in report
     assert "total_duration_ms" in report
+    assert "consistency_score" in report
+    assert "rvc_ready" in report
     assert report["filter_count"] >= 1
     assert isinstance(report["filters"], list)
     assert all("name" in item and "status" in item for item in report["filters"])
