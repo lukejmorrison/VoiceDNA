@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented here.
 
+## [2.8.0] - 2026-02-24
+### Added
+- New optional `rvc` dependency extra in `pyproject.toml` for real Retrieval-based Voice Conversion runtime (`rvc-python`).
+- New processor report status field `rvc_mode` for explicit RVC state tracking (`active`, `fallback`, `disabled`, `stub`).
+- README section `🔊 Real Voice Cloning (RVC)` with setup keys for model and reference audio.
+
+### Changed
+- `ImprintConverterFilter` now supports real `imprint_converter.mode = "rvc"` execution path and calls `rvc_python` inference when configured.
+- RVC path now includes robust fallback behavior plus explicit runtime setup messages when model/reference files are missing.
+- Version bumped to `2.8.0`.
+
+### Notes
+- VoiceDNA now supports real optional cloning so your voice is literally you at every age.
+
 ## [2.7.0] - 2026-02-24
 ### Added
 - New `voicedna/consistency.py` with `VoiceConsistencyEngine`, cosine similarity helpers, optional SpeechBrain/Resemblyzer extraction, and deterministic fallback embedding behavior.

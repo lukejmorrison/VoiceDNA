@@ -15,6 +15,13 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 
 ## Iteration Log
 
+### 2026-02-24 — v2.8 Live Publish + Real Cloning Milestone
+- Activated real optional RVC conversion mode (`imprint_converter.mode = "rvc"`) with model-based inference path and safety fallbacks.
+- Added explicit runtime status reporting (`rvc_mode`) so host apps can confirm when cloning is truly active.
+- Expanded packaging extras so users can install cloning runtime separately with `pip install "voicedna[rvc]"`.
+- Completed live publish workflow alignment around PyPI and release notes for immediate global installability.
+- Marked the identity milestone: now your voice is literally you at every age.
+
 ### 2026-02-24 — v2.7 Consistency + Identifiability Lock-In
 - Added `VoiceConsistencyEngine` with optional open-source speaker embedding backends (SpeechBrain ECAPA-TDNN and Resemblyzer).
 - Upgraded `core_embedding` generation to use real imprint extraction when imprint points to audio, with deterministic fallback for zero-extra-dependency installs.

@@ -2,6 +2,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/voicedna?logo=pypi&logoColor=white)](https://pypi.org/project/voicedna/)
 [![PyPI package](https://img.shields.io/badge/PyPI-voicedna-3775A9?logo=pypi&logoColor=white)](https://pypi.org/project/voicedna/)
+[![PyPI live](https://img.shields.io/badge/PyPI-live-success?logo=pypi&logoColor=white)](https://pypi.org/project/voicedna/)
 
 The open standard that gives every AI a permanent, recognizable **Voice Fingerprint** — just like your nephew Ash.  
 
@@ -29,6 +30,12 @@ Install with open-source speaker-recognition backends (optional):
 pip install "voicedna[consistency]"
 ```
 
+Install with optional real RVC voice cloning:
+
+```bash
+pip install "voicedna[rvc]"
+```
+
 ## Install from PyPI
 
 ```bash
@@ -43,6 +50,14 @@ voicedna birth --imprint "Luke Morrison's warm Canadian voice" --user luke
 - `ImprintConverterFilter` enforces a `0.92` cosine similarity target to the core embedding using gentle parametric correction.
 - A subtle low-depth sonic watermark now encodes `voice_fingerprint_id` for machine-side identifiability.
 - Processor reports now include top-level `consistency_score` and `rvc_ready` status.
+
+## 🔊 Real Voice Cloning (RVC)
+
+- `ImprintConverterFilter` now supports `imprint_converter.mode = "rvc"` for real model-based cloning.
+- Install RVC runtime with `pip install "voicedna[rvc]"` (recommended on Python 3.10-3.12 environments with compatible torch stack).
+- Set `imprint_converter.rvc_model_path` to your `.pth` model and `imprint_converter.rvc_reference_path` to a reference voice WAV.
+- Optional tuning: `imprint_converter.rvc_index_path`, `imprint_converter.rvc_device`, `imprint_converter.rvc_pitch`.
+- Processor report now exposes `rvc_mode` and marks it as `active` when real conversion is enabled.
 
 ## v2.3 — PyPI Publish Prep + RVC-Ready Imprint Path
 
