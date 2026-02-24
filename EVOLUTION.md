@@ -15,11 +15,13 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 
 ## Iteration Log
 
-### 2026-02-24 — v2.7.1 Omarchy Real-Machine Test Flow
-- Added a dedicated quick-test section in Omarchy docs so real desktop validation is reproducible in under 10 minutes.
-- Added installer `--test-mode` that runs install + immediate verification sequence automatically.
-- Added `examples/omarchy/test-voicedna.sh` helper for end-to-end checks, including daemon status and consistency report output.
-- Added real-machine Omarchy test flow milestone to make desktop validation immediate and confidence-building.
+### 2026-02-24 — Omarchy Real-Device Debug Session (Desktop Audio Path Validation)
+- Completed live on-device Omarchy install test (`install-voicedna-omarchy.sh --test-mode`) and verified daemon/service artifacts were installed correctly.
+- Diagnosed daemon crash loop root cause from logs: systemd service was launching a Python runtime that did not include `voice_dna` (`ModuleNotFoundError`).
+- Resolved daemon startup by overriding `ExecStart` to a Python environment with VoiceDNA installed; confirmed daemon state moved to `active (running)`.
+- Traced silent output root cause to routing: Speech Dispatcher output was going to an AirPlay sink (`Rp5`) instead of Scarlett 2i2.
+- Re-routed default sink to Scarlett and verified speech stream routing at the PipeWire level; confirmed audible output path was restored.
+- Identified current quality limit: only `espeak-ng` module is present, so output remains mechanical despite correct VoiceDNA plumbing.
 
 ### 2026-02-24 — v2.8 Live Publish + Real Cloning Milestone
 - Activated real optional RVC conversion mode (`imprint_converter.mode = "rvc"`) with model-based inference path and safety fallbacks.
@@ -131,3 +133,4 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 - Add one-click "birth my AI" CLI flow.
 - Add optional key-management strategy docs (rotation, recovery, operational guidance).
 - Add release automation workflow for tagging and publishing GitHub releases from changelog entries.
+- Explore integration path for NVIDIA PersonaPlex (`nvidia/personaplex-7b-v1`) as a higher-naturalness speech engine backend for Omarchy desktop voice output.
