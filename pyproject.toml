@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "voicedna"
-version = "2.9.3"
+version = "2.9.4"
 description = "Lifelong sonic identity and plugin framework for AI voices"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -36,7 +36,7 @@ voicedna = "cli:app"
 
 [project.optional-dependencies]
 personaplex = [
-  "transformers>=4.47.0",
+  "transformers>=4.47.0,<5",
   "accelerate>=1.0.0",
   "torch>=2.4.0",
 ]

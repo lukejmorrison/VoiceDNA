@@ -17,8 +17,7 @@ import time
 from pathlib import Path
 
 from voice_dna import VoiceDNA
-from voicedna import VoiceDNAProcessor
-from voicedna.providers import PersonaPlexTTS
+from voicedna.synthesis import select_natural_backend, synthesize_and_process
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -74,7 +73,7 @@ def _announce_once() -> None:
 def _resolve_tts_backend(cli_backend: str | None) -> str:
     if cli_backend:
         return cli_backend
-    return os.getenv("VOICEDNA_TTS_BACKEND", "simple")
+    return os.getenv("VOICEDNA_TTS_BACKEND", "auto")
 
 
 def _play_wav_bytes(audio_bytes: bytes) -> None:
@@ -90,38 +89,32 @@ def _play_wav_bytes(audio_bytes: bytes) -> None:
         process.wait(timeout=15)
 
 
-def _synthesize_personaplex_test_phrase(dna: VoiceDNA) -> bytes:
-    provider = PersonaPlexTTS(
-        model_id=os.getenv("VOICEDNA_PERSONAPLEX_MODEL", "nvidia/personaplex-7b-v1"),
-        device=os.getenv("VOICEDNA_PERSONAPLEX_DEVICE", "auto"),
-        torch_dtype=os.getenv("VOICEDNA_PERSONAPLEX_DTYPE", "auto"),
+def _synthesize_natural_test_phrase(dna: VoiceDNA, backend: str) -> tuple[bytes, dict]:
+    audio, report, _ = synthesize_and_process(
+        text="VoiceDNA natural desktop voice is active on your Omarchy system.",
+        dna=dna,
+        backend=backend,
+        natural_voice=(backend == "auto"),
     )
-    processor = VoiceDNAProcessor()
-    return processor.synthesize_and_process(
-        "VoiceDNA PersonaPlex backend is active on your Omarchy desktop.",
-        dna,
-        provider,
-        {
-            "audio_format": "wav",
-            "base_model": "personaplex",
-            "imprint_converter.mode": os.getenv("VOICEDNA_IMPRINT_MODE", "simple"),
-        },
-    )
+    return audio, report
 
 
 def _announce_backend(backend: str, dna: VoiceDNA) -> None:
     if os.getenv("VOICEDNA_DAEMON_ANNOUNCE", "0") != "1":
         return
 
-    if backend != "personaplex":
+    if backend == "simple":
         _announce_once()
         return
 
     try:
-        audio = _synthesize_personaplex_test_phrase(dna)
+        audio, report = _synthesize_natural_test_phrase(dna, backend=backend)
+        status = report.get("natural_backend_status")
+        if status:
+            logger.info("%s", status)
         _play_wav_bytes(audio)
     except Exception as error:
-        logger.warning("PersonaPlex announce failed, falling back to spd-say: %s", error)
+        logger.warning("Natural backend announce failed, falling back to spd-say: %s", error)
         _announce_once()
 
 
@@ -129,7 +122,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="VoiceDNA Omarchy daemon")
     parser.add_argument(
         "--tts-backend",
-        choices=["simple", "personaplex"],
+        choices=["auto", "simple", "personaplex", "piper"],
         default=None,
         help="TTS backend used for daemon announce/probe path",
     )
@@ -137,14 +130,20 @@ def main() -> int:
 
     backend = _resolve_tts_backend(args.tts_backend)
     interval = int(os.getenv("VOICEDNA_DAEMON_INTERVAL_SECONDS", "120"))
-    logger.info("VoiceDNA daemon backend selected: %s", backend)
+    if backend == "auto":
+        selected_backend, natural_status = select_natural_backend()
+        logger.info("VoiceDNA daemon backend selected: auto -> %s", selected_backend)
+        logger.info("%s", natural_status)
+    else:
+        selected_backend = backend
+        logger.info("VoiceDNA daemon backend selected: %s", selected_backend)
 
-    if backend == "personaplex":
+    if selected_backend in {"personaplex", "piper"}:
         try:
             dna = _load_dna()
-            _announce_backend(backend, dna)
+            _announce_backend(selected_backend, dna)
         except Exception as error:
-            logger.warning("PersonaPlex startup probe failed; continuing with simple fallback: %s", error)
+            logger.warning("Natural backend startup probe failed; continuing with simple fallback: %s", error)
             _announce_once()
     else:
         _announce_once()
@@ -157,8 +156,8 @@ def main() -> int:
                 dna.get_recognition_id(),
                 dna.get_current_age(),
             )
-            if backend == "personaplex":
-                logger.info("PersonaPlex natural voice backend ready")
+            if selected_backend in {"personaplex", "piper"}:
+                logger.info("Natural voice backend ready: %s", selected_backend)
         except Exception as error:
             logger.error("VoiceDNA daemon health check failed: %s", error)
 

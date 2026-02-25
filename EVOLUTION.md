@@ -15,6 +15,14 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 
 ## Iteration Log
 
+### 2026-02-24 — v2.9.4 VRAM-Aware Natural Voice Fallback (Consumer GPU Pass)
+- Added VRAM detection in PersonaPlex provider startup path and introduced a practical threshold gate (`VOICEDNA_MIN_PERSONAPLEX_VRAM_GB=12`).
+- Added `PiperTTS` provider and synthesis-level auto-fallback from PersonaPlex when VRAM is insufficient or model init fails.
+- Added one-command CLI natural test mode (`voicedna speak --test-natural`) with clear status messaging and forced playback for immediate confirmation.
+- Updated Omarchy daemon startup/backend selection to auto-choose best natural backend (`auto -> personaplex|piper`) and log the reason.
+- Added `scripts/clear-vram.sh` helper for repeatable local testing of memory-constrained scenarios.
+- Updated Omarchy documentation/test flow to use the one-command natural verification path for real consumer GPUs.
+
 ### 2026-02-24 — v2.9.3 Playback Reliability + Reaper VST3 Starter
 - Added Python 3.13+ compatibility dependency `audioop-lts` to prevent pydub playback breakage on modern runtimes.
 - Added modern playback fallback in synthesis runtime (`sounddevice`) before system CLI player fallback.

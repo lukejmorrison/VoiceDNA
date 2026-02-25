@@ -6,7 +6,12 @@ import typer
 from cryptography.fernet import InvalidToken
 
 from voice_dna import VoiceDNA
-from voicedna.synthesis import is_omarchy_environment, play_wav_bytes, synthesize_and_process
+from voicedna.synthesis import (
+    is_omarchy_environment,
+    play_wav_bytes,
+    select_natural_backend,
+    synthesize_and_process,
+)
 
 
 app = typer.Typer(help="VoiceDNA command line interface")
@@ -91,33 +96,54 @@ def birth(
 
 @app.command("speak")
 def speak(
-    text: str = typer.Option(..., help="Text to synthesize (metadata for processing context)"),
+    text: str = typer.Option("", help="Text to synthesize (metadata for processing context)"),
     password: str = typer.Option(..., prompt=True, hide_input=True),
     dna_path: str = typer.Option("myai.voicedna.enc", help="Encrypted VoiceDNA path"),
-    base_model: str = typer.Option("auto", help="TTS backend (auto, personaplex, simple, elevenlabs, xtts, cartesia)"),
+    base_model: str = typer.Option("auto", help="TTS backend (auto, personaplex, piper, simple, elevenlabs, xtts, cartesia)"),
     natural_voice: bool = typer.Option(False, "--natural-voice", help="Prefer natural voice backend (PersonaPlex)"),
+    test_natural: bool = typer.Option(False, "--test-natural", help="One-command natural voice test with auto backend selection"),
     save_wav: str = typer.Option("", help="Optional output WAV path"),
     play_audio: bool = typer.Option(True, "--play/--no-play", help="Play generated audio after processing"),
 ):
     dna = _load_encrypted_or_exit(password=password, dna_path=dna_path)
-    resolved_natural_voice = natural_voice or is_omarchy_environment()
+
+    if not text.strip():
+        if test_natural:
+            text = "Hello Luke, this is your natural VoiceDNA test voice on Omarchy."
+        else:
+            typer.secho("--text is required unless --test-natural is enabled.", fg=typer.colors.RED)
+            raise typer.Exit(code=2)
+
+    resolved_natural_voice = natural_voice or is_omarchy_environment() or test_natural
+    resolved_backend = base_model
+
+    if test_natural:
+        resolved_backend = "auto"
+        play_audio = True
+        typer.secho("Loading natural voice...", fg=typer.colors.CYAN)
+        _, natural_status = select_natural_backend()
+        typer.secho(natural_status, fg=typer.colors.GREEN)
 
     typer.echo(
         "Generating with PersonaPlex natural TTS..."
-        if base_model in {"auto", "personaplex"} and resolved_natural_voice
-        else f"Generating with backend: {base_model}"
+        if resolved_backend in {"auto", "personaplex"} and resolved_natural_voice
+        else f"Generating with backend: {resolved_backend}"
     )
 
     try:
         processed, report, resolved_backend = synthesize_and_process(
             text=text,
             dna=dna,
-            backend=base_model,
+            backend=resolved_backend,
             natural_voice=resolved_natural_voice,
         )
     except Exception as error:
         typer.secho(f"Synthesis failed: {error}", fg=typer.colors.RED)
         raise typer.Exit(code=2)
+
+    natural_status = report.get("natural_backend_status")
+    if natural_status:
+        typer.secho(natural_status, fg=typer.colors.GREEN)
 
     if save_wav:
         save_path = Path(save_wav)
@@ -129,6 +155,8 @@ def speak(
 
     if play_audio:
         try:
+            if test_natural:
+                typer.secho("Success! Playing now...", fg=typer.colors.GREEN)
             playback_backend = play_wav_bytes(processed)
             typer.echo(f"Playback backend: {playback_backend}")
         except Exception as error:

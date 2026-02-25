@@ -16,7 +16,7 @@ import sys
 
 from voice_dna import VoiceDNA
 from voicedna import VoiceDNAProcessor
-from voicedna.providers import PersonaPlexTTS
+from voicedna.synthesis import synthesize_and_process
 
 
 def load_dna() -> VoiceDNA:
@@ -40,19 +40,18 @@ def process_bytes(audio_bytes: bytes, force_age: float | None) -> bytes:
 
 def synthesize_text(text: str, force_age: float | None) -> bytes:
     dna = load_dna()
-    processor = VoiceDNAProcessor()
-    provider = PersonaPlexTTS(
-        model_id=os.getenv("VOICEDNA_PERSONAPLEX_MODEL", "nvidia/personaplex-7b-v1"),
-        device=os.getenv("VOICEDNA_PERSONAPLEX_DEVICE", "auto"),
-        torch_dtype=os.getenv("VOICEDNA_PERSONAPLEX_DTYPE", "auto"),
-    )
     params = {
-        "audio_format": "wav",
-        "base_model": "personaplex",
         "force_age": force_age,
         "imprint_converter.mode": os.getenv("VOICEDNA_IMPRINT_MODE", "simple"),
     }
-    return processor.synthesize_and_process(text=text, dna=dna, tts_provider=provider, params=params)
+    audio, _, _ = synthesize_and_process(
+        text=text,
+        dna=dna,
+        backend=os.getenv("VOICEDNA_TTS_BACKEND", "auto"),
+        natural_voice=True,
+        params=params,
+    )
+    return audio
 
 
 def main() -> int:
@@ -62,18 +61,19 @@ def main() -> int:
     parser.add_argument("--force-age", type=float, default=None, help="Override perceived voice age for testing")
     parser.add_argument(
         "--tts-backend",
-        choices=["simple", "personaplex"],
-        default=os.getenv("VOICEDNA_TTS_BACKEND", "simple"),
+        choices=["auto", "simple", "personaplex", "piper"],
+        default=os.getenv("VOICEDNA_TTS_BACKEND", "auto"),
         help="Backend to use when synthesizing text input",
     )
     args = parser.parse_args()
 
     raw = sys.stdin.buffer.read() if args.infile == "-" else open(args.infile, "rb").read()
 
-    if args.tts_backend == "personaplex":
+    if args.tts_backend in {"auto", "personaplex", "piper"}:
         text = raw.decode("utf-8", errors="ignore").strip()
         if not text:
             text = "VoiceDNA natural voice output."
+        os.environ["VOICEDNA_TTS_BACKEND"] = args.tts_backend
         processed = synthesize_text(text, force_age=args.force_age)
     else:
         processed = process_bytes(raw, force_age=args.force_age)

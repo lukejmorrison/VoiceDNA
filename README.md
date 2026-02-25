@@ -94,6 +94,16 @@ Generate + process + play voice directly from CLI:
 voicedna speak --text "Hello from my natural VoiceDNA." --dna-path luke_real_voice --base-model personaplex --natural-voice
 ```
 
+One-command natural voice test (VRAM-aware backend selection):
+
+```bash
+voicedna speak --text "Hello from Eddy42" --dna-path eddy42 --test-natural
+```
+
+Expected status example on consumer GPUs:
+- `Detected 8.0GB VRAM -> using Piper natural voice`
+- `Success! Playing now...`
+
 Save processed audio to WAV:
 
 ```bash
@@ -103,6 +113,12 @@ voicedna speak --text "Hello" --dna-path luke_real_voice --base-model personaple
 Python 3.13+ playback compatibility:
 - VoiceDNA now includes `audioop-lts` support for modern Python runtimes where stdlib `audioop` is removed.
 - CLI playback path falls back through `pydub`, `sounddevice`, then system players (`pw-play` / `aplay`).
+
+Optional VRAM reset helper for local testing:
+
+```bash
+bash scripts/clear-vram.sh
+```
 
 VST3 Reaper starter (JUCE + VENOM bridge):
 
@@ -136,6 +152,13 @@ See `vst3/README.md` for full Reaper/VENOM integration notes.
 - Use `pip install "voicedna[personaplex]"` to install model runtime dependencies.
 - Omarchy installer now supports `--natural-voice` to enable PersonaPlex speech-dispatcher + daemon integration.
 - `VoiceDNAProcessor.synthesize_and_process(...)` lets providers synthesize text first, then apply the standard VoiceDNA maturation/imprint chain.
+
+## ⚡ Natural Voice on Consumer GPUs (v2.9.4)
+
+- VoiceDNA now auto-detects VRAM and chooses the best natural backend.
+- If VRAM is below the PersonaPlex threshold (default `12GB`) or PersonaPlex fails, VoiceDNA automatically falls back to `Piper`.
+- Set `VOICEDNA_MIN_PERSONAPLEX_VRAM_GB` to tune the threshold.
+- Set `VOICEDNA_PIPER_MODEL=/path/to/model.onnx` to enable Piper fallback.
 
 ## v2.3 — PyPI Publish Prep + RVC-Ready Imprint Path
 

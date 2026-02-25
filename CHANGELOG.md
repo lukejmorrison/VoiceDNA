@@ -2,6 +2,23 @@
 
 All notable changes to this project are documented here.
 
+## [2.9.4] - 2026-02-24
+### Added
+- Added new `PiperTTS` provider (`voicedna/providers/piper.py`) for lightweight natural voice synthesis on lower-VRAM systems.
+- Added VRAM detection helpers in PersonaPlex provider and a configurable threshold (`VOICEDNA_MIN_PERSONAPLEX_VRAM_GB`, default `12GB`).
+- Added CLI one-command natural test mode: `voicedna speak --test-natural ...` with forced playback and explicit backend-status messaging.
+- Added helper script `scripts/clear-vram.sh` for quick GPU/system memory cleanup during local testing.
+
+### Changed
+- Natural backend resolution now uses VRAM-aware selection (`PersonaPlex` on high-VRAM, `Piper` fallback on consumer GPUs).
+- `voicedna.synthesis.synthesize_and_process(...)` now auto-falls back from PersonaPlex to Piper (and to simple if Piper is unavailable).
+- Omarchy daemon and PipeWire shim now support `auto` backend mode and natural backend auto-selection at startup.
+- Omarchy test flow now uses `voicedna speak --test-natural --dna-path ...` for one-command verification.
+- Version bumped to `2.9.4`.
+
+### Notes
+- v2.9.4 is tuned for real-world consumer hardware and works great on 8GB cards like GTX 1070 Ti when Piper is configured.
+
 ## [2.9.3] - 2026-02-24
 ### Added
 - Added `audioop-lts` dependency for Python 3.13+ compatibility where stdlib `audioop` is removed.

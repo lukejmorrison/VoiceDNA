@@ -14,7 +14,7 @@
 bash examples/omarchy/install-voicedna-omarchy.sh --test-mode
 ```
 
-### Natural voice mode (PersonaPlex, optional)
+### Natural voice mode (VRAM-aware PersonaPlex/Piper, optional)
 
 ```bash
 bash examples/omarchy/install-voicedna-omarchy.sh --natural-voice --test-mode
@@ -22,6 +22,7 @@ bash examples/omarchy/install-voicedna-omarchy.sh --natural-voice --test-mode
 
 This enables the optional PersonaPlex backend for speech-dispatcher and daemon probe flows.
 GPU acceleration is strongly recommended for real-time desktop usage.
+On consumer cards (for example GTX 1070 Ti 8GB), VoiceDNA automatically falls back to Piper natural voice.
 
 ### Step-by-step verification commands
 
@@ -46,7 +47,7 @@ spd-say "VoiceDNA terminal test. Omarchy desktop voice check."
 3b) Test VoiceDNA CLI natural synthesis path:
 
 ```bash
-voicedna speak --text "Hello from Eddy42 natural voice test." --dna-path eddy42 --base-model personaplex --natural-voice --save-wav /tmp/eddy42_test.wav --no-play
+voicedna speak --test-natural --dna-path eddy42
 ```
 
 4) Check daemon status:
@@ -93,7 +94,7 @@ sudo pacman -S --needed speech-dispatcher pipewire wireplumber
 bash examples/omarchy/install-voicedna-omarchy.sh
 ```
 
-Natural voice mode (optional PersonaPlex backend):
+Natural voice mode (optional VRAM-aware backend):
 
 ```bash
 bash examples/omarchy/install-voicedna-omarchy.sh --natural-voice
@@ -105,7 +106,7 @@ This script:
 - copies `speech-dispatcher-voicedna.conf` into `~/.config/speech-dispatcher/modules/`
 - installs `voicedna-pipewire-filter.py` into `~/.local/bin/`
 - installs `voicedna-os-daemon.py` and enables `voicedna-os-daemon.service`
-- writes `~/.config/voicedna/daemon.env` (env-based password path)
+- writes `~/.config/voicedna/daemon.env` (env-based password path + VRAM/piper knobs)
 - restarts user services (`speech-dispatcher`, `wireplumber`, `pipewire`)
 
 ## 3) PipeWire filter module path
@@ -121,7 +122,7 @@ Use it in your own PipeWire `filter-chain` or desktop TTS wrapper command.
 
 The included `speech-dispatcher-voicedna.conf` sets VoiceDNA as default output module behavior for desktop speech flow.
 
-In natural voice mode, the module invokes the PersonaPlex synth path and then runs VoiceDNA processing.
+In natural voice mode, the module auto-selects PersonaPlex or Piper and then runs VoiceDNA processing.
 
 After installation, test:
 
@@ -166,14 +167,16 @@ When complete, you should see:
 
 Desktop voice cloning is currently wired through the RVC-ready path. A future mode will enable direct RVC desktop conversion for richer system-wide voice timbre.
 
-## PersonaPlex environment knobs
+## Natural backend environment knobs
 
 Edit `~/.config/voicedna/daemon.env` if needed:
 
-- `VOICEDNA_TTS_BACKEND=personaplex`
+- `VOICEDNA_TTS_BACKEND=auto`
 - `VOICEDNA_PERSONAPLEX_MODEL=nvidia/personaplex-7b-v1`
 - `VOICEDNA_PERSONAPLEX_DEVICE=auto`
 - `VOICEDNA_PERSONAPLEX_DTYPE=auto`
+- `VOICEDNA_MIN_PERSONAPLEX_VRAM_GB=12`
+- `VOICEDNA_PIPER_MODEL=/absolute/path/to/piper/model.onnx`
 
 ## Reaper VST3 Starter
 

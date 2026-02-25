@@ -13,7 +13,8 @@ from typing import Any, Dict, Tuple
 from voice_dna import VoiceDNA
 
 from .framework import VoiceDNAProcessor
-from .providers import PersonaPlexTTS
+from .providers import PersonaPlexTTS, PiperTTS
+from .providers.personaplex import detect_vram_gb, get_personaplex_min_vram_gb
 
 
 def is_omarchy_environment() -> bool:
@@ -32,17 +33,33 @@ def resolve_tts_backend(requested_backend: str, natural_voice: bool = False) -> 
 
     if backend == "auto":
         if natural_voice or is_omarchy_environment():
-            return "personaplex"
+            return "natural_auto"
         return "simple"
 
-    if backend in {"personaplex", "simple", "elevenlabs", "xtts", "cartesia"}:
+    if backend in {"personaplex", "piper", "simple", "elevenlabs", "xtts", "cartesia", "natural_auto"}:
         if backend in {"elevenlabs", "xtts", "cartesia"}:
             return "simple"
         return backend
 
     raise ValueError(
-        f"Unsupported backend '{requested_backend}'. Use one of: auto, personaplex, simple, elevenlabs, xtts, cartesia"
+        f"Unsupported backend '{requested_backend}'. Use one of: auto, personaplex, piper, simple, elevenlabs, xtts, cartesia"
     )
+
+
+def select_natural_backend() -> tuple[str, str]:
+    detected_vram_gb = detect_vram_gb()
+    min_vram_gb = get_personaplex_min_vram_gb()
+
+    if detected_vram_gb is None:
+        return "piper", "No CUDA VRAM detected -> using Piper natural voice."
+
+    if detected_vram_gb < min_vram_gb:
+        return (
+            "piper",
+            f"Detected {detected_vram_gb:.1f}GB VRAM -> using Piper natural voice (PersonaPlex target: {min_vram_gb:.1f}GB+).",
+        )
+
+    return "personaplex", f"Detected {detected_vram_gb:.1f}GB VRAM -> using PersonaPlex natural voice."
 
 
 class _SimpleLocalTTS:
@@ -103,6 +120,12 @@ def _build_provider(backend: str) -> Any:
             device=os.getenv("VOICEDNA_PERSONAPLEX_DEVICE", "auto"),
             torch_dtype=os.getenv("VOICEDNA_PERSONAPLEX_DTYPE", "auto"),
         )
+    if backend == "piper":
+        return PiperTTS(
+            model_path=os.getenv("VOICEDNA_PIPER_MODEL", ""),
+            executable=os.getenv("VOICEDNA_PIPER_EXECUTABLE", "piper"),
+            speaker_id=os.getenv("VOICEDNA_PIPER_SPEAKER", ""),
+        )
     return _SimpleLocalTTS()
 
 
@@ -114,7 +137,22 @@ def synthesize_and_process(
     params: Dict[str, Any] | None = None,
 ) -> Tuple[bytes, Dict[str, Any], str]:
     resolved_backend = resolve_tts_backend(backend, natural_voice=natural_voice)
-    provider = _build_provider(resolved_backend)
+    natural_backend_status: str | None = None
+
+    if resolved_backend == "natural_auto":
+        resolved_backend, natural_backend_status = select_natural_backend()
+
+    try:
+        provider = _build_provider(resolved_backend)
+    except Exception as error:
+        if resolved_backend == "piper":
+            natural_backend_status = (
+                f"Piper natural backend unavailable ({error}) -> falling back to simple local voice."
+            )
+            resolved_backend = "simple"
+            provider = _build_provider(resolved_backend)
+        else:
+            raise
 
     processor = VoiceDNAProcessor()
     process_params: Dict[str, Any] = {
@@ -126,8 +164,49 @@ def synthesize_and_process(
     if params:
         process_params.update(params)
 
-    processed_audio = processor.synthesize_and_process(text=text, dna=dna, tts_provider=provider, params=process_params)
-    return processed_audio, processor.get_last_report(), resolved_backend
+    if natural_backend_status:
+        process_params["natural_backend_status"] = natural_backend_status
+
+    try:
+        processed_audio = processor.synthesize_and_process(text=text, dna=dna, tts_provider=provider, params=process_params)
+    except Exception as error:
+        if resolved_backend == "personaplex":
+            fallback_status = f"PersonaPlex unavailable ({error}) -> falling back to Piper natural voice."
+            try:
+                fallback_provider = _build_provider("piper")
+                process_params["base_model"] = "piper"
+                process_params["natural_backend_status"] = fallback_status
+                processed_audio = processor.synthesize_and_process(
+                    text=text,
+                    dna=dna,
+                    tts_provider=fallback_provider,
+                    params=process_params,
+                )
+                resolved_backend = "piper"
+                natural_backend_status = fallback_status
+            except Exception as fallback_error:
+                final_status = (
+                    f"{fallback_status} Piper unavailable ({fallback_error}) -> falling back to simple local voice."
+                )
+                simple_provider = _build_provider("simple")
+                process_params["base_model"] = "simple"
+                process_params["natural_backend_status"] = final_status
+                processed_audio = processor.synthesize_and_process(
+                    text=text,
+                    dna=dna,
+                    tts_provider=simple_provider,
+                    params=process_params,
+                )
+                resolved_backend = "simple"
+                natural_backend_status = final_status
+        else:
+            raise
+
+    report = processor.get_last_report()
+    if natural_backend_status:
+        report["natural_backend_status"] = natural_backend_status
+    report["resolved_backend"] = resolved_backend
+    return processed_audio, report, resolved_backend
 
 
 def play_wav_bytes(audio_bytes: bytes) -> str:

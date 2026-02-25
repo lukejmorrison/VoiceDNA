@@ -2,12 +2,40 @@ from __future__ import annotations
 
 import io
 import importlib
+import os
 import threading
 import wave
 from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
+
+
+def get_personaplex_min_vram_gb() -> float:
+    raw_value = os.getenv("VOICEDNA_MIN_PERSONAPLEX_VRAM_GB", "12")
+    try:
+        return float(raw_value)
+    except ValueError:
+        return 12.0
+
+
+def detect_vram_gb() -> float | None:
+    simulated = os.getenv("VOICEDNA_SIMULATED_VRAM_GB")
+    if simulated:
+        try:
+            return float(simulated)
+        except ValueError:
+            pass
+
+    try:
+        torch = importlib.import_module("torch")
+        if not torch.cuda.is_available():
+            return None
+        current_index = torch.cuda.current_device()
+        props = torch.cuda.get_device_properties(current_index)
+        return float(props.total_memory) / (1024.0**3)
+    except Exception:
+        return None
 
 
 @dataclass
@@ -49,11 +77,27 @@ class PersonaPlexTTS:
                     "PersonaPlex backend dependencies are missing. Install with: pip install \"voicedna[personaplex]\""
                 ) from error
 
+            transformers_version = str(getattr(transformers, "__version__", ""))
+            major_token = transformers_version.split(".", maxsplit=1)[0]
+            if major_token.isdigit() and int(major_token) >= 5:
+                raise RuntimeError(
+                    "PersonaPlex currently supports transformers 4.x. "
+                    f"Detected transformers=={transformers_version}. "
+                    "Install a compatible version with: pip install 'transformers<5'"
+                )
+
             pipeline_device = -1
             if self.config.device == "auto":
                 pipeline_device = 0 if torch.cuda.is_available() else -1
             elif self.config.device.startswith("cuda"):
                 pipeline_device = 0
+
+            min_vram_gb = get_personaplex_min_vram_gb()
+            detected_vram_gb = detect_vram_gb()
+            if detected_vram_gb is not None and detected_vram_gb < min_vram_gb:
+                raise RuntimeError(
+                    f"Detected {detected_vram_gb:.1f}GB VRAM, but PersonaPlex requires at least {min_vram_gb:.1f}GB."
+                )
 
             dtype = "auto"
             if self.config.torch_dtype != "auto":
@@ -73,7 +117,9 @@ class PersonaPlexTTS:
             except Exception as error:
                 raise RuntimeError(
                     "Failed to initialize PersonaPlex TTS pipeline. "
-                    "Verify model availability and GPU/VRAM requirements for nvidia/personaplex-7b-v1."
+                    "Verify model availability, transformers compatibility (4.x), and GPU/VRAM requirements for "
+                    "nvidia/personaplex-7b-v1. "
+                    f"Original error: {error}"
                 ) from error
 
     @property
