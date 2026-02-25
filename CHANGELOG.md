@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented here.
 
+## [2.9.8] - 2026-02-25
+### Added
+- Added new `voicedna doctor-natural` command with quick VRAM/runtime health checks and optional immediate natural test run.
+- Added lightweight backend preflight checks for PersonaPlex and Piper to provide clear readiness diagnostics before synthesis.
+
+### Changed
+- Improved `voicedna test-natural` output with explicit natural test summary, final backend, recommendations, and Piper model visibility.
+- Improved Piper fallback quality by adding auto model discovery and tuned default prosody knobs (`length_scale`, `noise_scale`, `noise_w`).
+- Updated Omarchy daemon/test docs to recommend `doctor-natural` as the first natural voice validation path.
+- Version bumped to `2.9.8`.
+
+### Notes
+- v2.9.8 is tuned for smoother, clearer natural voice testing on 8GB GPUs (for example GTX 1070 Ti).
+
 ## [2.9.7] - 2026-02-25
 ### Added
 - Added `SKILL_GIT_WORKFLOW.md` documenting Peter-style parallel checkout workflow for multi-agent isolation.

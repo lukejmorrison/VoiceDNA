@@ -102,6 +102,12 @@ Generate + process + play voice directly from CLI:
 voicedna speak --text "Hello from my natural VoiceDNA." --dna-path luke_real_voice --base-model personaplex --natural-voice
 ```
 
+Natural voice doctor (recommended first pass on 8GB cards):
+
+```bash
+voicedna doctor-natural --dna-path eddy42
+```
+
 One-command natural voice test (VRAM-aware backend selection):
 
 ```bash
@@ -180,6 +186,10 @@ See `vst3/README.md` for full Reaper/VENOM integration notes.
 - If VRAM is below the PersonaPlex threshold (default `12GB`) or PersonaPlex fails, VoiceDNA automatically falls back to `Piper`.
 - Set `VOICEDNA_MIN_PERSONAPLEX_VRAM_GB` to tune the threshold.
 - Set `VOICEDNA_PIPER_MODEL=/path/to/model.onnx` to enable Piper fallback.
+- Piper quality knobs for smoother default prosody on fallback:
+	- `VOICEDNA_PIPER_LENGTH_SCALE=0.92`
+	- `VOICEDNA_PIPER_NOISE_SCALE=0.60`
+	- `VOICEDNA_PIPER_NOISE_W=0.78`
 
 ## 🧩 Low-VRAM PersonaPlex on 8 GB cards (v2.9.6)
 

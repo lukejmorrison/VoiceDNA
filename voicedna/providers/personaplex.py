@@ -67,6 +67,54 @@ def describe_personaplex_vram() -> tuple[float | None, float, str, str]:
     return detected_vram_gb, min_vram_gb, f"Detected {detected_vram_gb:.1f}GB VRAM", "green"
 
 
+def check_personaplex_runtime(low_vram: bool = False) -> tuple[bool, str]:
+    try:
+        torch = importlib.import_module("torch")
+    except Exception:
+        return False, "PyTorch is not installed"
+
+    try:
+        transformers = importlib.import_module("transformers")
+        transformers_version = str(getattr(transformers, "__version__", ""))
+        major_token = transformers_version.split(".", maxsplit=1)[0]
+        if major_token.isdigit() and int(major_token) >= 5:
+            return False, f"transformers {transformers_version} is unsupported; use transformers<5"
+    except Exception:
+        return False, "transformers is not installed"
+
+    if low_vram:
+        try:
+            importlib.import_module("bitsandbytes")
+        except Exception:
+            return False, "bitsandbytes is missing; install voicedna[personaplex-lowvram]"
+
+    if not torch.cuda.is_available():
+        return True, "CUDA not available; PersonaPlex can run on CPU (slower)"
+
+    try:
+        current_index = torch.cuda.current_device()
+        capability = torch.cuda.get_device_capability(current_index)
+        capability_value = float(f"{capability[0]}.{capability[1]}")
+        arch_list = set(getattr(torch.cuda, "get_arch_list", lambda: [])() or [])
+        capability_token = f"sm_{capability[0]}{capability[1]}"
+
+        if arch_list and capability_token not in arch_list:
+            return (
+                False,
+                f"GPU capability {capability_token} is not supported by this PyTorch CUDA build",
+            )
+
+        if low_vram and capability_value < 7.0:
+            return (
+                False,
+                f"Low-VRAM PersonaPlex 4-bit mode requires newer CUDA capability; detected sm_{capability[0]}{capability[1]}",
+            )
+    except Exception:
+        return True, "CUDA detected; capability probe unavailable"
+
+    return True, "PersonaPlex runtime dependencies look healthy"
+
+
 @dataclass
 class PersonaPlexConfig:
     model_id: str = DEFAULT_PERSONAPLEX_MODEL
@@ -166,6 +214,12 @@ class PersonaPlexTTS:
                     dtype = "auto"
 
             if low_vram_mode:
+                runtime_ok, runtime_message = check_personaplex_runtime(low_vram=True)
+                if not runtime_ok:
+                    raise RuntimeError(
+                        "Low-VRAM PersonaPlex is not supported by the active runtime "
+                        f"({runtime_message}). Use VOICEDNA_PERSONAPLEX_DEVICE=cpu or Piper fallback."
+                    )
                 try:
                     importlib.import_module("bitsandbytes")
                     BitsAndBytesConfig = getattr(transformers, "BitsAndBytesConfig")

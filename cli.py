@@ -8,6 +8,7 @@ from cryptography.fernet import InvalidToken
 from voice_dna import VoiceDNA
 from voicedna.synthesis import (
     detect_natural_backend_decision,
+    inspect_natural_backend_health,
     is_omarchy_environment,
     play_wav_bytes,
     synthesize_and_process,
@@ -58,6 +59,38 @@ def _print_backend_banner(report: dict, resolved_backend: str) -> None:
     terminal_color = _color_for_status(natural_color)
     border = "#" * max(92, len(banner_text) + 8)
     typer.secho(border, fg=terminal_color)
+
+
+def _print_doctor_summary(health: dict) -> None:
+    bar = "-" * 84
+    typer.secho(bar, fg=typer.colors.CYAN)
+    typer.secho("NATURAL VOICE DOCTOR SUMMARY", fg=typer.colors.CYAN, bold=True)
+    typer.secho(bar, fg=typer.colors.CYAN)
+    typer.echo(f"Detected VRAM: {health.get('detected_vram', 'N/A')}")
+    typer.echo(f"Natural decision: {health.get('decision')}")
+    typer.echo(f"PersonaPlex runtime: {health.get('personaplex')}")
+    typer.echo(f"Piper runtime: {health.get('piper')}")
+    typer.echo(f"Recommended backend now: {health.get('recommended_backend')}")
+    piper_model = health.get("piper_model")
+    if piper_model:
+        typer.echo(f"Piper model: {piper_model}")
+
+
+def _print_test_summary(report: dict, resolved_backend: str) -> None:
+    bar = "-" * 84
+    typer.secho(bar, fg=typer.colors.GREEN)
+    typer.secho("NATURAL TEST RESULT", fg=typer.colors.GREEN, bold=True)
+    typer.secho(bar, fg=typer.colors.GREEN)
+    typer.echo(f"Final backend: {_backend_label(resolved_backend)}")
+    status = report.get("natural_backend_status")
+    if isinstance(status, str) and status:
+        typer.echo(f"Status: {status}")
+    recommendation = report.get("natural_backend_recommendation")
+    if isinstance(recommendation, str) and recommendation:
+        typer.secho(f"Recommendation: {recommendation}", fg=typer.colors.YELLOW)
+    piper_model = report.get("piper_model_path")
+    if isinstance(piper_model, str) and piper_model:
+        typer.echo(f"Piper model used: {piper_model}")
     typer.secho(f"### {banner_text} ###", fg=terminal_color, bold=True)
     typer.secho(border, fg=terminal_color)
 
@@ -123,6 +156,9 @@ def _run_speak(
 
     if show_backend:
         _print_backend_banner(report, resolved_backend)
+
+    if test_natural:
+        _print_test_summary(report, resolved_backend)
 
     if save_wav:
         save_path = Path(save_wav)
@@ -268,6 +304,55 @@ def test_natural_command(
         show_backend=show_backend,
         low_vram=low_vram,
         save_wav=save_wav,
+        play_audio=True,
+    )
+
+
+@app.command("doctor-natural")
+def doctor_natural_command(
+    dna_path: str = typer.Option("myai.voicedna.enc", help="Encrypted VoiceDNA path"),
+    password: str = typer.Option("", help="VoiceDNA password (optional; prompts only when running test)"),
+    low_vram: bool = typer.Option(False, "--lowvram", help="Force low-VRAM 4-bit PersonaPlex mode with CPU offload"),
+    run_test: bool = typer.Option(False, "--run-test", help="Run natural test immediately after doctor checks"),
+    show_backend: bool = typer.Option(True, "--show-backend/--no-show-backend", help="Show backend banner during auto test"),
+):
+    health = inspect_natural_backend_health(force_low_vram=low_vram)
+    decision = health.decision
+    detected_vram = (
+        f"{decision.detected_vram_gb:.1f} GB" if isinstance(decision.detected_vram_gb, (int, float)) else "N/A"
+    )
+    summary = {
+        "detected_vram": detected_vram,
+        "decision": decision.status_message,
+        "personaplex": health.personaplex_message,
+        "piper": health.piper_message,
+        "recommended_backend": health.recommended_backend,
+        "piper_model": health.piper_model_path,
+    }
+    _print_doctor_summary(summary)
+
+    if decision.recommendation:
+        typer.secho(decision.recommendation, fg=typer.colors.YELLOW)
+
+    should_run = run_test
+    if not should_run:
+        should_run = typer.confirm("Run natural voice test now?", default=True)
+
+    if not should_run:
+        typer.echo("Doctor check complete. Re-run with --run-test to launch the natural test directly.")
+        raise typer.Exit(code=0)
+
+    resolved_password = password or typer.prompt("VoiceDNA password", hide_input=True)
+    _run_speak(
+        text="",
+        password=resolved_password,
+        dna_path=dna_path,
+        base_model="auto",
+        natural_voice=True,
+        test_natural=True,
+        show_backend=show_backend,
+        low_vram=low_vram,
+        save_wav="",
         play_audio=True,
     )
 
