@@ -15,6 +15,13 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 
 ## Iteration Log
 
+### 2026-02-25 — v2.9.8 Doctor-Natural + 8GB GPU Natural Voice UX Pass
+- Added `voicedna doctor-natural` to run fast VRAM/backend health checks and offer immediate natural test playback.
+- Added explicit PersonaPlex/Piper runtime preflight diagnostics so low-VRAM hardware decisions are clear before synthesis.
+- Improved `voicedna test-natural` result messaging with a dedicated final summary and actionable fallback recommendations.
+- Improved Piper fallback behavior with auto-discovery of local `.onnx` models and smoother default prosody tuning knobs.
+- Updated Omarchy daemon/test documentation to use `doctor-natural` as the recommended first validation command.
+
 ### 2026-02-25 — v2.9.7 Peter Parallel-Checkout Workflow Adoption
 - Added `SKILL_GIT_WORKFLOW.md` with explicit multi-agent rules for dedicated workspaces (`voiceDNA-codex`, `voiceDNA-grok`).
 - Added top-level README workflow note to make agent isolation policy visible immediately.

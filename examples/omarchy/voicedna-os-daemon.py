@@ -148,6 +148,7 @@ def main() -> int:
         decision = detect_natural_backend_decision(force_low_vram=low_vram)
         logger.info("VoiceDNA daemon backend selected: auto -> %s", selected_backend)
         logger.info("%s", natural_status)
+        logger.info("Tip: run 'voicedna doctor-natural --dna-path <voice>' for a full desktop natural voice health check.")
         logger.info(
             "BACKEND STARTUP: backend=%s vram=%sGB required=%sGB lowvram=%s",
             decision.backend,

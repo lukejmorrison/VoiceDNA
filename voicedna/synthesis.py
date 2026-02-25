@@ -15,8 +15,8 @@ from voice_dna import VoiceDNA
 
 from .framework import VoiceDNAProcessor
 from .providers import PersonaPlexTTS, PiperTTS
-from .providers.personaplex import describe_personaplex_vram
-from .providers.piper import piper_natural_message
+from .providers.personaplex import check_personaplex_runtime, describe_personaplex_vram
+from .providers.piper import check_piper_runtime, piper_natural_message
 
 
 def _format_vram_label(vram_gb: float) -> str:
@@ -65,6 +65,40 @@ class NaturalBackendDecision:
     low_vram_mode: bool = False
 
 
+@dataclass
+class NaturalBackendHealth:
+    decision: NaturalBackendDecision
+    personaplex_available: bool
+    personaplex_message: str
+    piper_available: bool
+    piper_message: str
+    piper_model_path: str | None
+    recommended_backend: str
+
+
+def inspect_natural_backend_health(force_low_vram: bool = False) -> NaturalBackendHealth:
+    decision = detect_natural_backend_decision(force_low_vram=force_low_vram)
+    personaplex_ok, personaplex_message = check_personaplex_runtime(low_vram=decision.low_vram_mode)
+    piper_ok, piper_message, piper_model_path = check_piper_runtime()
+
+    if decision.backend == "personaplex" and personaplex_ok:
+        recommended_backend = "personaplex"
+    elif piper_ok:
+        recommended_backend = "piper"
+    else:
+        recommended_backend = "simple"
+
+    return NaturalBackendHealth(
+        decision=decision,
+        personaplex_available=personaplex_ok,
+        personaplex_message=personaplex_message,
+        piper_available=piper_ok,
+        piper_message=piper_message,
+        piper_model_path=piper_model_path,
+        recommended_backend=recommended_backend,
+    )
+
+
 def detect_natural_backend_decision(force_low_vram: bool = False) -> NaturalBackendDecision:
     detected_vram_gb, min_vram_gb, vram_status, status_color = describe_personaplex_vram()
 
@@ -91,7 +125,7 @@ def detect_natural_backend_decision(force_low_vram: bool = False) -> NaturalBack
             detected_vram_gb=None,
             required_vram_gb=min_vram_gb,
             recommendation=(
-                "For full PersonaPlex quality, upgrade to 24GB+ card or use cloud proxy."
+                "For best quality on 8GB cards, configure Piper model fallback; for full PersonaPlex quality use 24GB+ or cloud proxy."
             ),
         )
 
@@ -210,6 +244,7 @@ def synthesize_and_process(
     detected_vram_gb: float | None = None
     required_vram_gb: float | None = None
     personaplex_low_vram_mode = low_vram
+    piper_model_path: str | None = None
 
     if resolved_backend == "natural_auto":
         decision = detect_natural_backend_decision(force_low_vram=low_vram)
@@ -227,6 +262,8 @@ def synthesize_and_process(
 
     try:
         provider = _build_provider(resolved_backend, low_vram=personaplex_low_vram_mode)
+        if resolved_backend == "piper":
+            piper_model_path = getattr(provider, "model_path", None)
     except Exception as error:
         if resolved_backend == "piper":
             natural_backend_status = (
@@ -261,8 +298,12 @@ def synthesize_and_process(
             recommendation = "For full PersonaPlex quality, upgrade to 24GB+ card or use cloud proxy."
             try:
                 fallback_provider = _build_provider("piper")
+                piper_model_path = getattr(fallback_provider, "model_path", None)
                 process_params["base_model"] = "piper"
                 process_params["natural_backend_status"] = fallback_status
+                recommendation = (
+                    "Using Piper fallback. For best 8GB quality, set VOICEDNA_PIPER_MODEL to a high-quality local .onnx voice."
+                )
                 process_params["natural_backend_recommendation"] = recommendation
                 processed_audio = processor.synthesize_and_process(
                     text=text,
@@ -306,6 +347,8 @@ def synthesize_and_process(
         report["required_vram_gb"] = round(required_vram_gb, 2)
     report["personaplex_low_vram_mode"] = bool(personaplex_low_vram_mode)
     report["resolved_backend"] = resolved_backend
+    if piper_model_path:
+        report["piper_model_path"] = piper_model_path
     return processed_audio, report, resolved_backend
 
 

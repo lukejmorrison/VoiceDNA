@@ -73,14 +73,15 @@ notify-send --hint=string:sound-name:voice "VoiceDNA Test" "This should speak in
 echo "[3/5] Running terminal speech test..."
 spd-say "VoiceDNA quick verification in progress on Omarchy." || true
 
-echo "[3b/5] Running VoiceDNA one-command natural test..."
+echo "[3b/5] Running VoiceDNA natural doctor + test..."
 if [[ -n "${VOICEDNA_PASSWORD:-}" ]]; then
   VOICEDNA_PATH="${VOICEDNA_ENC_PATH:-$HOME/myai.voicedna.enc}"
-  voicedna test-natural \
+  voicedna doctor-natural \
     --dna-path "$VOICEDNA_PATH" \
+    --password "$VOICEDNA_PASSWORD" \
+    --run-test \
     --show-backend \
-    --save-wav /tmp/voicedna-omarchy-cli-test.wav \
-    --password "$VOICEDNA_PASSWORD" || true
+    || true
 else
   echo "VOICEDNA_PASSWORD not set; skipping CLI synthesize test."
 fi

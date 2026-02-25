@@ -50,13 +50,13 @@ notify-send --hint=string:sound-name:voice "VoiceDNA Test" "This should speak in
 spd-say "VoiceDNA terminal test. Omarchy desktop voice check."
 ```
 
-3b) Test VoiceDNA CLI natural synthesis path:
+3b) Run natural voice doctor (recommended first test):
 
 ```bash
-voicedna test-natural --dna-path eddy42
+voicedna doctor-natural --dna-path eddy42
 ```
 
-Show backend visibility banner (backend + VRAM + consistency):
+Run direct natural test with explicit backend banner (backend + VRAM + consistency):
 
 ```bash
 voicedna test-natural --dna-path eddy42 --show-backend
