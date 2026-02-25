@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(VoiceDNAVST3 VERSION 2.9.6)
+project(VoiceDNAVST3 VERSION 3.0.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -29,11 +29,14 @@ juce_add_plugin(VoiceDNAVST3
 target_sources(VoiceDNAVST3 PRIVATE
   Source/PluginProcessor.cpp
   Source/PluginEditor.cpp
+  Source/VoiceDNABridge.cpp
 )
 
 target_compile_definitions(VoiceDNAVST3 PRIVATE
   JUCE_WEB_BROWSER=0
   JUCE_USE_CURL=0
+  VOICEDNA_REPO_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/../.."
+  VOICEDNA_PYTHON_EXECUTABLE="python3"
 )
 
 target_link_libraries(VoiceDNAVST3 PRIVATE
