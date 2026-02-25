@@ -10,6 +10,12 @@ if(NOT DEFINED JUCE_DIR)
   message(FATAL_ERROR "JUCE_DIR is not set. Point JUCE_DIR to your JUCE root directory.")
 endif()
 
+if(NOT EXISTS "${JUCE_DIR}/CMakeLists.txt")
+  message(FATAL_ERROR
+    "Invalid JUCE_DIR='${JUCE_DIR}'. This must point to a real JUCE source checkout root "
+    "that contains CMakeLists.txt (do not use the literal '/absolute/path/to/JUCE' placeholder).")
+endif()
+
 add_subdirectory(${JUCE_DIR} JUCE)
 
 juce_add_plugin(VoiceDNAVST3

@@ -28,13 +28,19 @@ Prereqs:
 - Python env with VoiceDNA deps (`pip install -e .` in repo root)
 
 ```bash
+# 1) Clone JUCE once (example location)
+git clone https://github.com/juce-framework/JUCE.git ~/dev/JUCE
+
+# 2) Configure + build (replace JUCE_DIR with your real JUCE checkout path)
 cd /home/luke/dev/voiceDNA-codex
 pip install -e .
 
 cd vst3/juce_venom_starter
-cmake -B build -S . -DJUCE_DIR=/absolute/path/to/JUCE
+cmake -B build -S . -DJUCE_DIR=~/dev/JUCE
 cmake --build build -j
 ```
+
+If you see `Unknown CMake command "juce_add_plugin"`, your `JUCE_DIR` is wrong or still using a placeholder path.
 
 Then copy the generated `.vst3` into your VST3 path and rescan in Reaper.
 
