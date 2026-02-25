@@ -163,6 +163,30 @@ cmake --build build -j
 
 See `vst3/README.md` for full Reaper/VENOM integration notes.
 
+## 🎛️ VST3 Voice Genetics Plugin (v3.0.0)
+
+VoiceDNA now includes a first loadable VST3 plugin foundation so any DAW can be used as a Voice Genetics Lab.
+
+Implemented in this foundation pass:
+- Real-time filter mode with `.voicedna` loading + age/imprint controls.
+- Creation mode with parent file selection + inheritance/randomness controls + `Birth New Voice`.
+- Python bridge runtime that calls existing `VoiceDNAProcessor` (`vst3/bridge_runtime.py`).
+- Reaper-testable JUCE plugin scaffold in `vst3/juce_venom_starter/`.
+
+Build quick path:
+
+```bash
+cd /home/luke/dev/voiceDNA-codex
+pip install -e .
+cd vst3/juce_venom_starter
+cmake -B build -S . -DJUCE_DIR=/absolute/path/to/JUCE
+cmake --build build -j
+```
+
+Screenshot placeholders (replace after local Reaper capture):
+- `docs/screenshots/reaper-vst3-main-panel.png`
+- `docs/screenshots/reaper-vst3-creation-mode.png`
+
 ## 🔒 Voice Consistency & Identifiability (v2.7)
 
 - New `VoiceConsistencyEngine` (`voicedna/consistency.py`) with optional SpeechBrain / Resemblyzer embeddings and deterministic fallback.

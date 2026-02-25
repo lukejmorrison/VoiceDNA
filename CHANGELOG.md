@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented here.
 
+## [3.0.0] - 2026-02-25
+### Added
+- Added a loadable JUCE VST3 foundation plugin with real host GUI controls for VoiceDNA workflow testing in DAWs.
+- Added `vst3/bridge_runtime.py` Python runtime bridge with `process` and `birth` commands that reuse `VoiceDNAProcessor` and VoiceDNA embedding flows.
+- Added creation mode birth flow from two parent audio files with inheritance percentages + randomness and encrypted child `.voicedna.enc` output.
+- Added new JUCE bridge source `vst3/juce_venom_starter/Source/VoiceDNABridge.*` and Projucer project file `VoiceDNAVST3.jucer`.
+
+### Changed
+- Upgraded `vst3/juce_venom_starter` processor/editor from static starter UI to a testable Voice Genetics panel.
+- Added Reaper-focused controls: load DNA, password, age slider, imprint strength, lineage placeholder, parent selectors, and `Birth New Voice` action.
+- Added clear Linux (Omarchy) and Windows compile instructions in `vst3/README.md`.
+- Updated top-level README with `🎛️ VST3 Voice Genetics Plugin` section for v3 foundation usage.
+- Version bumped to `3.0.0`.
+
 ## [2.9.9] - 2026-02-25
 ### Added
 - Added `--quick-test` to `voicedna doctor-natural` and `voicedna test-natural` for a short phrase run with full backend banner and consistency visibility.
