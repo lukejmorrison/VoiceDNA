@@ -15,6 +15,13 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 
 ## Iteration Log
 
+### 2026-02-25 — v3.0.0 VST3 Voice Genetics Foundation (Reaper-Testable)
+- Upgraded the JUCE VST3 scaffold into a loadable foundation plugin with real GUI controls for DNA loading, age/imprint shaping, and lineage-aware creation flow.
+- Added an executable Python runtime bridge (`vst3/bridge_runtime.py`) so plugin processing can call the existing `VoiceDNAProcessor` pipeline on WAV blocks.
+- Implemented first Creation Mode birth workflow: select two parent audio files, set inheritance/randomness, and generate encrypted child `.voicedna.enc` artifacts.
+- Added dedicated C++ bridge boundary (`VoiceDNABridge`) and DAW panel wiring for parent selection, lineage display placeholder, and one-click child birth.
+- Updated docs for Linux/Windows VST3 compilation and v3 Voice Genetics plugin usage.
+
 ### 2026-02-25 — v2.9.9 Doctor-First + Quick-Test Natural Voice UX Pass
 - Promoted `voicedna doctor-natural --dna-path ...` as the default first validation step in Omarchy docs.
 - Added `--quick-test` mode for both `doctor-natural` and `test-natural` to speak a short phrase with full backend banner and consistency score visibility.

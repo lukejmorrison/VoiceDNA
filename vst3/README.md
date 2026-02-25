@@ -1,36 +1,70 @@
-# VoiceDNA VST3 Starter (JUCE + VENOM) for Reaper
+# VoiceDNA VST3 Voice Genetics Foundation (v3.0.0)
 
-This folder includes a pre-built starter scaffold for building a VoiceDNA VST3 plugin and testing it in Reaper.
+This folder contains the first loadable JUCE VST3 foundation for Reaper/DAWs with a Python bridge into `VoiceDNAProcessor`.
 
-## Included
+## What is implemented now
 
-- `juce_venom_starter/` — JUCE CMake project skeleton for VST3 plugin build
-	- `CMakeLists.txt`
-	- `Source/PluginProcessor.h`
-	- `Source/PluginProcessor.cpp`
-	- `Source/PluginEditor.h`
-	- `Source/PluginEditor.cpp`
-- `venom_bridge.py` — Python VENOM bridge that loads encrypted VoiceDNA and processes audio bytes
-- `python_bridge.py` — original minimal Python bridge (kept for compatibility)
-- `VoiceDNAProcessor.h` — legacy placeholder header
+- Real-time filter mode GUI controls:
+	- Load `.voicedna` or `.voicedna.enc`
+	- Age slider
+	- Imprint strength slider
+	- Bridge enable toggle
+- Creation mode GUI controls:
+	- Parent A / Parent B file pickers
+	- Parent inheritance sliders (`Parent A %`, `Parent B %`)
+	- Randomness slider
+	- `Birth New Voice` button
+- Lineage display placeholder (`Parent A × Parent B -> child`).
+- Python runtime bridge script: `vst3/bridge_runtime.py`
+	- `process` command calls `VoiceDNAProcessor` on WAV blocks.
+	- `birth` command creates an encrypted child `.voicedna.enc` from two parent audio files.
 
-## Build for Reaper (Linux example)
+## Build on Linux (Omarchy)
+
+Prereqs:
+- JUCE checkout path
+- CMake 3.22+
+- C++ toolchain (gcc/clang)
+- Python env with VoiceDNA deps (`pip install -e .` in repo root)
 
 ```bash
+cd /home/luke/dev/voiceDNA-codex
+pip install -e .
+
 cd vst3/juce_venom_starter
 cmake -B build -S . -DJUCE_DIR=/absolute/path/to/JUCE
 cmake --build build -j
 ```
 
-Copy resulting `.vst3` into your Reaper VST3 path and rescan plugins.
+Then copy the generated `.vst3` into your VST3 path and rescan in Reaper.
 
-## VENOM Bridge Flow
+## Build on Windows
 
-Use `venom_bridge.py` inside your plugin host bridge layer:
+Prereqs:
+- Visual Studio 2022 Build Tools (MSVC)
+- CMake 3.22+
+- JUCE checkout
+- Python 3.10+ with VoiceDNA deps
 
-1. load encrypted DNA (`voices/<name>.voicedna.enc`)
-2. send audio bytes to `VoiceDNAVenomBridge.process_pcm_bytes(...)`
-3. write processed bytes back into plugin buffer
-4. inspect processor report with `get_last_report()`
+```powershell
+cd C:\path\to\voiceDNA-codex
+py -m pip install -e .
 
-This gives you a practical launchpad for Reaper + VoiceDNA integration without reworking core package architecture.
+cd vst3\juce_venom_starter
+cmake -B build -S . -DJUCE_DIR=C:\path\to\JUCE
+cmake --build build --config Release
+```
+
+## Reaper test flow (ASAP)
+
+1. Add plugin to an audio track.
+2. Set mode to `Real-time Filter`.
+3. Load `.voicedna.enc`, set password, enable bridge.
+4. Play audio to confirm bridge processing status updates.
+5. Switch to `Create / Imprint`, select two parent audio files.
+6. Click `Birth New Voice` and save child DNA output.
+
+## Notes
+
+- The bridge currently shells out to Python for per-block processing and is foundation-grade (functional, not low-latency optimized yet).
+- Next pass should replace shell calls with a persistent Python/pybind11 bridge for production realtime performance.

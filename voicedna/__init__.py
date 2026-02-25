@@ -35,4 +35,4 @@ __all__ = [
     "select_natural_backend",
 ]
 
-__version__ = "2.9.9"
+__version__ = "3.0.0"
