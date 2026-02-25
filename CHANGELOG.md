@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented here.
 
+## [2.9.9] - 2026-02-25
+### Added
+- Added `--quick-test` to `voicedna doctor-natural` and `voicedna test-natural` for a short phrase run with full backend banner and consistency visibility.
+
+### Changed
+- Made `voicedna doctor-natural` the primary recommended first command in Omarchy verification docs.
+- Improved Piper fallback quality with stronger model auto-selection heuristics and short-notification prosody defaults.
+- Improved `test-natural` guidance by surfacing `doctor-natural` as the first diagnostic step.
+- Version bumped to `2.9.9`.
+
+### Notes
+- v2.9.9 is focused on effortless natural voice testing on 8GB consumer GPUs.
+
 ## [2.9.8] - 2026-02-25
 ### Added
 - Added new `voicedna doctor-natural` command with quick VRAM/runtime health checks and optional immediate natural test run.

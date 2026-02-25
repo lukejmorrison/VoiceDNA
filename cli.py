@@ -17,6 +17,7 @@ from voicedna.synthesis import (
 
 app = typer.Typer(help="VoiceDNA command line interface")
 VOICES_DIR = Path("voices")
+QUICK_TEST_TEXT = "VoiceDNA quick natural check on Omarchy."
 
 
 def _color_for_status(color: str | None) -> typer.colors:
@@ -59,6 +60,8 @@ def _print_backend_banner(report: dict, resolved_backend: str) -> None:
     terminal_color = _color_for_status(natural_color)
     border = "#" * max(92, len(banner_text) + 8)
     typer.secho(border, fg=terminal_color)
+    typer.secho(f"### {banner_text} ###", fg=terminal_color, bold=True)
+    typer.secho(border, fg=terminal_color)
 
 
 def _print_doctor_summary(health: dict) -> None:
@@ -91,8 +94,6 @@ def _print_test_summary(report: dict, resolved_backend: str) -> None:
     piper_model = report.get("piper_model_path")
     if isinstance(piper_model, str) and piper_model:
         typer.echo(f"Piper model used: {piper_model}")
-    typer.secho(f"### {banner_text} ###", fg=terminal_color, bold=True)
-    typer.secho(border, fg=terminal_color)
 
 
 def _run_speak(
@@ -291,17 +292,20 @@ def test_natural_command(
     password: str = typer.Option(..., prompt=True, hide_input=True),
     dna_path: str = typer.Option("myai.voicedna.enc", help="Encrypted VoiceDNA path"),
     low_vram: bool = typer.Option(False, "--lowvram", help="Force low-VRAM 4-bit PersonaPlex mode with CPU offload"),
+    quick_test: bool = typer.Option(False, "--quick-test", help="Speak a short phrase and always show the full backend banner + consistency"),
     show_backend: bool = typer.Option(True, "--show-backend/--no-show-backend", help="Show prominent backend banner"),
     save_wav: str = typer.Option("", help="Optional output WAV path"),
 ):
+    typer.secho("Tip: run 'voicedna doctor-natural --dna-path <voice>' first for full environment checks.", fg=typer.colors.CYAN)
+    resolved_text = QUICK_TEST_TEXT if quick_test else text
     _run_speak(
-        text=text,
+        text=resolved_text,
         password=password,
         dna_path=dna_path,
         base_model="auto",
         natural_voice=True,
         test_natural=True,
-        show_backend=show_backend,
+        show_backend=(True if quick_test else show_backend),
         low_vram=low_vram,
         save_wav=save_wav,
         play_audio=True,
@@ -314,6 +318,7 @@ def doctor_natural_command(
     password: str = typer.Option("", help="VoiceDNA password (optional; prompts only when running test)"),
     low_vram: bool = typer.Option(False, "--lowvram", help="Force low-VRAM 4-bit PersonaPlex mode with CPU offload"),
     run_test: bool = typer.Option(False, "--run-test", help="Run natural test immediately after doctor checks"),
+    quick_test: bool = typer.Option(False, "--quick-test", help="Speak a short phrase and always show the full backend banner + consistency"),
     show_backend: bool = typer.Option(True, "--show-backend/--no-show-backend", help="Show backend banner during auto test"),
 ):
     health = inspect_natural_backend_health(force_low_vram=low_vram)
@@ -334,7 +339,7 @@ def doctor_natural_command(
     if decision.recommendation:
         typer.secho(decision.recommendation, fg=typer.colors.YELLOW)
 
-    should_run = run_test
+    should_run = run_test or quick_test
     if not should_run:
         should_run = typer.confirm("Run natural voice test now?", default=True)
 
@@ -343,14 +348,15 @@ def doctor_natural_command(
         raise typer.Exit(code=0)
 
     resolved_password = password or typer.prompt("VoiceDNA password", hide_input=True)
+    test_text = QUICK_TEST_TEXT if quick_test else ""
     _run_speak(
-        text="",
+        text=test_text,
         password=resolved_password,
         dna_path=dna_path,
         base_model="auto",
         natural_voice=True,
         test_natural=True,
-        show_backend=show_backend,
+        show_backend=(True if quick_test else show_backend),
         low_vram=low_vram,
         save_wav="",
         play_audio=True,

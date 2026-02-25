@@ -32,28 +32,34 @@ bash examples/omarchy/install-voicedna-omarchy.sh --natural-voice --lowvram --te
 
 ### Step-by-step verification commands
 
-1) Birth a fresh VoiceDNA:
+1) Run natural voice doctor first (recommended):
+
+```bash
+voicedna doctor-natural --dna-path eddy42
+```
+
+Use quick test mode for shortest end-to-end check (plays short phrase + full backend banner):
+
+```bash
+voicedna doctor-natural --dna-path eddy42 --quick-test
+```
+
+2) Birth a fresh VoiceDNA (if needed):
 
 ```bash
 voicedna birth --imprint "Luke real Omarchy machine test voice" --user luke_omarchy_test --password
 ```
 
-2) Test notification voice:
+3) Test notification voice:
 
 ```bash
 notify-send --hint=string:sound-name:voice "VoiceDNA Test" "This should speak in your maturing voice"
 ```
 
-3) Test terminal speech-dispatcher speak path:
+4) Test terminal speech-dispatcher speak path:
 
 ```bash
 spd-say "VoiceDNA terminal test. Omarchy desktop voice check."
-```
-
-3b) Run natural voice doctor (recommended first test):
-
-```bash
-voicedna doctor-natural --dna-path eddy42
 ```
 
 Run direct natural test with explicit backend banner (backend + VRAM + consistency):
@@ -62,13 +68,13 @@ Run direct natural test with explicit backend banner (backend + VRAM + consisten
 voicedna test-natural --dna-path eddy42 --show-backend
 ```
 
-4) Check daemon status:
+5) Check daemon status:
 
 ```bash
 systemctl --user status voicedna-os-daemon
 ```
 
-5) Check consistency report (`consistency_score`):
+6) Check consistency report (`consistency_score`):
 
 ```bash
 /home/$USER/.local/bin/test-voicedna.sh --consistency-only
