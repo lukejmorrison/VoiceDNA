@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "voicedna"
-version = "2.9.5"
+version = "2.9.6"
 description = "Lifelong sonic identity and plugin framework for AI voices"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -39,6 +39,12 @@ personaplex = [
   "transformers>=4.47.0,<5",
   "accelerate>=1.0.0",
   "torch>=2.4.0",
+]
+personaplex-lowvram = [
+  "transformers>=4.47.0,<5",
+  "accelerate>=1.0.0",
+  "torch>=2.4.0",
+  "bitsandbytes>=0.43.0",
 ]
 consistency = [
   "speechbrain>=1.0.0",

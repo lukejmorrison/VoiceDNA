@@ -3,6 +3,7 @@ set -euo pipefail
 
 TEST_MODE=0
 NATURAL_VOICE_MODE=0
+LOWVRAM_MODE=0
 for arg in "$@"; do
 	case "$arg" in
 		--test-mode)
@@ -11,15 +12,19 @@ for arg in "$@"; do
 		--natural-voice)
 			NATURAL_VOICE_MODE=1
 			;;
+		--lowvram)
+			LOWVRAM_MODE=1
+			;;
 		-h|--help)
-			echo "Usage: $0 [--test-mode] [--natural-voice]"
+			echo "Usage: $0 [--test-mode] [--natural-voice] [--lowvram]"
 			echo "  --test-mode   Run 30-second verification after install"
 			echo "  --natural-voice  Enable VRAM-aware natural voice mode (PersonaPlex/Piper)"
+			echo "  --lowvram   Force low-VRAM PersonaPlex mode (4-bit + CPU offload)"
 			exit 0
 			;;
 		*)
 			echo "Unknown argument: $arg"
-			echo "Usage: $0 [--test-mode] [--natural-voice]"
+			echo "Usage: $0 [--test-mode] [--natural-voice] [--lowvram]"
 			exit 1
 			;;
 	esac
@@ -76,6 +81,9 @@ VOICEDNA_TTS_BACKEND=auto
 VOICEDNA_PERSONAPLEX_MODEL=nvidia/personaplex-7b-v1
 VOICEDNA_PERSONAPLEX_DEVICE=auto
 VOICEDNA_PERSONAPLEX_DTYPE=auto
+VOICEDNA_PERSONAPLEX_LOWVRAM=0
+VOICEDNA_PERSONAPLEX_LOWVRAM_MODEL=brianmatzelle/personaplex-7b-v1-bnb-4bit
+VOICEDNA_PERSONAPLEX_CPU_OFFLOAD=1
 VOICEDNA_MIN_PERSONAPLEX_VRAM_GB=12
 VOICEDNA_PIPER_MODEL=
 VOICEDNA_PIPER_EXECUTABLE=piper
@@ -91,6 +99,14 @@ if [[ -n "${VOICEDNA_PASSWORD:-}" ]]; then
 fi
 
 if [[ "$NATURAL_VOICE_MODE" -eq 1 ]]; then
+	sed -i 's#^VOICEDNA_TTS_BACKEND=.*#VOICEDNA_TTS_BACKEND=auto#' "$DAEMON_ENV_FILE" || true
+	grep -q '^VOICEDNA_TTS_BACKEND=' "$DAEMON_ENV_FILE" || echo 'VOICEDNA_TTS_BACKEND=auto' >> "$DAEMON_ENV_FILE"
+	chmod 600 "$DAEMON_ENV_FILE"
+fi
+
+if [[ "$LOWVRAM_MODE" -eq 1 ]]; then
+	sed -i 's#^VOICEDNA_PERSONAPLEX_LOWVRAM=.*#VOICEDNA_PERSONAPLEX_LOWVRAM=1#' "$DAEMON_ENV_FILE" || true
+	grep -q '^VOICEDNA_PERSONAPLEX_LOWVRAM=' "$DAEMON_ENV_FILE" || echo 'VOICEDNA_PERSONAPLEX_LOWVRAM=1' >> "$DAEMON_ENV_FILE"
 	sed -i 's#^VOICEDNA_TTS_BACKEND=.*#VOICEDNA_TTS_BACKEND=auto#' "$DAEMON_ENV_FILE" || true
 	grep -q '^VOICEDNA_TTS_BACKEND=' "$DAEMON_ENV_FILE" || echo 'VOICEDNA_TTS_BACKEND=auto' >> "$DAEMON_ENV_FILE"
 	chmod 600 "$DAEMON_ENV_FILE"
@@ -133,6 +149,9 @@ echo
 echo "Your Omarchy desktop now speaks with your lifelong VoiceDNA voice!"
 if [[ "$NATURAL_VOICE_MODE" -eq 1 ]]; then
 	echo "Natural voice mode: VRAM-aware backend enabled (PersonaPlex on high VRAM, Piper fallback on consumer GPUs)."
+fi
+if [[ "$LOWVRAM_MODE" -eq 1 ]]; then
+	echo "Low-VRAM mode: forcing PersonaPlex 4-bit path with CPU offload safeguards."
 fi
 echo "Quick test: spd-say 'Hello Luke, your desktop voice is now growing with you.'"
 echo "Daemon status: systemctl --user status voicedna-os-daemon.service"

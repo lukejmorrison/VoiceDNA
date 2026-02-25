@@ -2,6 +2,22 @@
 
 All notable changes to this project are documented here.
 
+## [2.9.6] - 2026-02-24
+### Added
+- Added new optional dependency extra `personaplex-lowvram` with `bitsandbytes` and PersonaPlex runtime stack for 4-bit loading.
+- Added `--lowvram` flag to `voicedna speak` and `voicedna test-natural` to force 4-bit PersonaPlex mode with offload safety.
+- Added Omarchy installer support for `--lowvram` and daemon env knobs for low-VRAM PersonaPlex operation.
+
+### Changed
+- PersonaPlex provider now auto-detects VRAM and loads 4-bit quantized PersonaPlex (`brianmatzelle/personaplex-7b-v1-bnb-4bit`) on sub-12GB GPUs.
+- Natural backend status now emits explicit low-VRAM messaging (for example: `Detected 8 GB VRAM → loading 4-bit PersonaPlex (low-VRAM mode)`).
+- Omarchy daemon now supports low-VRAM mode via CLI/env and logs low-VRAM startup state.
+- `scripts/clear-vram.sh` now aggressively clears CUDA-related cache directories in addition to torch cache flush.
+- Version bumped to `2.9.6`.
+
+### Notes
+- v2.9.6 targets practical PersonaPlex quality on consumer GPUs like GTX 1070 Ti 8GB.
+
 ## [2.9.5] - 2026-02-24
 ### Added
 - Added new CLI flag `--show-backend` to `voicedna speak` and `voicedna test-natural` for a large backend status banner.

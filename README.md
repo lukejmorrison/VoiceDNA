@@ -42,6 +42,12 @@ Install with optional PersonaPlex natural voice backend:
 pip install "voicedna[personaplex]"
 ```
 
+Install with low-VRAM PersonaPlex (4-bit quantized + offload):
+
+```bash
+pip install "voicedna[personaplex-lowvram]"
+```
+
 ## Install from PyPI
 
 ```bash
@@ -106,6 +112,12 @@ Show crystal-clear backend reporting banner:
 voicedna test-natural --dna-path eddy42 --show-backend
 ```
 
+Force low-VRAM PersonaPlex mode (4-bit + CPU offload):
+
+```bash
+voicedna test-natural --dna-path eddy42 --lowvram --show-backend
+```
+
 Expected status example on consumer GPUs:
 - `Detected 8.0GB VRAM -> using Piper natural voice`
 - `Success! Playing now...`
@@ -166,6 +178,17 @@ See `vst3/README.md` for full Reaper/VENOM integration notes.
 - If VRAM is below the PersonaPlex threshold (default `12GB`) or PersonaPlex fails, VoiceDNA automatically falls back to `Piper`.
 - Set `VOICEDNA_MIN_PERSONAPLEX_VRAM_GB` to tune the threshold.
 - Set `VOICEDNA_PIPER_MODEL=/path/to/model.onnx` to enable Piper fallback.
+
+## 🧩 Low-VRAM PersonaPlex on 8 GB cards (v2.9.6)
+
+- VoiceDNA now supports automatic low-VRAM PersonaPlex mode with 4-bit quantization when VRAM is below the PersonaPlex target.
+- Expected startup status on GTX 1070 Ti class hardware: `Detected 8 GB VRAM → loading 4-bit PersonaPlex (low-VRAM mode)`.
+- Force low-VRAM mode from CLI with `--lowvram` on `voicedna speak` or `voicedna test-natural`.
+- Install runtime dependencies with `pip install "voicedna[personaplex-lowvram]"`.
+- Optional env knobs:
+	- `VOICEDNA_PERSONAPLEX_LOWVRAM=1`
+	- `VOICEDNA_PERSONAPLEX_LOWVRAM_MODEL=brianmatzelle/personaplex-7b-v1-bnb-4bit`
+	- `VOICEDNA_PERSONAPLEX_CPU_OFFLOAD=1`
 
 ## v2.3 — PyPI Publish Prep + RVC-Ready Imprint Path
 

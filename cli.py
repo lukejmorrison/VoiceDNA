@@ -70,6 +70,7 @@ def _run_speak(
     natural_voice: bool,
     test_natural: bool,
     show_backend: bool,
+    low_vram: bool,
     save_wav: str,
     play_audio: bool,
 ) -> None:
@@ -89,7 +90,7 @@ def _run_speak(
         resolved_backend = "auto"
         play_audio = True
         typer.secho("Loading natural voice...", fg=typer.colors.CYAN)
-        decision = detect_natural_backend_decision()
+        decision = detect_natural_backend_decision(force_low_vram=low_vram)
         _print_prominent_backend_status(decision.status_message, decision.color)
         if decision.recommendation:
             typer.secho(decision.recommendation, fg=typer.colors.YELLOW)
@@ -106,6 +107,7 @@ def _run_speak(
             dna=dna,
             backend=resolved_backend,
             natural_voice=resolved_natural_voice,
+            low_vram=low_vram,
         )
     except Exception as error:
         typer.secho(f"Synthesis failed: {error}", fg=typer.colors.RED)
@@ -228,6 +230,7 @@ def speak(
     base_model: str = typer.Option("auto", help="TTS backend (auto, personaplex, piper, simple, elevenlabs, xtts, cartesia)"),
     natural_voice: bool = typer.Option(False, "--natural-voice", help="Prefer natural voice backend (PersonaPlex)"),
     test_natural: bool = typer.Option(False, "--test-natural", help="One-command natural voice test with auto backend selection"),
+    low_vram: bool = typer.Option(False, "--lowvram", help="Force low-VRAM 4-bit PersonaPlex mode with CPU offload"),
     show_backend: bool = typer.Option(False, "--show-backend", help="Show prominent backend banner with VRAM + consistency"),
     save_wav: str = typer.Option("", help="Optional output WAV path"),
     play_audio: bool = typer.Option(True, "--play/--no-play", help="Play generated audio after processing"),
@@ -240,6 +243,7 @@ def speak(
         natural_voice=natural_voice,
         test_natural=test_natural,
         show_backend=show_backend,
+        low_vram=low_vram,
         save_wav=save_wav,
         play_audio=play_audio,
     )
@@ -250,6 +254,7 @@ def test_natural_command(
     text: str = typer.Option("", help="Optional test text (defaults to built-in natural voice phrase)"),
     password: str = typer.Option(..., prompt=True, hide_input=True),
     dna_path: str = typer.Option("myai.voicedna.enc", help="Encrypted VoiceDNA path"),
+    low_vram: bool = typer.Option(False, "--lowvram", help="Force low-VRAM 4-bit PersonaPlex mode with CPU offload"),
     show_backend: bool = typer.Option(True, "--show-backend/--no-show-backend", help="Show prominent backend banner"),
     save_wav: str = typer.Option("", help="Optional output WAV path"),
 ):
@@ -261,6 +266,7 @@ def test_natural_command(
         natural_voice=True,
         test_natural=True,
         show_backend=show_backend,
+        low_vram=low_vram,
         save_wav=save_wav,
         play_audio=True,
     )

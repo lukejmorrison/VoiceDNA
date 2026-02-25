@@ -76,6 +76,12 @@ def _resolve_tts_backend(cli_backend: str | None) -> str:
     return os.getenv("VOICEDNA_TTS_BACKEND", "auto")
 
 
+def _resolve_lowvram(cli_lowvram: bool) -> bool:
+    if cli_lowvram:
+        return True
+    return os.getenv("VOICEDNA_PERSONAPLEX_LOWVRAM", "0").strip().lower() in {"1", "true", "yes", "on"}
+
+
 def _play_wav_bytes(audio_bytes: bytes) -> None:
     with subprocess.Popen(
         ["pw-play", "-"],
@@ -89,17 +95,18 @@ def _play_wav_bytes(audio_bytes: bytes) -> None:
         process.wait(timeout=15)
 
 
-def _synthesize_natural_test_phrase(dna: VoiceDNA, backend: str) -> tuple[bytes, dict]:
+def _synthesize_natural_test_phrase(dna: VoiceDNA, backend: str, low_vram: bool) -> tuple[bytes, dict]:
     audio, report, _ = synthesize_and_process(
         text="VoiceDNA natural desktop voice is active on your Omarchy system.",
         dna=dna,
         backend=backend,
         natural_voice=(backend == "auto"),
+        low_vram=low_vram,
     )
     return audio, report
 
 
-def _announce_backend(backend: str, dna: VoiceDNA) -> None:
+def _announce_backend(backend: str, dna: VoiceDNA, low_vram: bool) -> None:
     if os.getenv("VOICEDNA_DAEMON_ANNOUNCE", "0") != "1":
         return
 
@@ -108,7 +115,7 @@ def _announce_backend(backend: str, dna: VoiceDNA) -> None:
         return
 
     try:
-        audio, report = _synthesize_natural_test_phrase(dna, backend=backend)
+        audio, report = _synthesize_natural_test_phrase(dna, backend=backend, low_vram=low_vram)
         status = report.get("natural_backend_status")
         if status:
             logger.info("%s", status)
@@ -126,30 +133,41 @@ def main() -> int:
         default=None,
         help="TTS backend used for daemon announce/probe path",
     )
+    parser.add_argument(
+        "--lowvram",
+        action="store_true",
+        help="Force low-VRAM PersonaPlex mode (4-bit + CPU offload)",
+    )
     args = parser.parse_args()
 
     backend = _resolve_tts_backend(args.tts_backend)
+    low_vram = _resolve_lowvram(args.lowvram)
     interval = int(os.getenv("VOICEDNA_DAEMON_INTERVAL_SECONDS", "120"))
     if backend == "auto":
-        selected_backend, natural_status = select_natural_backend()
-        decision = detect_natural_backend_decision()
+        selected_backend, natural_status = select_natural_backend(force_low_vram=low_vram)
+        decision = detect_natural_backend_decision(force_low_vram=low_vram)
         logger.info("VoiceDNA daemon backend selected: auto -> %s", selected_backend)
         logger.info("%s", natural_status)
         logger.info(
-            "BACKEND STARTUP: backend=%s vram=%sGB required=%sGB",
+            "BACKEND STARTUP: backend=%s vram=%sGB required=%sGB lowvram=%s",
             decision.backend,
             f"{decision.detected_vram_gb:.1f}" if decision.detected_vram_gb is not None else "N/A",
             f"{decision.required_vram_gb:.1f}",
+            str(decision.low_vram_mode).lower(),
         )
     else:
         selected_backend = backend
         logger.info("VoiceDNA daemon backend selected: %s", selected_backend)
-        logger.info("BACKEND STARTUP: backend=%s (manual override)", selected_backend)
+        logger.info(
+            "BACKEND STARTUP: backend=%s (manual override) lowvram=%s",
+            selected_backend,
+            str(low_vram).lower(),
+        )
 
     if selected_backend in {"personaplex", "piper"}:
         try:
             dna = _load_dna()
-            _announce_backend(selected_backend, dna)
+            _announce_backend(selected_backend, dna, low_vram=low_vram)
         except Exception as error:
             logger.warning("Natural backend startup probe failed; continuing with simple fallback: %s", error)
             _announce_once()

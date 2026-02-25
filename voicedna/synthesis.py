@@ -19,6 +19,12 @@ from .providers.personaplex import describe_personaplex_vram
 from .providers.piper import piper_natural_message
 
 
+def _format_vram_label(vram_gb: float) -> str:
+    if abs(vram_gb - round(vram_gb)) < 0.05:
+        return f"{int(round(vram_gb))} GB"
+    return f"{vram_gb:.1f} GB"
+
+
 def is_omarchy_environment() -> bool:
     if Path("/etc/omarchy-release").exists():
         return True
@@ -56,10 +62,26 @@ class NaturalBackendDecision:
     detected_vram_gb: float | None
     required_vram_gb: float
     recommendation: str | None = None
+    low_vram_mode: bool = False
 
 
-def detect_natural_backend_decision() -> NaturalBackendDecision:
+def detect_natural_backend_decision(force_low_vram: bool = False) -> NaturalBackendDecision:
     detected_vram_gb, min_vram_gb, vram_status, status_color = describe_personaplex_vram()
+
+    if force_low_vram:
+        detected_text = _format_vram_label(detected_vram_gb) if detected_vram_gb is not None else "unknown"
+        return NaturalBackendDecision(
+            backend="personaplex",
+            status_message=(
+                f"Detected {detected_text} VRAM → loading 4-bit PersonaPlex (low-VRAM mode)."
+                if detected_vram_gb is not None
+                else "Low-VRAM flag enabled → loading 4-bit PersonaPlex (low-VRAM mode)."
+            ),
+            color="yellow",
+            detected_vram_gb=detected_vram_gb,
+            required_vram_gb=min_vram_gb,
+            low_vram_mode=True,
+        )
 
     if detected_vram_gb is None:
         return NaturalBackendDecision(
@@ -75,17 +97,14 @@ def detect_natural_backend_decision() -> NaturalBackendDecision:
 
     if detected_vram_gb < min_vram_gb:
         return NaturalBackendDecision(
-            backend="piper",
+            backend="personaplex",
             status_message=(
-                f"Detected {detected_vram_gb:.1f}GB VRAM -> using Piper natural voice "
-                f"(PersonaPlex target: {min_vram_gb:.1f}GB+)."
+                f"Detected {_format_vram_label(detected_vram_gb)} VRAM → loading 4-bit PersonaPlex (low-VRAM mode)."
             ),
             color=status_color,
             detected_vram_gb=detected_vram_gb,
             required_vram_gb=min_vram_gb,
-            recommendation=(
-                "For full PersonaPlex quality, upgrade to 24GB+ card or use cloud proxy."
-            ),
+            low_vram_mode=True,
         )
 
     return NaturalBackendDecision(
@@ -94,11 +113,12 @@ def detect_natural_backend_decision() -> NaturalBackendDecision:
         color="green",
         detected_vram_gb=detected_vram_gb,
         required_vram_gb=min_vram_gb,
+        low_vram_mode=False,
     )
 
 
-def select_natural_backend() -> tuple[str, str]:
-    decision = detect_natural_backend_decision()
+def select_natural_backend(force_low_vram: bool = False) -> tuple[str, str]:
+    decision = detect_natural_backend_decision(force_low_vram=force_low_vram)
     return decision.backend, decision.status_message
 
 
@@ -153,12 +173,18 @@ class _SimpleLocalTTS:
         return buffer.getvalue()
 
 
-def _build_provider(backend: str) -> Any:
+def _build_provider(backend: str, low_vram: bool = False) -> Any:
     if backend == "personaplex":
         return PersonaPlexTTS(
             model_id=os.getenv("VOICEDNA_PERSONAPLEX_MODEL", "nvidia/personaplex-7b-v1"),
+            low_vram_model_id=os.getenv(
+                "VOICEDNA_PERSONAPLEX_LOWVRAM_MODEL",
+                "brianmatzelle/personaplex-7b-v1-bnb-4bit",
+            ),
             device=os.getenv("VOICEDNA_PERSONAPLEX_DEVICE", "auto"),
             torch_dtype=os.getenv("VOICEDNA_PERSONAPLEX_DTYPE", "auto"),
+            low_vram=low_vram,
+            cpu_offload=os.getenv("VOICEDNA_PERSONAPLEX_CPU_OFFLOAD", "1").strip().lower() in {"1", "true", "yes", "on"},
         )
     if backend == "piper":
         return PiperTTS(
@@ -174,6 +200,7 @@ def synthesize_and_process(
     dna: VoiceDNA,
     backend: str = "auto",
     natural_voice: bool = False,
+    low_vram: bool = False,
     params: Dict[str, Any] | None = None,
 ) -> Tuple[bytes, Dict[str, Any], str]:
     resolved_backend = resolve_tts_backend(backend, natural_voice=natural_voice)
@@ -182,18 +209,24 @@ def synthesize_and_process(
     recommendation: str | None = None
     detected_vram_gb: float | None = None
     required_vram_gb: float | None = None
+    personaplex_low_vram_mode = low_vram
 
     if resolved_backend == "natural_auto":
-        decision = detect_natural_backend_decision()
+        decision = detect_natural_backend_decision(force_low_vram=low_vram)
         resolved_backend = decision.backend
         natural_backend_status = decision.status_message
         natural_backend_color = decision.color
         recommendation = decision.recommendation
         detected_vram_gb = decision.detected_vram_gb
         required_vram_gb = decision.required_vram_gb
+        personaplex_low_vram_mode = decision.low_vram_mode
+    elif resolved_backend == "personaplex" and low_vram:
+        personaplex_low_vram_mode = True
+        natural_backend_status = "Low-VRAM flag enabled → loading 4-bit PersonaPlex (low-VRAM mode)."
+        natural_backend_color = "yellow"
 
     try:
-        provider = _build_provider(resolved_backend)
+        provider = _build_provider(resolved_backend, low_vram=personaplex_low_vram_mode)
     except Exception as error:
         if resolved_backend == "piper":
             natural_backend_status = (
@@ -271,6 +304,7 @@ def synthesize_and_process(
         report["detected_vram_gb"] = round(detected_vram_gb, 2)
     if required_vram_gb is not None:
         report["required_vram_gb"] = round(required_vram_gb, 2)
+    report["personaplex_low_vram_mode"] = bool(personaplex_low_vram_mode)
     report["resolved_backend"] = resolved_backend
     return processed_audio, report, resolved_backend
 

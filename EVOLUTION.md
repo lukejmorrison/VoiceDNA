@@ -15,6 +15,13 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 
 ## Iteration Log
 
+### 2026-02-24 — v2.9.6 Low-VRAM PersonaPlex (4-bit Consumer GPU Pass)
+- Added optional `personaplex-lowvram` dependency path with bitsandbytes for 4-bit quantized PersonaPlex runtime.
+- Updated PersonaPlex provider to auto-switch to a low-VRAM 4-bit model on <12GB cards and use `device_map=auto` with CPU offload safeguards.
+- Added explicit low-VRAM status messaging (`Detected 8 GB VRAM → loading 4-bit PersonaPlex (low-VRAM mode)`) to CLI and report output.
+- Added `--lowvram` CLI support for `voicedna speak` and `voicedna test-natural`, plus Omarchy daemon/installer low-VRAM mode wiring.
+- Hardened `scripts/clear-vram.sh` with additional CUDA cache cleanup for repeatable local validation loops.
+
 ### 2026-02-24 — v2.9.5 Crystal-Clear Backend Visibility Pass
 - Added a dedicated one-line test command (`voicedna test-natural --dna-path ...`) so natural backend testing is immediate.
 - Added `--show-backend` banner output with backend, VRAM, and consistency score for clear real-hardware feedback.

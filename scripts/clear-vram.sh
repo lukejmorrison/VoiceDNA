@@ -21,16 +21,34 @@ fi
 
 echo "[2/4] Clearing torch CUDA cache"
 python - <<'PY'
+import gc
+import os
+import shutil
+
 try:
     import torch
     if torch.cuda.is_available():
+        gc.collect()
+        torch.cuda.synchronize()
         torch.cuda.empty_cache()
         torch.cuda.ipc_collect()
-        print("Torch CUDA cache cleared")
+        gc.collect()
+        print("Torch CUDA cache cleared (empty_cache + ipc_collect)")
     else:
         print("CUDA not available in torch; skipping cache clear")
 except Exception as error:
     print(f"Torch cache clear skipped: {error}")
+
+for cache_dir in (
+    os.path.expanduser("~/.nv/ComputeCache"),
+    os.path.expanduser("~/.cache/torch_extensions"),
+):
+    try:
+        if os.path.isdir(cache_dir):
+            shutil.rmtree(cache_dir)
+            print(f"Removed CUDA-related cache dir: {cache_dir}")
+    except Exception as cache_error:
+        print(f"Skipping cache dir cleanup {cache_dir}: {cache_error}")
 PY
 
 echo "[3/4] Syncing filesystem buffers"

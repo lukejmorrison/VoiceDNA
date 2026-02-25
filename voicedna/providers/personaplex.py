@@ -6,9 +6,20 @@ import os
 import threading
 import wave
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import numpy as np
+
+
+DEFAULT_PERSONAPLEX_MODEL = "nvidia/personaplex-7b-v1"
+DEFAULT_PERSONAPLEX_LOWVRAM_MODEL = "brianmatzelle/personaplex-7b-v1-bnb-4bit"
+
+
+def _env_truthy(value: str | None) -> bool:
+    if value is None:
+        return False
+    return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
 def get_personaplex_min_vram_gb() -> float:
@@ -58,9 +69,12 @@ def describe_personaplex_vram() -> tuple[float | None, float, str, str]:
 
 @dataclass
 class PersonaPlexConfig:
-    model_id: str = "nvidia/personaplex-7b-v1"
+    model_id: str = DEFAULT_PERSONAPLEX_MODEL
+    low_vram_model_id: str = DEFAULT_PERSONAPLEX_LOWVRAM_MODEL
     device: str = "auto"
     torch_dtype: str = "auto"
+    low_vram: bool = False
+    cpu_offload: bool = True
 
 
 class PersonaPlexTTS:
@@ -70,15 +84,39 @@ class PersonaPlexTTS:
 
     def __init__(
         self,
-        model_id: str = "nvidia/personaplex-7b-v1",
+        model_id: str = DEFAULT_PERSONAPLEX_MODEL,
+        low_vram_model_id: str = DEFAULT_PERSONAPLEX_LOWVRAM_MODEL,
         device: str = "auto",
         torch_dtype: str = "auto",
+        low_vram: bool = False,
+        cpu_offload: bool = True,
     ):
-        self.config = PersonaPlexConfig(model_id=model_id, device=device, torch_dtype=torch_dtype)
+        self.config = PersonaPlexConfig(
+            model_id=model_id,
+            low_vram_model_id=low_vram_model_id,
+            device=device,
+            torch_dtype=torch_dtype,
+            low_vram=low_vram,
+            cpu_offload=cpu_offload,
+        )
         self._ensure_pipeline_loaded()
 
     def _ensure_pipeline_loaded(self) -> None:
-        signature = (self.config.model_id, self.config.device, self.config.torch_dtype)
+        detected_vram_gb = detect_vram_gb()
+        min_vram_gb = get_personaplex_min_vram_gb()
+        low_vram_mode = self.config.low_vram or _env_truthy(os.getenv("VOICEDNA_PERSONAPLEX_LOWVRAM"))
+        if detected_vram_gb is not None and detected_vram_gb < min_vram_gb:
+            low_vram_mode = True
+
+        selected_model = self.config.low_vram_model_id if low_vram_mode else self.config.model_id
+
+        signature = (
+            selected_model,
+            self.config.device,
+            self.config.torch_dtype,
+            str(low_vram_mode),
+            str(self.config.cpu_offload),
+        )
         if PersonaPlexTTS._shared_pipeline is not None and PersonaPlexTTS._shared_signature == signature:
             return
 
@@ -104,15 +142,18 @@ class PersonaPlexTTS:
                     "Install a compatible version with: pip install 'transformers<5'"
                 )
 
+            pipeline_kwargs: dict[str, Any] = {
+                "task": "text-to-speech",
+                "model": selected_model,
+            }
+
             pipeline_device = -1
             if self.config.device == "auto":
                 pipeline_device = 0 if torch.cuda.is_available() else -1
             elif self.config.device.startswith("cuda"):
                 pipeline_device = 0
 
-            min_vram_gb = get_personaplex_min_vram_gb()
-            detected_vram_gb = detect_vram_gb()
-            if detected_vram_gb is not None and detected_vram_gb < min_vram_gb:
+            if not low_vram_mode and detected_vram_gb is not None and detected_vram_gb < min_vram_gb:
                 raise RuntimeError(
                     f"Detected {detected_vram_gb:.1f}GB VRAM, but PersonaPlex requires at least {min_vram_gb:.1f}GB."
                 )
@@ -124,19 +165,56 @@ class PersonaPlexTTS:
                 except Exception:
                     dtype = "auto"
 
-            try:
-                PersonaPlexTTS._shared_pipeline = pipeline(
-                    task="text-to-speech",
-                    model=self.config.model_id,
-                    device=pipeline_device,
-                    torch_dtype=dtype,
+            if low_vram_mode:
+                try:
+                    importlib.import_module("bitsandbytes")
+                    BitsAndBytesConfig = getattr(transformers, "BitsAndBytesConfig")
+                except Exception as error:
+                    raise RuntimeError(
+                        "Low-VRAM PersonaPlex mode requires bitsandbytes. "
+                        "Install with: pip install \"voicedna[personaplex-lowvram]\""
+                    ) from error
+
+                offload_dir = Path(
+                    os.getenv(
+                        "VOICEDNA_PERSONAPLEX_OFFLOAD_DIR",
+                        str(Path.home() / ".cache" / "voicedna" / "personaplex-offload"),
+                    )
                 )
+                offload_dir.mkdir(parents=True, exist_ok=True)
+
+                quant_config = BitsAndBytesConfig(
+                    load_in_4bit=True,
+                    bnb_4bit_quant_type="nf4",
+                    bnb_4bit_use_double_quant=True,
+                    bnb_4bit_compute_dtype=getattr(torch, "float16", None),
+                )
+
+                model_kwargs: dict[str, Any] = {
+                    "quantization_config": quant_config,
+                    "device_map": "auto",
+                    "low_cpu_mem_usage": True,
+                }
+                if self.config.cpu_offload:
+                    model_kwargs.update({
+                        "offload_state_dict": True,
+                        "offload_folder": str(offload_dir),
+                    })
+
+                pipeline_kwargs["model_kwargs"] = model_kwargs
+                pipeline_kwargs["device_map"] = "auto"
+            else:
+                pipeline_kwargs["device"] = pipeline_device
+                pipeline_kwargs["torch_dtype"] = dtype
+
+            try:
+                PersonaPlexTTS._shared_pipeline = pipeline(**pipeline_kwargs)
                 PersonaPlexTTS._shared_signature = signature
             except Exception as error:
                 raise RuntimeError(
                     "Failed to initialize PersonaPlex TTS pipeline. "
                     "Verify model availability, transformers compatibility (4.x), and GPU/VRAM requirements for "
-                    "nvidia/personaplex-7b-v1. "
+                    f"{selected_model}. "
                     f"Original error: {error}"
                 ) from error
 

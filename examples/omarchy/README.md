@@ -22,7 +22,13 @@ bash examples/omarchy/install-voicedna-omarchy.sh --natural-voice --test-mode
 
 This enables the optional PersonaPlex backend for speech-dispatcher and daemon probe flows.
 GPU acceleration is strongly recommended for real-time desktop usage.
-On consumer cards (for example GTX 1070 Ti 8GB), VoiceDNA automatically falls back to Piper natural voice.
+On consumer cards (for example GTX 1070 Ti 8GB), VoiceDNA can load low-VRAM PersonaPlex in 4-bit mode or fall back to Piper if runtime dependencies are unavailable.
+
+Force low-VRAM PersonaPlex mode on 8GB cards:
+
+```bash
+bash examples/omarchy/install-voicedna-omarchy.sh --natural-voice --lowvram --test-mode
+```
 
 ### Step-by-step verification commands
 
@@ -106,6 +112,12 @@ Natural voice mode (optional VRAM-aware backend):
 bash examples/omarchy/install-voicedna-omarchy.sh --natural-voice
 ```
 
+Natural + forced low-VRAM PersonaPlex mode:
+
+```bash
+bash examples/omarchy/install-voicedna-omarchy.sh --natural-voice --lowvram
+```
+
 This script:
 - installs/updates `voicedna` in your active Python environment
 - optionally installs PersonaPlex dependencies with `--natural-voice`
@@ -181,6 +193,9 @@ Edit `~/.config/voicedna/daemon.env` if needed:
 - `VOICEDNA_PERSONAPLEX_MODEL=nvidia/personaplex-7b-v1`
 - `VOICEDNA_PERSONAPLEX_DEVICE=auto`
 - `VOICEDNA_PERSONAPLEX_DTYPE=auto`
+- `VOICEDNA_PERSONAPLEX_LOWVRAM=0`
+- `VOICEDNA_PERSONAPLEX_LOWVRAM_MODEL=brianmatzelle/personaplex-7b-v1-bnb-4bit`
+- `VOICEDNA_PERSONAPLEX_CPU_OFFLOAD=1`
 - `VOICEDNA_MIN_PERSONAPLEX_VRAM_GB=12`
 - `VOICEDNA_PIPER_MODEL=/absolute/path/to/piper/model.onnx`
 
