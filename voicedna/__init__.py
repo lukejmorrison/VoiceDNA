@@ -28,4 +28,4 @@ __all__ = [
     "is_omarchy_environment",
 ]
 
-__version__ = "2.9.2"
+__version__ = "2.9.3"

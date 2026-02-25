@@ -15,6 +15,12 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 
 ## Iteration Log
 
+### 2026-02-24 — v2.9.3 Playback Reliability + Reaper VST3 Starter
+- Added Python 3.13+ compatibility dependency `audioop-lts` to prevent pydub playback breakage on modern runtimes.
+- Added modern playback fallback in synthesis runtime (`sounddevice`) before system CLI player fallback.
+- Added JUCE + VENOM VST3 starter scaffold (`vst3/juce_venom_starter/`) plus `vst3/venom_bridge.py` for Reaper-oriented plugin testing.
+- Updated Omarchy and top-level docs to use the modern `voicedna speak` path and include VST3 test guidance.
+
 ### 2026-02-24 — v2.9.2 CLI Natural Voice Testability Pass
 - Added high-level synthesis helper (`voicedna/synthesis.py`) that resolves backend defaults (including Omarchy-aware natural mode), synthesizes text, and runs full VoiceDNA processing.
 - Upgraded `voicedna speak` to generate real audio from backend selection, process through filters, optionally play output, and optionally save WAV (`--save-wav`).

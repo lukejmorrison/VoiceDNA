@@ -100,6 +100,20 @@ Save processed audio to WAV:
 voicedna speak --text "Hello" --dna-path luke_real_voice --base-model personaplex --natural-voice --save-wav /tmp/luke_real_voice_test.wav --no-play
 ```
 
+Python 3.13+ playback compatibility:
+- VoiceDNA now includes `audioop-lts` support for modern Python runtimes where stdlib `audioop` is removed.
+- CLI playback path falls back through `pydub`, `sounddevice`, then system players (`pw-play` / `aplay`).
+
+VST3 Reaper starter (JUCE + VENOM bridge):
+
+```bash
+cd vst3/juce_venom_starter
+cmake -B build -S . -DJUCE_DIR=/absolute/path/to/JUCE
+cmake --build build -j
+```
+
+See `vst3/README.md` for full Reaper/VENOM integration notes.
+
 ## 🔒 Voice Consistency & Identifiability (v2.7)
 
 - New `VoiceConsistencyEngine` (`voicedna/consistency.py`) with optional SpeechBrain / Resemblyzer embeddings and deterministic fallback.

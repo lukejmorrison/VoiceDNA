@@ -1,6 +1,8 @@
 cryptography>=43.0.0
 numpy>=2.0.0
 pydub>=0.25.1
+audioop-lts>=0.2.1; python_version >= '3.13'
+sounddevice>=0.4.7
 typer>=0.12.3
 pytest>=8.2.0
 requests>=2.32.0

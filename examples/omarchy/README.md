@@ -46,7 +46,7 @@ spd-say "VoiceDNA terminal test. Omarchy desktop voice check."
 3b) Test VoiceDNA CLI natural synthesis path:
 
 ```bash
-voicedna speak --text "Hello from Eddy42 natural voice test." --dna-path voices/eddy42.voicedna.enc --base-model personaplex --natural-voice
+voicedna speak --text "Hello from Eddy42 natural voice test." --dna-path eddy42 --base-model personaplex --natural-voice --save-wav /tmp/eddy42_test.wav --no-play
 ```
 
 4) Check daemon status:
@@ -174,3 +174,12 @@ Edit `~/.config/voicedna/daemon.env` if needed:
 - `VOICEDNA_PERSONAPLEX_MODEL=nvidia/personaplex-7b-v1`
 - `VOICEDNA_PERSONAPLEX_DEVICE=auto`
 - `VOICEDNA_PERSONAPLEX_DTYPE=auto`
+
+## Reaper VST3 Starter
+
+For plugin testing in Reaper, use the JUCE + VENOM starter under:
+
+- `vst3/juce_venom_starter/`
+- `vst3/venom_bridge.py`
+
+See `vst3/README.md` for build steps and integration flow.

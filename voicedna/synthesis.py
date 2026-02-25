@@ -144,6 +144,30 @@ def play_wav_bytes(audio_bytes: bytes) -> str:
     except Exception:
         pass
 
+    try:
+        import numpy as np
+        import sounddevice as sd
+
+        with wave.open(io.BytesIO(audio_bytes), "rb") as wav_file:
+            channels = wav_file.getnchannels()
+            sample_width = wav_file.getsampwidth()
+            sample_rate = wav_file.getframerate()
+            frame_count = wav_file.getnframes()
+            raw_frames = wav_file.readframes(frame_count)
+
+        if sample_width != 2:
+            raise RuntimeError("Only 16-bit PCM WAV playback is supported for sounddevice fallback")
+
+        samples = np.frombuffer(raw_frames, dtype=np.int16)
+        if channels > 1:
+            samples = samples.reshape(-1, channels)
+
+        sd.play(samples, samplerate=sample_rate)
+        sd.wait()
+        return "sounddevice"
+    except Exception:
+        pass
+
     for player in (("pw-play", ["pw-play", "-"]), ("aplay", ["aplay", "-"])):
         name, command = player
         if subprocess.call(
@@ -161,5 +185,5 @@ def play_wav_bytes(audio_bytes: bytes) -> str:
         return name
 
     raise RuntimeError(
-        "No audio playback backend available. Install pydub-compatible stack or PipeWire/ALSA playback tools (pw-play/aplay)."
+        "No audio playback backend available. Install pydub/audioop-lts, sounddevice, or PipeWire/ALSA playback tools (pw-play/aplay)."
     )

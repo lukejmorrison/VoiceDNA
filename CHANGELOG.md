@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented here.
 
+## [2.9.3] - 2026-02-24
+### Added
+- Added `audioop-lts` dependency for Python 3.13+ compatibility where stdlib `audioop` is removed.
+- Added modern playback fallback via `sounddevice` in synthesis path.
+- Added JUCE + VENOM VST3 starter scaffold for Reaper under `vst3/juce_venom_starter/` and `vst3/venom_bridge.py`.
+
+### Changed
+- Playback fallback chain now attempts `pydub` → `sounddevice` → `pw-play`/`aplay`.
+- Omarchy docs/test flow updated to use new `voicedna speak` command path for natural synthesis testing.
+- Version bumped to `2.9.3`.
+
+### Notes
+- v2.9.3 hardens modern Python playback reliability and starts practical VST3 testing path for Reaper.
+
 ## [2.9.2] - 2026-02-24
 ### Added
 - New synthesis helper module `voicedna/synthesis.py` with backend resolution, provider dispatch, and audio playback helpers.
