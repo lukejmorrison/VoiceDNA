@@ -15,6 +15,13 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 
 ## Iteration Log
 
+### 2026-02-24 — v2.9.2 CLI Natural Voice Testability Pass
+- Added high-level synthesis helper (`voicedna/synthesis.py`) that resolves backend defaults (including Omarchy-aware natural mode), synthesizes text, and runs full VoiceDNA processing.
+- Upgraded `voicedna speak` to generate real audio from backend selection, process through filters, optionally play output, and optionally save WAV (`--save-wav`).
+- Added clearer progress messages for natural voice generation path and improved command-level usability for first-run testing.
+- Updated Omarchy test helper to validate the new CLI synthesis path (`voicedna speak --base-model personaplex --natural-voice`).
+- Prepared v2.9.2 release metadata/docs for easier real-machine validation and reviewer feedback loops.
+
 ### 2026-02-24 — First Real User VoiceDNA Birth (Mic Capture + Encryption)
 - Successfully recorded a real 30-second microphone sample using the one-command `examples/record_and_birth.sh` workflow.
 - Created first real encrypted identity artifact: `myai.voicedna.enc` for user `luke_real_voice`.

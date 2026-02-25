@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented here.
 
+## [2.9.2] - 2026-02-24
+### Added
+- New synthesis helper module `voicedna/synthesis.py` with backend resolution, provider dispatch, and audio playback helpers.
+- New CLI command `voicedna verify-password --dna-path ...` for path/password checks before runtime speech.
+- New `voicedna speak` options: `--natural-voice`, `--save-wav`, `--play/--no-play`.
+
+### Changed
+- `voicedna speak` now performs real text synthesis + full VoiceDNA processing chain, then optionally plays audio and/or saves WAV output.
+- Omarchy test flow now exercises `voicedna speak --base-model personaplex --natural-voice` in `examples/omarchy/test-voicedna.sh`.
+- Voice artifact creation flow is now standardized under `voices/` with explicit voice naming prompts in creation helpers.
+- Version bumped to `2.9.2`.
+
+### Notes
+- PersonaPlex is now the effective default when `--natural-voice` is set or when running in Omarchy-like environments.
+
 ## [2.9.0] - 2026-02-24
 ### Added
 - New optional PersonaPlex provider package `voicedna/providers` with `PersonaPlexTTS` backend support.

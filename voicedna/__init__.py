@@ -3,6 +3,7 @@ from .consistency import VoiceConsistencyEngine
 from .framework import VoiceDNAProcessor
 from .filters import AgeMaturationFilter, ImprintConverterFilter
 from .providers import PersonaPlexTTS
+from .synthesis import is_omarchy_environment, play_wav_bytes, synthesize_and_process
 
 from .plugins import (
     Base64PassThroughFilter,
@@ -22,6 +23,9 @@ __all__ = [
     "Base64PassThroughFilter",
     "PromptTagFilter",
     "PersonaPlexTTS",
+    "synthesize_and_process",
+    "play_wav_bytes",
+    "is_omarchy_environment",
 ]
 
-__version__ = "2.9.0"
+__version__ = "2.9.2"

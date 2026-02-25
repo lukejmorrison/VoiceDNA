@@ -88,6 +88,18 @@ Verify password + file path before speaking/evolving:
 voicedna verify-password --dna-path voices/luke_real_voice.voicedna.enc
 ```
 
+Generate + process + play voice directly from CLI:
+
+```bash
+voicedna speak --text "Hello from my natural VoiceDNA." --dna-path luke_real_voice --base-model personaplex --natural-voice
+```
+
+Save processed audio to WAV:
+
+```bash
+voicedna speak --text "Hello" --dna-path luke_real_voice --base-model personaplex --natural-voice --save-wav /tmp/luke_real_voice_test.wav --no-play
+```
+
 ## 🔒 Voice Consistency & Identifiability (v2.7)
 
 - New `VoiceConsistencyEngine` (`voicedna/consistency.py`) with optional SpeechBrain / Resemblyzer embeddings and deterministic fallback.

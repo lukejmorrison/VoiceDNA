@@ -6,7 +6,7 @@ import typer
 from cryptography.fernet import InvalidToken
 
 from voice_dna import VoiceDNA
-from voicedna import VoiceDNAProcessor
+from voicedna.synthesis import is_omarchy_environment, play_wav_bytes, synthesize_and_process
 
 
 app = typer.Typer(help="VoiceDNA command line interface")
@@ -94,21 +94,49 @@ def speak(
     text: str = typer.Option(..., help="Text to synthesize (metadata for processing context)"),
     password: str = typer.Option(..., prompt=True, hide_input=True),
     dna_path: str = typer.Option("myai.voicedna.enc", help="Encrypted VoiceDNA path"),
-    base_model: str = typer.Option("elevenlabs", help="Target TTS base model"),
+    base_model: str = typer.Option("auto", help="TTS backend (auto, personaplex, simple, elevenlabs, xtts, cartesia)"),
+    natural_voice: bool = typer.Option(False, "--natural-voice", help="Prefer natural voice backend (PersonaPlex)"),
+    save_wav: str = typer.Option("", help="Optional output WAV path"),
+    play_audio: bool = typer.Option(True, "--play/--no-play", help="Play generated audio after processing"),
 ):
     dna = _load_encrypted_or_exit(password=password, dna_path=dna_path)
-    processor = VoiceDNAProcessor()
+    resolved_natural_voice = natural_voice or is_omarchy_environment()
 
-    prompt = dna.generate_tts_prompt(base_model)
-    processed = processor.process(
-        b"RAW_TTS_AUDIO_BYTES",
-        dna,
-        {"text": text, "base_model": base_model, "audio_format": "wav"},
+    typer.echo(
+        "Generating with PersonaPlex natural TTS..."
+        if base_model in {"auto", "personaplex"} and resolved_natural_voice
+        else f"Generating with backend: {base_model}"
     )
 
-    typer.echo(json.dumps(prompt, indent=2))
+    try:
+        processed, report, resolved_backend = synthesize_and_process(
+            text=text,
+            dna=dna,
+            backend=base_model,
+            natural_voice=resolved_natural_voice,
+        )
+    except Exception as error:
+        typer.secho(f"Synthesis failed: {error}", fg=typer.colors.RED)
+        raise typer.Exit(code=2)
+
+    if save_wav:
+        save_path = Path(save_wav)
+        if save_path.suffix.lower() != ".wav":
+            save_path = save_path.with_suffix(".wav")
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+        save_path.write_bytes(processed)
+        typer.echo(f"Saved WAV: {save_path}")
+
+    if play_audio:
+        try:
+            playback_backend = play_wav_bytes(processed)
+            typer.echo(f"Playback backend: {playback_backend}")
+        except Exception as error:
+            typer.secho(f"Audio playback skipped: {error}", fg=typer.colors.YELLOW)
+
+    typer.echo(json.dumps(dna.generate_tts_prompt(resolved_backend), indent=2))
     typer.echo(f"Processed bytes: {len(processed)}")
-    typer.echo(json.dumps(processor.get_last_report(), indent=2))
+    typer.echo(json.dumps(report, indent=2))
 
 
 @app.command("evolve")
@@ -117,9 +145,10 @@ def evolve(
     password: str = typer.Option(..., prompt=True, hide_input=True),
     dna_path: str = typer.Option("myai.voicedna.enc", help="Encrypted VoiceDNA path"),
 ):
-    dna = _load_encrypted_or_exit(password=password, dna_path=dna_path)
+    resolved_path = _resolve_dna_path(dna_path)
+    dna = _load_encrypted_or_exit(password=password, dna_path=resolved_path)
     dna.evolve(days_passed=days)
-    dna.save_encrypted(password=password, filepath=dna_path)
+    dna.save_encrypted(password=password, filepath=resolved_path)
 
     typer.echo(f"Updated age: {dna.get_current_age():.2f}")
     typer.echo(f"Updated imprint_strength: {dna.imprint_strength:.3f}")

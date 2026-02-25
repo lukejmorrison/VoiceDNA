@@ -43,6 +43,12 @@ notify-send --hint=string:sound-name:voice "VoiceDNA Test" "This should speak in
 spd-say "VoiceDNA terminal test. Omarchy desktop voice check."
 ```
 
+3b) Test VoiceDNA CLI natural synthesis path:
+
+```bash
+voicedna speak --text "Hello from Eddy42 natural voice test." --dna-path voices/eddy42.voicedna.enc --base-model personaplex --natural-voice
+```
+
 4) Check daemon status:
 
 ```bash
