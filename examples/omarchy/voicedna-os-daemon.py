@@ -17,7 +17,7 @@ import time
 from pathlib import Path
 
 from voice_dna import VoiceDNA
-from voicedna.synthesis import select_natural_backend, synthesize_and_process
+from voicedna.synthesis import detect_natural_backend_decision, select_natural_backend, synthesize_and_process
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -132,11 +132,19 @@ def main() -> int:
     interval = int(os.getenv("VOICEDNA_DAEMON_INTERVAL_SECONDS", "120"))
     if backend == "auto":
         selected_backend, natural_status = select_natural_backend()
+        decision = detect_natural_backend_decision()
         logger.info("VoiceDNA daemon backend selected: auto -> %s", selected_backend)
         logger.info("%s", natural_status)
+        logger.info(
+            "BACKEND STARTUP: backend=%s vram=%sGB required=%sGB",
+            decision.backend,
+            f"{decision.detected_vram_gb:.1f}" if decision.detected_vram_gb is not None else "N/A",
+            f"{decision.required_vram_gb:.1f}",
+        )
     else:
         selected_backend = backend
         logger.info("VoiceDNA daemon backend selected: %s", selected_backend)
+        logger.info("BACKEND STARTUP: backend=%s (manual override)", selected_backend)
 
     if selected_backend in {"personaplex", "piper"}:
         try:

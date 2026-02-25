@@ -7,6 +7,7 @@ import struct
 import subprocess
 import tempfile
 import wave
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Tuple
 
@@ -14,7 +15,8 @@ from voice_dna import VoiceDNA
 
 from .framework import VoiceDNAProcessor
 from .providers import PersonaPlexTTS, PiperTTS
-from .providers.personaplex import detect_vram_gb, get_personaplex_min_vram_gb
+from .providers.personaplex import describe_personaplex_vram
+from .providers.piper import piper_natural_message
 
 
 def is_omarchy_environment() -> bool:
@@ -46,20 +48,58 @@ def resolve_tts_backend(requested_backend: str, natural_voice: bool = False) -> 
     )
 
 
-def select_natural_backend() -> tuple[str, str]:
-    detected_vram_gb = detect_vram_gb()
-    min_vram_gb = get_personaplex_min_vram_gb()
+@dataclass
+class NaturalBackendDecision:
+    backend: str
+    status_message: str
+    color: str
+    detected_vram_gb: float | None
+    required_vram_gb: float
+    recommendation: str | None = None
+
+
+def detect_natural_backend_decision() -> NaturalBackendDecision:
+    detected_vram_gb, min_vram_gb, vram_status, status_color = describe_personaplex_vram()
 
     if detected_vram_gb is None:
-        return "piper", "No CUDA VRAM detected -> using Piper natural voice."
-
-    if detected_vram_gb < min_vram_gb:
-        return (
-            "piper",
-            f"Detected {detected_vram_gb:.1f}GB VRAM -> using Piper natural voice (PersonaPlex target: {min_vram_gb:.1f}GB+).",
+        return NaturalBackendDecision(
+            backend="piper",
+            status_message=f"{vram_status} -> using Piper natural voice.",
+            color=status_color,
+            detected_vram_gb=None,
+            required_vram_gb=min_vram_gb,
+            recommendation=(
+                "For full PersonaPlex quality, upgrade to 24GB+ card or use cloud proxy."
+            ),
         )
 
-    return "personaplex", f"Detected {detected_vram_gb:.1f}GB VRAM -> using PersonaPlex natural voice."
+    if detected_vram_gb < min_vram_gb:
+        return NaturalBackendDecision(
+            backend="piper",
+            status_message=(
+                f"Detected {detected_vram_gb:.1f}GB VRAM -> using Piper natural voice "
+                f"(PersonaPlex target: {min_vram_gb:.1f}GB+)."
+            ),
+            color=status_color,
+            detected_vram_gb=detected_vram_gb,
+            required_vram_gb=min_vram_gb,
+            recommendation=(
+                "For full PersonaPlex quality, upgrade to 24GB+ card or use cloud proxy."
+            ),
+        )
+
+    return NaturalBackendDecision(
+        backend="personaplex",
+        status_message=f"Detected {detected_vram_gb:.1f}GB VRAM -> using PersonaPlex natural voice.",
+        color="green",
+        detected_vram_gb=detected_vram_gb,
+        required_vram_gb=min_vram_gb,
+    )
+
+
+def select_natural_backend() -> tuple[str, str]:
+    decision = detect_natural_backend_decision()
+    return decision.backend, decision.status_message
 
 
 class _SimpleLocalTTS:
@@ -138,17 +178,28 @@ def synthesize_and_process(
 ) -> Tuple[bytes, Dict[str, Any], str]:
     resolved_backend = resolve_tts_backend(backend, natural_voice=natural_voice)
     natural_backend_status: str | None = None
+    natural_backend_color: str | None = None
+    recommendation: str | None = None
+    detected_vram_gb: float | None = None
+    required_vram_gb: float | None = None
 
     if resolved_backend == "natural_auto":
-        resolved_backend, natural_backend_status = select_natural_backend()
+        decision = detect_natural_backend_decision()
+        resolved_backend = decision.backend
+        natural_backend_status = decision.status_message
+        natural_backend_color = decision.color
+        recommendation = decision.recommendation
+        detected_vram_gb = decision.detected_vram_gb
+        required_vram_gb = decision.required_vram_gb
 
     try:
         provider = _build_provider(resolved_backend)
     except Exception as error:
         if resolved_backend == "piper":
             natural_backend_status = (
-                f"Piper natural backend unavailable ({error}) -> falling back to simple local voice."
+                f"{piper_natural_message()} unavailable ({error}) -> falling back to simple local voice."
             )
+            natural_backend_color = "yellow"
             resolved_backend = "simple"
             provider = _build_provider(resolved_backend)
         else:
@@ -166,16 +217,20 @@ def synthesize_and_process(
 
     if natural_backend_status:
         process_params["natural_backend_status"] = natural_backend_status
+    if recommendation:
+        process_params["natural_backend_recommendation"] = recommendation
 
     try:
         processed_audio = processor.synthesize_and_process(text=text, dna=dna, tts_provider=provider, params=process_params)
     except Exception as error:
         if resolved_backend == "personaplex":
             fallback_status = f"PersonaPlex unavailable ({error}) -> falling back to Piper natural voice."
+            recommendation = "For full PersonaPlex quality, upgrade to 24GB+ card or use cloud proxy."
             try:
                 fallback_provider = _build_provider("piper")
                 process_params["base_model"] = "piper"
                 process_params["natural_backend_status"] = fallback_status
+                process_params["natural_backend_recommendation"] = recommendation
                 processed_audio = processor.synthesize_and_process(
                     text=text,
                     dna=dna,
@@ -184,6 +239,7 @@ def synthesize_and_process(
                 )
                 resolved_backend = "piper"
                 natural_backend_status = fallback_status
+                natural_backend_color = "yellow"
             except Exception as fallback_error:
                 final_status = (
                     f"{fallback_status} Piper unavailable ({fallback_error}) -> falling back to simple local voice."
@@ -191,6 +247,7 @@ def synthesize_and_process(
                 simple_provider = _build_provider("simple")
                 process_params["base_model"] = "simple"
                 process_params["natural_backend_status"] = final_status
+                process_params["natural_backend_recommendation"] = recommendation
                 processed_audio = processor.synthesize_and_process(
                     text=text,
                     dna=dna,
@@ -199,12 +256,21 @@ def synthesize_and_process(
                 )
                 resolved_backend = "simple"
                 natural_backend_status = final_status
+                natural_backend_color = "yellow"
         else:
             raise
 
     report = processor.get_last_report()
     if natural_backend_status:
         report["natural_backend_status"] = natural_backend_status
+    if natural_backend_color:
+        report["natural_backend_color"] = natural_backend_color
+    if recommendation:
+        report["natural_backend_recommendation"] = recommendation
+    if detected_vram_gb is not None:
+        report["detected_vram_gb"] = round(detected_vram_gb, 2)
+    if required_vram_gb is not None:
+        report["required_vram_gb"] = round(required_vram_gb, 2)
     report["resolved_backend"] = resolved_backend
     return processed_audio, report, resolved_backend
 

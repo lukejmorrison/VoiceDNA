@@ -2,6 +2,23 @@
 
 All notable changes to this project are documented here.
 
+## [2.9.5] - 2026-02-24
+### Added
+- Added new CLI flag `--show-backend` to `voicedna speak` and `voicedna test-natural` for a large backend status banner.
+- Added new one-line command `voicedna test-natural --dna-path ...` for instant natural backend testing.
+- Added backend banner details: active backend, detected VRAM, and current consistency score.
+
+### Changed
+- Natural backend decision output is now highly prominent and color-coded (green for PersonaPlex, yellow for Piper/fallback).
+- Added automatic fallback recommendation messaging: upgrade to 24GB+ VRAM or use cloud proxy for full PersonaPlex quality.
+- Omarchy daemon now logs backend startup decision with backend + VRAM details on every startup.
+- Updated `scripts/clear-vram.sh` to print free VRAM before and after cleanup.
+- Omarchy docs/test flow now defaults to `voicedna test-natural --dna-path ...`.
+- Version bumped to `2.9.5`.
+
+### Notes
+- v2.9.5 focuses on crystal-clear backend reporting for consumer GPUs while preserving high-VRAM PersonaPlex behavior.
+
 ## [2.9.4] - 2026-02-24
 ### Added
 - Added new `PiperTTS` provider (`voicedna/providers/piper.py`) for lightweight natural voice synthesis on lower-VRAM systems.

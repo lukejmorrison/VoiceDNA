@@ -6,6 +6,10 @@ import tempfile
 from pathlib import Path
 
 
+def piper_natural_message() -> str:
+    return "Piper natural voice"
+
+
 class PiperTTS:
     def __init__(
         self,

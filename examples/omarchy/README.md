@@ -47,7 +47,13 @@ spd-say "VoiceDNA terminal test. Omarchy desktop voice check."
 3b) Test VoiceDNA CLI natural synthesis path:
 
 ```bash
-voicedna speak --test-natural --dna-path eddy42
+voicedna test-natural --dna-path eddy42
+```
+
+Show backend visibility banner (backend + VRAM + consistency):
+
+```bash
+voicedna test-natural --dna-path eddy42 --show-backend
 ```
 
 4) Check daemon status:

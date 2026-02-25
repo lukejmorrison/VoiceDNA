@@ -97,12 +97,19 @@ voicedna speak --text "Hello from my natural VoiceDNA." --dna-path luke_real_voi
 One-command natural voice test (VRAM-aware backend selection):
 
 ```bash
-voicedna speak --text "Hello from Eddy42" --dna-path eddy42 --test-natural
+voicedna test-natural --dna-path eddy42
+```
+
+Show crystal-clear backend reporting banner:
+
+```bash
+voicedna test-natural --dna-path eddy42 --show-backend
 ```
 
 Expected status example on consumer GPUs:
 - `Detected 8.0GB VRAM -> using Piper natural voice`
 - `Success! Playing now...`
+- `For full PersonaPlex quality, upgrade to 24GB+ card or use cloud proxy`
 
 Save processed audio to WAV:
 

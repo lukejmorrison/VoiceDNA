@@ -38,6 +38,24 @@ def detect_vram_gb() -> float | None:
         return None
 
 
+def describe_personaplex_vram() -> tuple[float | None, float, str, str]:
+    detected_vram_gb = detect_vram_gb()
+    min_vram_gb = get_personaplex_min_vram_gb()
+
+    if detected_vram_gb is None:
+        return None, min_vram_gb, "No CUDA VRAM detected", "yellow"
+
+    if detected_vram_gb < min_vram_gb:
+        return (
+            detected_vram_gb,
+            min_vram_gb,
+            f"Detected {detected_vram_gb:.1f}GB VRAM below PersonaPlex target {min_vram_gb:.1f}GB+",
+            "yellow",
+        )
+
+    return detected_vram_gb, min_vram_gb, f"Detected {detected_vram_gb:.1f}GB VRAM", "green"
+
+
 @dataclass
 class PersonaPlexConfig:
     model_id: str = "nvidia/personaplex-7b-v1"

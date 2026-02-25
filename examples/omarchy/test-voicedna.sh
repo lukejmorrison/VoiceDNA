@@ -76,10 +76,9 @@ spd-say "VoiceDNA quick verification in progress on Omarchy." || true
 echo "[3b/5] Running VoiceDNA one-command natural test..."
 if [[ -n "${VOICEDNA_PASSWORD:-}" ]]; then
   VOICEDNA_PATH="${VOICEDNA_ENC_PATH:-$HOME/myai.voicedna.enc}"
-  voicedna speak \
-    --text "VoiceDNA natural voice quick test on Omarchy." \
+  voicedna test-natural \
     --dna-path "$VOICEDNA_PATH" \
-    --test-natural \
+    --show-backend \
     --save-wav /tmp/voicedna-omarchy-cli-test.wav \
     --password "$VOICEDNA_PASSWORD" || true
 else

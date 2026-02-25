@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+print_free_vram() {
+  if command -v nvidia-smi >/dev/null 2>&1; then
+    nvidia-smi --query-gpu=memory.free,memory.total --format=csv,noheader || true
+  else
+    echo "nvidia-smi not found"
+  fi
+}
+
+echo "[0/4] Free VRAM before cleanup"
+print_free_vram
+
 echo "[1/4] GPU memory snapshot"
 if command -v nvidia-smi >/dev/null 2>&1; then
   nvidia-smi -q -d MEMORY || true
@@ -36,5 +47,8 @@ elif command -v sudo >/dev/null 2>&1; then
 else
   echo "No root/sudo privileges; skipping drop_caches"
 fi
+
+echo "[after] Free VRAM after cleanup"
+print_free_vram
 
 echo "VRAM/system cache clear routine complete."
