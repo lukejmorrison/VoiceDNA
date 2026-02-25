@@ -15,6 +15,12 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 
 ## Iteration Log
 
+### 2026-02-25 — v2.9.9 Doctor-First + Quick-Test Natural Voice UX Pass
+- Promoted `voicedna doctor-natural --dna-path ...` as the default first validation step in Omarchy docs.
+- Added `--quick-test` mode for both `doctor-natural` and `test-natural` to speak a short phrase with full backend banner and consistency score visibility.
+- Improved Piper fallback quality on short notification phrases with tuned notification prosody defaults.
+- Improved Piper model auto-selection ranking to prefer high-quality English medium voices when multiple `.onnx` models are available.
+
 ### 2026-02-25 — v2.9.8 Doctor-Natural + 8GB GPU Natural Voice UX Pass
 - Added `voicedna doctor-natural` to run fast VRAM/backend health checks and offer immediate natural test playback.
 - Added explicit PersonaPlex/Piper runtime preflight diagnostics so low-VRAM hardware decisions are clear before synthesis.

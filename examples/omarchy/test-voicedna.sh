@@ -79,8 +79,7 @@ if [[ -n "${VOICEDNA_PASSWORD:-}" ]]; then
   voicedna doctor-natural \
     --dna-path "$VOICEDNA_PATH" \
     --password "$VOICEDNA_PASSWORD" \
-    --run-test \
-    --show-backend \
+    --quick-test \
     || true
 else
   echo "VOICEDNA_PASSWORD not set; skipping CLI synthesize test."

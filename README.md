@@ -108,6 +108,12 @@ Natural voice doctor (recommended first pass on 8GB cards):
 voicedna doctor-natural --dna-path eddy42
 ```
 
+Quick test mode (short phrase + full backend banner + consistency):
+
+```bash
+voicedna doctor-natural --dna-path eddy42 --quick-test
+```
+
 One-command natural voice test (VRAM-aware backend selection):
 
 ```bash
@@ -190,6 +196,10 @@ See `vst3/README.md` for full Reaper/VENOM integration notes.
 	- `VOICEDNA_PIPER_LENGTH_SCALE=0.92`
 	- `VOICEDNA_PIPER_NOISE_SCALE=0.60`
 	- `VOICEDNA_PIPER_NOISE_W=0.78`
+- Notification tuning knobs (short desktop phrases):
+	- `VOICEDNA_PIPER_NOTIFICATION_LENGTH_SCALE=0.88`
+	- `VOICEDNA_PIPER_NOTIFICATION_NOISE_SCALE=0.52`
+	- `VOICEDNA_PIPER_NOTIFICATION_NOISE_W=0.72`
 
 ## 🧩 Low-VRAM PersonaPlex on 8 GB cards (v2.9.6)
 

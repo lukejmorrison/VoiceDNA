@@ -52,6 +52,13 @@ class PiperTTS:
         if not text or not text.strip():
             raise ValueError("Text for Piper synthesis must not be empty")
 
+        resolved_length_scale, resolved_noise_scale, resolved_noise_w = _resolve_prosody_for_text(
+            text=text,
+            length_scale=self.length_scale,
+            noise_scale=self.noise_scale,
+            noise_w=self.noise_w,
+        )
+
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as handle:
             output_wav = Path(handle.name)
 
@@ -60,11 +67,11 @@ class PiperTTS:
             command.extend(["--speaker", self.speaker_id])
         command.extend([
             "--length_scale",
-            f"{self.length_scale:.3f}",
+            f"{resolved_length_scale:.3f}",
             "--noise_scale",
-            f"{self.noise_scale:.3f}",
+            f"{resolved_noise_scale:.3f}",
             "--noise_w",
-            f"{self.noise_w:.3f}",
+            f"{resolved_noise_w:.3f}",
         ])
 
         try:
@@ -97,29 +104,51 @@ def _candidate_model_dirs() -> list[Path]:
 
 
 def _discover_piper_model_path() -> Path | None:
-    preferred_names = [
-        "en_US-lessac-medium.onnx",
-        "en_US-amy-medium.onnx",
-        "en_US-ryan-medium.onnx",
-        "en_US-lessac-low.onnx",
-    ]
-
+    matches: list[Path] = []
     for directory in _candidate_model_dirs():
         if not directory.exists():
             continue
-        for file_name in preferred_names:
-            candidate = directory / file_name
-            if candidate.exists():
-                return candidate
+        matches.extend(sorted(directory.rglob("*.onnx")))
 
-    for directory in _candidate_model_dirs():
-        if not directory.exists():
-            continue
-        matches = sorted(directory.rglob("*.onnx"))
-        if matches:
-            return matches[0]
+    if not matches:
+        return None
+
+    scored = sorted(matches, key=_model_preference_score, reverse=True)
+    return scored[0]
 
     return None
+
+
+def _model_preference_score(model_path: Path) -> tuple[int, int, int, int, int, str]:
+    name = model_path.name.lower()
+    stem = model_path.stem.lower()
+
+    is_english = int("en_" in name or "english" in name)
+    is_us = int("en_us" in name)
+    quality = 0
+    if "high" in stem:
+        quality = 3
+    elif "medium" in stem:
+        quality = 2
+    elif "low" in stem:
+        quality = 1
+
+    preferred_voice = int(any(token in stem for token in ["lessac", "amy", "ryan", "jenny"]))
+    non_rt = int("rt" not in stem)
+
+    return (is_english, is_us, quality, preferred_voice, non_rt, stem)
+
+
+def _resolve_prosody_for_text(text: str, length_scale: float, noise_scale: float, noise_w: float) -> tuple[float, float, float]:
+    stripped = text.strip()
+    is_notification_phrase = len(stripped) <= 100 and stripped.count("\n") <= 1
+    if not is_notification_phrase:
+        return length_scale, noise_scale, noise_w
+
+    notification_length = float(os.getenv("VOICEDNA_PIPER_NOTIFICATION_LENGTH_SCALE", "0.88"))
+    notification_noise = float(os.getenv("VOICEDNA_PIPER_NOTIFICATION_NOISE_SCALE", "0.52"))
+    notification_noise_w = float(os.getenv("VOICEDNA_PIPER_NOTIFICATION_NOISE_W", "0.72"))
+    return notification_length, notification_noise, notification_noise_w
 
 
 def check_piper_runtime(model_path: str | None = None) -> tuple[bool, str, str | None]:
