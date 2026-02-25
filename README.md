@@ -1,5 +1,7 @@
 # VoiceDNA — Lifelong Sonic Identity for Every AI ❤️🔊
 
+> **Agent Workflow**: We use parallel checkouts (`voiceDNA-codex` and `voiceDNA-grok`) so multiple AIs can work safely. See `SKILL_GIT_WORKFLOW.md`.
+
 [![PyPI version](https://img.shields.io/pypi/v/voicedna?logo=pypi&logoColor=white)](https://pypi.org/project/voicedna/)
 [![PyPI package](https://img.shields.io/badge/PyPI-voicedna-3775A9?logo=pypi&logoColor=white)](https://pypi.org/project/voicedna/)
 [![PyPI live](https://img.shields.io/badge/PyPI-live-success?logo=pypi&logoColor=white)](https://pypi.org/project/voicedna/)

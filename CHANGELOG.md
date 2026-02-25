@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here.
 
+## [2.9.7] - 2026-02-25
+### Added
+- Added `SKILL_GIT_WORKFLOW.md` documenting Peter-style parallel checkout workflow for multi-agent isolation.
+
+### Changed
+- Added top-level README agent workflow note pointing to `SKILL_GIT_WORKFLOW.md`.
+- Version bumped to `2.9.7`.
+
+### Notes
+- Adopted parallel checkouts (`voiceDNA-codex`, `voiceDNA-grok`) so Codex and Grok can work safely without interfering.
+
 ## [2.9.6] - 2026-02-24
 ### Added
 - Added new optional dependency extra `personaplex-lowvram` with `bitsandbytes` and PersonaPlex runtime stack for 4-bit loading.

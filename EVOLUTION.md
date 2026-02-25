@@ -15,6 +15,11 @@ Build an open, practical VoiceDNA standard where an AI keeps a recognizable life
 
 ## Iteration Log
 
+### 2026-02-25 — v2.9.7 Peter Parallel-Checkout Workflow Adoption
+- Added `SKILL_GIT_WORKFLOW.md` with explicit multi-agent rules for dedicated workspaces (`voiceDNA-codex`, `voiceDNA-grok`).
+- Added top-level README workflow note to make agent isolation policy visible immediately.
+- Standardized branch/PR finalize command pattern so each agent proposes changes from its own checkout safely.
+
 ### 2026-02-24 — v2.9.6 Low-VRAM PersonaPlex (4-bit Consumer GPU Pass)
 - Added optional `personaplex-lowvram` dependency path with bitsandbytes for 4-bit quantized PersonaPlex runtime.
 - Updated PersonaPlex provider to auto-switch to a low-VRAM 4-bit model on <12GB cards and use `device_map=auto` with CPU offload safeguards.
