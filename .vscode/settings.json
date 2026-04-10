@@ -1,0 +1,77 @@
+{
+  // ─── File watcher: stop VS Code from watching heavyweight directories ───────
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/__pycache__/**": true,
+    "**/*.pyc": true,
+    "**/.venv/**": true,
+    "**/venv/**": true,
+    "**/env/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/*.egg-info/**": true,
+    "**/.pytest_cache/**": true,
+    "**/.mypy_cache/**": true,
+    "**/vst3/juce_venom_starter/build/**": true,
+    "**/voices/**": true
+  },
+
+  // ─── Explorer: hide noisy generated directories ──────────────────────────
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/*.pyo": true,
+    "**/*.pyd": true,
+    "**/*.so": true,
+    "**/.pytest_cache": true,
+    "**/.mypy_cache": true,
+    "**/*.egg-info": true,
+    "**/dist": true,
+    "**/build": true
+  },
+
+  // ─── Search: skip binary and generated content ───────────────────────────
+  "search.exclude": {
+    "**/__pycache__/**": true,
+    "**/.venv/**": true,
+    "**/venv/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/*.egg-info/**": true,
+    "**/.pytest_cache/**": true,
+    "**/voices/**": true,
+    "**/vst3/juce_venom_starter/build/**": true
+  },
+
+  // ─── Python / Pylance: limit analysis scope to project source ────────────
+  "python.analysis.exclude": [
+    ".venv",
+    "venv",
+    "env",
+    "dist",
+    "build",
+    "**/__pycache__",
+    "**/*.egg-info",
+    "vst3/juce_venom_starter/build"
+  ],
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.typeCheckingMode": "basic",
+
+  // ─── Editor: sensible defaults for this mixed Python/C++ project ─────────
+  "editor.formatOnSave": false,
+  "editor.rulers": [100],
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+
+  // ─── CMake Tools: point at the correct CMakeLists.txt ────────────────────
+  "cmake.sourceDirectory": "${workspaceFolder}/vst3/juce_venom_starter",
+  "cmake.buildDirectory": "${workspaceFolder}/vst3/juce_venom_starter/build",
+
+  // ─── C/C++: restrict IntelliSense to project headers only ────────────────
+  "C_Cpp.default.includePath": [
+    "${workspaceFolder}/vst3",
+    "${workspaceFolder}/vst3/juce_venom_starter/Source"
+  ],
+  "C_Cpp.default.browse.limitSymbolsToIncludedHeaders": true
+}

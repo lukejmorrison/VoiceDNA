@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.pylance",
+    "ms-python.black-formatter",
+    "ms-vscode.cmake-tools",
+    "ms-vscode.cpptools",
+    "eamodio.gitlens",
+    "tamasfe.even-better-toml"
+  ]
+}
