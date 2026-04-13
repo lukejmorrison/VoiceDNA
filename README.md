@@ -16,6 +16,7 @@ Built with Luke Morrison (Feb 23 2026) — fully open, MIT licensed, works with 
 
 Choose your path:
 
+- **Per-agent voices (OpenClaw pilot):** `examples/openclaw_voicedemo.py` — three agents, three distinct VoiceDNA presets
 - OpenClaw bot voice + phone calls: `examples/openclaw/README.md`
 - Omarchy system-wide desktop voice: `examples/omarchy/README.md`
 
@@ -43,6 +44,68 @@ Install with optional PersonaPlex natural voice backend:
 ```bash
 pip install "voicedna[personaplex]"
 ```
+
+---
+
+## Per-agent voices for OpenClaw (pilot)
+
+Give each OpenClaw agent a distinct voice preset — no cloud infra required.
+
+### Opt-in
+
+The feature is entirely additive and disabled by default.  Enable it by:
+
+1. Setting `VOICEDNA_OPENCLAW_PRESETS=1` in your environment (signals intent; not strictly required by the code).
+2. Optionally providing a JSON agent-to-preset mapping via `VOICEDNA_OPENCLAW_PRESETS_MAP`.
+
+### Presets
+
+| Preset | Description |
+|--------|-------------|
+| `neutral` | Calm, clear, neutral — good for factual assistants |
+| `friendly` | Warm, upbeat, approachable |
+| `flair` | Expressive, distinctive, strong personality |
+
+### Quick demo
+
+```bash
+cd /path/to/VoiceDNA
+VOICEDNA_OPENCLAW_PRESETS=1 PYTHONPATH=. python examples/openclaw_voicedemo.py
+# → examples/openclaw/output/{namshub_neutral,david_friendly,voss_flair}.wav
+```
+
+### Programmatic API
+
+```python
+from voicedna.openclaw_adapter import VoiceAdapter
+
+adapter = VoiceAdapter(
+    agent_presets={
+        "agent:namshub":        "neutral",
+        "agent:david-hardman":  "friendly",
+        "agent:dr-voss-thorne": "flair",
+    }
+)
+
+preset = adapter.select_preset("agent:namshub")          # "neutral"
+wav    = adapter.synthesize("Hello!", preset)            # bytes
+adapter.synthesize("Hello!", preset, output_path="out.wav")  # write to disk
+```
+
+### Config via env
+
+```bash
+export VOICEDNA_OPENCLAW_PRESETS_MAP='{"agent:namshub":"neutral","agent:dr-voss-thorne":"flair"}'
+```
+
+### Tests
+
+```bash
+cd /path/to/VoiceDNA
+pytest tests/test_voice_adapter.py -q
+```
+
+---
 
 Install with low-VRAM PersonaPlex (4-bit quantized + offload):
 
