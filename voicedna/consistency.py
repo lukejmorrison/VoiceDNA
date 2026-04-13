@@ -5,7 +5,7 @@ import io
 import math
 import wave
 from pathlib import Path
-from typing import Any, Iterable, Sequence
+from typing import Iterable, Sequence
 
 import numpy as np
 
