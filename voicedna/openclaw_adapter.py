@@ -68,7 +68,11 @@ PRESET_REGISTRY: Dict[str, Dict[str, Any]] = {
     },
     "friendly": {
         "description": "Warm, upbeat, approachable voice.",
-        "unique_traits": ["warm_hum_before_big_ideas", "gentle_rising_on_questions", "micro_laugh_soft_breath"],
+        "unique_traits": [
+            "warm_hum_before_big_ideas",
+            "gentle_rising_on_questions",
+            "micro_laugh_soft_breath",
+        ],
         "imprint_strength": 0.72,
         "morph_allowance": 0.10,
         "perceived_human_voice_age": 28.0,
@@ -80,7 +84,11 @@ PRESET_REGISTRY: Dict[str, Dict[str, Any]] = {
     },
     "flair": {
         "description": "Expressive, distinctive voice with strong personality.",
-        "unique_traits": ["theatrical_pause", "dynamic_pitch_shift", "sharp_consonants"],
+        "unique_traits": [
+            "theatrical_pause",
+            "dynamic_pitch_shift",
+            "sharp_consonants",
+        ],
         "imprint_strength": 0.85,
         "morph_allowance": 0.04,
         "perceived_human_voice_age": 38.0,
@@ -117,7 +125,9 @@ def load_presets_from_env() -> Dict[str, str]:
 
     for agent_key, preset_name in mapping.items():
         if preset_name not in PRESET_REGISTRY:
-            logger.warning("Unknown preset '%s' for agent '%s'; skipping.", preset_name, agent_key)
+            logger.warning(
+                "Unknown preset '%s' for agent '%s'; skipping.", preset_name, agent_key
+            )
             continue
         AGENT_PRESETS[agent_key] = preset_name
 
@@ -164,7 +174,9 @@ class VoiceAdapter:
             self._agent_presets = AGENT_PRESETS
 
         if default_preset not in PRESET_REGISTRY:
-            raise ValueError(f"Unknown default preset '{default_preset}'. Choose from: {list(PRESET_REGISTRY)}")
+            raise ValueError(
+                f"Unknown default preset '{default_preset}'. Choose from: {list(PRESET_REGISTRY)}"
+            )
         self._default_preset = default_preset
 
         self._tts = _SimpleLocalTTS()
@@ -199,7 +211,9 @@ class VoiceAdapter:
         Returns raw WAV bytes.  Optionally writes to *output_path*.
         """
         if preset not in PRESET_REGISTRY:
-            raise ValueError(f"Unknown preset '{preset}'. Choose from: {list(PRESET_REGISTRY)}")
+            raise ValueError(
+                f"Unknown preset '{preset}'. Choose from: {list(PRESET_REGISTRY)}"
+            )
 
         dna = _build_dna_for_preset(preset)
         raw_audio = self._tts.synthesize(text)

@@ -23,6 +23,7 @@ from voicedna.openclaw_adapter import (
 # Preset registry basics
 # ---------------------------------------------------------------------------
 
+
 def test_pilot_presets_exist():
     for name in ("neutral", "friendly", "flair"):
         assert name in PRESET_REGISTRY, f"Missing expected preset: {name}"
@@ -33,8 +34,15 @@ def test_default_preset_is_valid():
 
 
 def test_preset_fields():
-    required = {"description", "unique_traits", "imprint_strength", "morph_allowance",
-                "perceived_human_voice_age", "maturation_multiplier", "stability_age"}
+    required = {
+        "description",
+        "unique_traits",
+        "imprint_strength",
+        "morph_allowance",
+        "perceived_human_voice_age",
+        "maturation_multiplier",
+        "stability_age",
+    }
     for name, cfg in PRESET_REGISTRY.items():
         missing = required - set(cfg.keys())
         assert not missing, f"Preset '{name}' missing fields: {missing}"
@@ -43,6 +51,7 @@ def test_preset_fields():
 # ---------------------------------------------------------------------------
 # VoiceAdapter.select_preset
 # ---------------------------------------------------------------------------
+
 
 class TestSelectPreset:
     def setup_method(self):
@@ -80,6 +89,7 @@ class TestSelectPreset:
 # VoiceAdapter.synthesize — smoke: output file is created and non-empty
 # ---------------------------------------------------------------------------
 
+
 class TestSynthesize:
     def setup_method(self):
         self.adapter = VoiceAdapter(agent_presets={})
@@ -108,6 +118,7 @@ class TestSynthesize:
 # ---------------------------------------------------------------------------
 # load_presets_from_env
 # ---------------------------------------------------------------------------
+
 
 class TestLoadPresetsFromEnv:
     def test_valid_json_map(self, monkeypatch):
@@ -140,6 +151,7 @@ class TestLoadPresetsFromEnv:
 # register_agent helper
 # ---------------------------------------------------------------------------
 
+
 def test_register_agent():
     adapter = VoiceAdapter(agent_presets={})
     adapter.register_agent("agent:new", "flair")
@@ -155,6 +167,7 @@ def test_register_agent_unknown_preset_raises():
 # ---------------------------------------------------------------------------
 # presets property
 # ---------------------------------------------------------------------------
+
 
 def test_presets_property():
     adapter = VoiceAdapter(agent_presets={})
