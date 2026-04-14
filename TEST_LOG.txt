@@ -1,13 +1,3 @@
-VoiceDNA Test Report
-====================
-Date: 2026-04-13
-Branch: feature/voicedna-openclaw-per-agent-voices
-Repo: /home/namshub/.openclaw/workspaces/namshub/main/VoiceDNA
-Command: python -m pytest -v --tb=short
-
-SUMMARY: PASS — 34 passed, 0 failed, 0 errors
-
-------- Full Output -------
 ============================= test session starts ==============================
 platform linux -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python3
 cachedir: .pytest_cache
