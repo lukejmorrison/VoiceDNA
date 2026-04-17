@@ -39,7 +39,17 @@ Run label: `voiceDNA-research-prep`
 - `examples/openclaw_voicedemo.py` — local reproducible demo
 - `tests/test_voice_adapter.py` — focused smoke/unit coverage
 - `README.md` / `CHANGELOG.md` / `IMPLEMENTATION_NOTE.md` — docs and run guidance
+- `research/summary_for_pr.md` — concise executive summary for the PR
 - `examples/openclaw/output/*.wav` — sample outputs for review
+
+## Reference cross-check
+- Design doc summary: `research/summary_for_pr.md`
+- Detailed implementation note: `IMPLEMENTATION_NOTE.md`
+- Validation log: `research/RESEARCH_VALIDATION.txt`
+- Test matrix: `research/TEST_SUMMARY.txt`
+- Git workflow rules: `SKILL_GIT_WORKFLOW.md`
+- CI workflow: `.github/workflows/ci.yml`
+- Issue automation workflows: `.github/workflows/feedback-helper.yml`, `.github/workflows/auto-label-feedback.yml`
 
 ## Merge steps
 1. Re-run the repo-wide test suite in a clean dependency environment.

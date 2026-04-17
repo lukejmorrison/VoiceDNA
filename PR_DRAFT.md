@@ -17,7 +17,7 @@ Introduces `voicedna/openclaw_adapter.py` — a lightweight adapter that maps Op
 ### Test Results
 
 ```
-17 passed, 3 skipped (synthesis backend not installed — intentional)
+15 passed, 3 skipped (synthesis backend not installed — intentional)
 0 failures
 ```
 
