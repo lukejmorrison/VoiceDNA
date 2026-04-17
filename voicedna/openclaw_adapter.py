@@ -41,9 +41,20 @@ import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from voice_dna import VoiceDNA
-from voicedna.framework import VoiceDNAProcessor
-from voicedna.synthesis import _SimpleLocalTTS
+try:
+    from voice_dna import VoiceDNA as _VoiceDNA  # type: ignore[import]
+except ModuleNotFoundError:  # pragma: no cover
+    _VoiceDNA = None  # type: ignore[assignment]
+
+try:
+    from voicedna.framework import VoiceDNAProcessor as _VoiceDNAProcessor  # type: ignore[import]
+except Exception:  # pragma: no cover
+    _VoiceDNAProcessor = None  # type: ignore[assignment]
+
+try:
+    from voicedna.synthesis import _SimpleLocalTTS as _SimpleLocalTTSImpl  # type: ignore[import]
+except Exception:  # pragma: no cover
+    _SimpleLocalTTSImpl = None  # type: ignore[assignment]
 
 
 logger = logging.getLogger("voicedna.openclaw_adapter")
@@ -134,10 +145,12 @@ def load_presets_from_env() -> Dict[str, str]:
     return AGENT_PRESETS
 
 
-def _build_dna_for_preset(preset_name: str) -> VoiceDNA:
+def _build_dna_for_preset(preset_name: str) -> Any:
     """Construct a synthetic VoiceDNA instance for the given preset."""
     preset = PRESET_REGISTRY[preset_name]
-    dna = VoiceDNA.create_new(
+    if _VoiceDNA is None:
+        raise RuntimeError("voice_dna package is not installed")
+    dna = _VoiceDNA.create_new(
         imprint_audio_description=f"openclaw_preset_{preset_name}",
         user_name=f"openclaw_{preset_name}",
     )
@@ -179,8 +192,12 @@ class VoiceAdapter:
             )
         self._default_preset = default_preset
 
-        self._tts = _SimpleLocalTTS()
-        self._processor = VoiceDNAProcessor()
+        if _SimpleLocalTTSImpl is None or _VoiceDNAProcessor is None:
+            self._tts = None
+            self._processor = None
+        else:
+            self._tts = _SimpleLocalTTSImpl()
+            self._processor = _VoiceDNAProcessor()
 
     # ------------------------------------------------------------------
     # Public API
@@ -213,6 +230,12 @@ class VoiceAdapter:
         if preset not in PRESET_REGISTRY:
             raise ValueError(
                 f"Unknown preset '{preset}'. Choose from: {list(PRESET_REGISTRY)}"
+            )
+
+        if self._tts is None or self._processor is None:
+            raise RuntimeError(
+                "voice_dna/voicedna packages are not installed; "
+                "cannot synthesize audio."
             )
 
         dna = _build_dna_for_preset(preset)

@@ -48,8 +48,20 @@ def test_preset_fields():
         assert not missing, f"Preset '{name}' missing fields: {missing}"
 
 
+voice_dna_available = pytest.importorskip.__module__ and False  # evaluated below
+try:
+    import voice_dna as _vdna_check  # noqa: F401
+    _VOICE_DNA_AVAILABLE = True
+except ModuleNotFoundError:
+    _VOICE_DNA_AVAILABLE = False
+
+requires_voice_dna = pytest.mark.skipif(
+    not _VOICE_DNA_AVAILABLE,
+    reason="voice_dna package not installed",
+)
+
+
 # ---------------------------------------------------------------------------
-# VoiceAdapter.select_preset
 # ---------------------------------------------------------------------------
 
 
@@ -91,19 +103,23 @@ class TestSelectPreset:
 
 
 class TestSynthesize:
+    @requires_voice_dna
     def setup_method(self):
         self.adapter = VoiceAdapter(agent_presets={})
 
+    @requires_voice_dna
     def test_synthesize_returns_bytes(self):
         wav = self.adapter.synthesize("Hello.", "neutral")
         assert isinstance(wav, bytes)
         assert len(wav) > 0
 
+    @requires_voice_dna
     def test_synthesize_all_presets(self):
         for preset in PRESET_REGISTRY:
             wav = self.adapter.synthesize(f"Testing {preset}.", preset)
             assert len(wav) > 0, f"Empty output for preset '{preset}'"
 
+    @requires_voice_dna
     def test_synthesize_writes_file(self, tmp_path):
         out = tmp_path / "test_output.wav"
         self.adapter.synthesize("Write to disk.", "friendly", output_path=str(out))
@@ -112,7 +128,7 @@ class TestSynthesize:
 
     def test_synthesize_unknown_preset_raises(self):
         with pytest.raises(ValueError, match="Unknown preset"):
-            self.adapter.synthesize("test", "does-not-exist")
+            VoiceAdapter(agent_presets={}).synthesize("test", "does-not-exist")
 
 
 # ---------------------------------------------------------------------------
