@@ -1,54 +1,115 @@
 # feat: per-agent voice pilot — VoiceAdapter + OpenClaw demo (3 presets)
 
+**PR:** https://github.com/lukejmorrison/VoiceDNA/pull/5  
+**Branch:** `feature/voicedna-openclaw-per-agent-voices` → `main`  
+**Status:** OPEN (draft)
+
+---
+
 ## Summary
-This PR delivers the VoiceDNA per-agent voice pilot described in `research/voicedna_integration_summary.md` and tracked in `research/implementation_checklist.md`.
-It adds an opt-in `VoiceAdapter` layer so OpenClaw agents can speak with distinct VoiceDNA presets, plus a runnable demo and unit/smoke coverage.
 
-## Motivation
-- Enable per-agent voice routing without changing existing VoiceDNA CLI/SDK defaults.
-- Prove the pilot with local-first demo output and repeatable tests.
-- Keep the integration additive and low-risk for the core API.
+Introduces `voicedna/openclaw_adapter.py` — a lightweight, opt-in adapter that maps OpenClaw agent identities to VoiceDNA voice presets, enabling distinct per-agent TTS voices across the Namshub / Dr Voss Thorne / David Hardman personas without changing default VoiceDNA behavior.
 
-## What changed
-- Added a `VoiceAdapter` API with deterministic preset selection and synthesis.
-- Added pilot presets: `neutral`, `friendly`, and `flair`.
-- Added per-agent mapping support with env-driven opt-in configuration.
-- Added `examples/openclaw_voicedemo.py` to demonstrate three agents using distinct presets.
-- Added unit tests for preset selection, fallback behavior, env loading, and synthesis smoke coverage.
-- Kept the feature opt-in so current public behavior stays unchanged unless configured.
+---
 
-## Validation
-- `python -m pytest tests/test_voice_adapter.py -v`
-- `python -m pytest`
-- `python examples/openclaw_voicedemo.py`
-- `ruff` linting
-- `mypy` on the new adapter file
+## Changelog
 
-## Demo outputs
-Expected demo WAVs:
-- `examples/openclaw/output/namshub_neutral.wav`
-- `examples/openclaw/output/david_friendly.wav`
-- `examples/openclaw/output/voss_flair.wav`
+### Added
+- `voicedna/openclaw_adapter.py` — `VoiceAdapter` class with:
+  - `select_preset(agent_id, agent_name, default)` — deterministic preset lookup
+  - `synthesize(text, preset, out_path)` — audio synthesis to WAV
+  - `load_presets_from_env(env_map)` — opt-in env-driven agent→preset mapping
+  - `register_agent(agent_id, preset)` — runtime registration
+  - 3 pilot presets: `neutral`, `friendly`, `flair`
+- `examples/openclaw_voicedemo.py` — demo generating 3 agents × 3 presets → WAV output
+- `tests/test_voice_adapter.py` — 18 unit tests covering all adapter paths
 
-## Rollout / rollback
-### Rollout
-- Merge behind the opt-in config path only.
-- Validate the demo and adapter in one pilot environment before broader use.
-- Keep current default presets and API surface unchanged.
+### Updated
+- `README.md` — per-agent voice section
+- `CHANGELOG.md` — v2.1.0 entry
+- `IMPLEMENTATION_NOTE.md` — integration notes
 
-### Rollback
-- Disable the opt-in mapping/config to revert to existing behavior.
-- Remove or ignore the demo path if the pilot needs to be paused.
-- Revert this PR if any regression appears in core VoiceDNA behavior.
+---
 
-## References
-- `research/voicedna_integration_summary.md`
-- `research/implementation_checklist.md`
+## Test Evidence
 
-## Files touched
-- `voicedna/openclaw_adapter.py`
-- `examples/openclaw_voicedemo.py`
-- `tests/test_voice_adapter.py`
-- `README.md`
-- `CHANGELOG.md`
-- `IMPLEMENTATION_NOTE.md`
+**Run date:** 2026-04-17  
+**Python:** 3.14.4  
+**pytest:** 9.0.3
+
+```
+34 passed in 1.66s
+0 failed, 0 errors
+```
+
+Full test log: `test-output.txt`
+
+Test files executed:
+- `tests/test_audio_roundtrip.py` — 1 passed
+- `tests/test_child_inheritance.py` — 3 passed
+- `tests/test_consistency_engine.py` — 2 passed
+- `tests/test_natural_backend_lowvram.py` — 3 passed
+- `tests/test_natural_doctor.py` — 2 passed
+- `tests/test_piper_quality.py` — 3 passed
+- `tests/test_processor_report.py` — 2 passed
+- `tests/test_voice_adapter.py` — 18 passed
+
+---
+
+## Demo WAV Validation
+
+All 3 demo WAVs generated and validated as playable:
+
+| File | Duration | Rate | Channels |
+|------|----------|------|----------|
+| `namshub_neutral.wav` | 3.73s | 22050 Hz | 1 (mono) |
+| `david_friendly.wav` | 4.80s | 22050 Hz | 1 (mono) |
+| `voss_flair.wav` | 4.75s | 22050 Hz | 1 (mono) |
+
+Location: `examples/openclaw/output/`
+
+---
+
+## Usage Notes
+
+### Minimal usage
+```python
+from voicedna.openclaw_adapter import VoiceAdapter
+
+adapter = VoiceAdapter()
+preset = adapter.select_preset(agent_id="dr-voss-thorne")
+audio = adapter.synthesize("Hello from Dr Voss Thorne.", preset=preset)
+```
+
+### Per-agent mapping via env
+```bash
+export VOICEDNA_AGENT_PRESETS='{"dr-voss-thorne": "flair", "namshub": "neutral"}'
+```
+
+### Run demo
+```bash
+python examples/openclaw_voicedemo.py
+# Output: examples/openclaw/output/{namshub_neutral,david_friendly,voss_flair}.wav
+```
+
+### Run tests
+```bash
+python -m pytest tests/ -v
+```
+
+---
+
+## Rollout / Rollback
+
+**Rollout:** Merge behind opt-in config. No changes to existing VoiceDNA defaults.  
+**Rollback:** Disable `VOICEDNA_AGENT_PRESETS` env var or revert this PR.
+
+---
+
+## Dependency Note
+
+`cryptography` package required (in `requirements.txt`). Install via:
+```bash
+sudo pacman -S python-cryptography  # Arch Linux
+# or: pip install cryptography
+```
