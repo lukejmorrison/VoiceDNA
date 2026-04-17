@@ -1,0 +1,20 @@
+
+==================================== ERRORS ====================================
+_________________ ERROR collecting tests/test_voice_adapter.py _________________
+ImportError while importing test module '/home/namshub/dev/VoiceDNA/tests/test_voice_adapter.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_voice_adapter.py:13: in <module>
+    from voicedna.openclaw_adapter import (
+voicedna/openclaw_adapter.py:44: in <module>
+    from voice_dna import VoiceDNA
+E   ModuleNotFoundError: No module named 'voice_dna'
+=========================== short test summary info ============================
+ERROR tests/test_voice_adapter.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.10s
+# NOTE: pytest collection failed — missing runtime dependency 'voice_dna' (not installable from this repo alone).
+# Install with: pip install -e /path/to/voice_dna and re-run: pytest -q

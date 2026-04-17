@@ -1,0 +1,19 @@
+Local Test Report — feature/voicedna-openclaw-per-agent-voices
+================================================================
+Date: 2026-04-17
+
+Test run: pytest tests/test_voice_adapter.py -v
+Result: 15 passed, 3 skipped, 0 failed
+
+Skipped tests (3): synthesis smoke tests — skipped because the 'voice_dna'
+  synthesis backend is an optional heavy dependency (not installed). All
+  skip guards are intentional and confirmed by test design.
+
+Other test files: tests/test_audio_roundtrip.py and others require
+  'cryptography' (ModuleNotFoundError). These are unrelated to this feature
+  branch and pre-exist on main.
+
+Branch status: feature/voicedna-openclaw-per-agent-voices is in sync with
+  origin/feature/voicedna-openclaw-per-agent-voices (no unpushed commits).
+
+Conclusion: All feature-specific tests pass. Ready for PR.

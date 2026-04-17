@@ -1,0 +1,12 @@
+........sss............                                                  [100%]
+20 passed, 3 skipped in 1.93s
+
+--- Full suite (5 collection errors due to missing `cryptography` dep in this env) ---
+5 collection errors: test_audio_roundtrip, test_child_inheritance, test_natural_backend_lowvram, test_natural_doctor, test_processor_report
+All require `cryptography` package not installed in this Python environment.
+
+--- Adapter-specific tests (the PR feature) ---
+tests/test_voice_adapter.py: PASS
+tests/test_consistency_engine.py: PASS  
+tests/test_piper_quality.py: PASS (3 skipped - synthesis backend)
+20 passed, 3 skipped, 0 failed

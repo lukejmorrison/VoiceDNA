@@ -1,0 +1,62 @@
+# Safe push plan — feature/voicedna-openclaw-per-agent-voices
+
+## Recommended next step
+**Use the manual git bundle path unless you already have a PAT with repo write access available.**
+
+Reason: the branch is ready to package, but this workspace does not have a verified remote-push credential flow attached for an automatic push here.
+
+## Exact git commands to push and open a PR
+From the repo root:
+
+```bash
+cd /home/namshub/dev/VoiceDNA
+
+git status --short --branch
+git log --oneline --decorate -n 5
+
+git push -u origin feature/voicedna-openclaw-per-agent-voices
+
+gh pr create \
+  --repo lukejmorrison/VoiceDNA \
+  --base main \
+  --head feature/voicedna-openclaw-per-agent-voices \
+  --title "Per-agent OpenClaw voice presets — feature/voicedna-openclaw-per-agent-voices" \
+  --body-file release/PR_DRAFT.md
+```
+
+## Required permissions / scopes
+- For normal source/test/doc pushes: `contents:write`
+- For PR creation/update via `gh` or API: `pull_requests:write` may be required by the token provider
+- For changes under `.github/workflows/`: add `workflow` scope
+  - This branch snapshot does **not** modify workflow files, so `workflow` should not be needed for the current push
+
+## Manual bundle fallback
+A verified bundle was created at:
+
+```bash
+release/voicedna_openclaw_per_agent_voices.bundle
+```
+
+Bundle verification succeeded and it contains the full branch history.
+
+### To transfer/import on another machine
+
+```bash
+mkdir -p /tmp/voicedna-import
+cd /tmp/voicedna-import
+git clone /path/to/voicedna_openclaw_per_agent_voices.bundle voicedna-import
+cd voicedna-import
+git checkout feature/voicedna-openclaw-per-agent-voices
+```
+
+### To fetch the branch into an existing clone
+
+```bash
+cd /path/to/existing/clone
+git fetch /path/to/voicedna_openclaw_per_agent_voices.bundle feature/voicedna-openclaw-per-agent-voices:feature/voicedna-openclaw-per-agent-voices
+git checkout feature/voicedna-openclaw-per-agent-voices
+```
+
+## Notes
+- Do not attempt to push with any secret or workflow scope unless the maintainer explicitly approves it.
+- If a later change touches `.github/workflows/*`, re-check the token scopes before pushing.

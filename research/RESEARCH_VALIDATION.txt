@@ -1,0 +1,97 @@
+# RESEARCH_VALIDATION — VoiceDNA per-agent voice pilot
+
+Branch: `feature/voicedna-openclaw-per-agent-voices`
+Run label: `voiceDNA-research-prep`
+Date: 2026-04-17
+
+## Scope checked
+- `voicedna/openclaw_adapter.py`
+- `examples/openclaw_voicedemo.py`
+- `tests/test_voice_adapter.py`
+- README / changelog / implementation notes
+- Existing demo WAV outputs under `examples/openclaw/output/`
+
+## What matches the current code
+- The branch implements an opt-in `VoiceAdapter` layer for per-agent preset routing.
+- Presets present in code: `neutral`, `friendly`, `flair`.
+- Resolution order in code matches the docs: `agent_id` -> `agent_name` -> default.
+- The demo script maps the three OpenClaw personas to those three presets and writes WAV files under `examples/openclaw/output/`.
+- The tests cover preset selection, env mapping, helper registration, and synthesis error handling.
+
+## Local validation results
+### 1) Targeted unit tests
+Command:
+`python -m pytest tests/test_voice_adapter.py -v`
+
+Result:
+- 15 passed
+- 3 skipped
+- Exit code: 0
+
+Notes:
+- The 3 skipped tests are the synthesis smoke tests that require the VoiceDNA runtime backend / package stack to be importable in this environment.
+
+### 2) Full test suite
+Command:
+`python -m pytest -q`
+
+Result:
+- Failed during collection in 5 test modules
+- Root cause: `ModuleNotFoundError: No module named 'cryptography'`
+- Exit code: 2
+
+Affected modules:
+- `tests/test_audio_roundtrip.py`
+- `tests/test_child_inheritance.py`
+- `tests/test_natural_backend_lowvram.py`
+- `tests/test_natural_doctor.py`
+- `tests/test_processor_report.py`
+
+Interpretation:
+- The repo-wide suite is blocked by a missing dependency in the current Python environment, not by the new OpenClaw voice pilot code itself.
+
+### 3) Lint check
+Command:
+`ruff check voicedna/openclaw_adapter.py examples/openclaw_voicedemo.py tests/test_voice_adapter.py`
+
+Result:
+- Passed
+- Exit code: 0
+
+### 4) Demo run
+Command:
+`python examples/openclaw_voicedemo.py`
+
+Result:
+- Preset selection started correctly.
+- Runtime failed at synthesis because `voice_dna` / `voicedna` runtime backend packages are not installed in this environment.
+- Exit code: 1
+
+### 5) Bytecode / syntax sanity
+Command:
+`python -m py_compile voicedna/openclaw_adapter.py examples/openclaw_voicedemo.py tests/test_voice_adapter.py`
+
+Result:
+- Passed
+- Exit code: 0
+
+### 6) Existing demo artifacts on disk
+Files present and non-empty:
+- `examples/openclaw/output/namshub_neutral.wav` — 164,696 bytes
+- `examples/openclaw/output/david_friendly.wav` — 211,876 bytes
+- `examples/openclaw/output/voss_flair.wav` — 209,542 bytes
+
+## Branch / workflow check
+- No `.github/workflows` files are changed by this branch relative to `origin/main`.
+- No GitHub Actions workflow-permission blocker is expected from this branch as-is.
+
+## Readiness assessment
+- Code/doc alignment: good
+- Targeted OpenClaw voice-pilot tests: good
+- Full-suite validation: blocked by missing local dependency (`cryptography`)
+- Demo execution: blocked by missing VoiceDNA runtime backend deps in this environment
+
+## Action items
+1. Install the project dependencies in a clean venv, then rerun the full suite.
+2. Re-run the demo in an environment where the VoiceDNA runtime backend stack is available.
+3. If preparing a PR from this branch, mention that the targeted OpenClaw voice-pilot tests passed locally, but repo-wide pytest is currently environment-blocked here.

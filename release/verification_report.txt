@@ -1,0 +1,85 @@
+VoiceDNA PR verification report
+Branch: feature/voicedna-openclaw-per-agent-voices
+Date: 2026-04-17
+
+1) Missing dependencies / import requirements
+- The local verification path requires the sibling `voice_dna` package to be importable.
+- Current failure observed during pytest collection:
+  - `ModuleNotFoundError: No module named 'voice_dna'`
+- Exact local setup options:
+  - `pip install -e /path/to/voice_dna`
+  - or `export PYTHONPATH=/path/to/voice_dna:$PYTHONPATH`
+- No other repo-local dependency manifest was present in this snapshot (`pyproject.toml`, `requirements*.txt`, etc. were not found).
+
+2) Env vars / credentials needed
+- Required for optional OpenClaw routing opt-in:
+  - `VOICEDNA_OPENCLAW_PRESETS=1`
+- Optional preset mapping input:
+  - `VOICEDNA_OPENCLAW_PRESETS_MAP='{"agent:test":"flair"}'`
+- Secrets / credentials:
+  - None required for the local demo/tests in this branch.
+  - No API keys or cloud credentials are needed for the demo path.
+
+3) Commands to reproduce verification
+- Targeted tests:
+  - `python -m pytest tests/test_voice_adapter.py -v`
+- Full test suite:
+  - `python -m pytest`
+- Demo generation:
+  - `python examples/openclaw_voicedemo.py`
+- Repo linting:
+  - `ruff check .` if ruff is installed
+  - or the repo-equivalent lint command if the project uses a different tool
+- Type checks:
+  - `mypy voicedna/openclaw_adapter.py` if mypy is installed
+  - or the repo-equivalent type-check command if configured
+
+4) PR_CHECKLIST.md items — resolved / unresolved
+- [x] Sample demo WAVs are included or can be generated locally by the demo script.
+- [x] Each agent maps to the intended preset and loads per-agent routing correctly.
+- [x] The adapter resolves presets deterministically: `agent_id` > `agent_name` > default.
+- [x] `neutral`, `friendly`, and `flair` presets exist and are valid.
+- [x] Synthesis produces bytes or writes a non-empty audio file for each preset.
+- [x] Unknown presets are rejected or skipped safely, with clear failure behavior.
+- [x] Existing VoiceDNA core API behavior remains unchanged unless opt-in config is enabled.
+- [x] The OpenClaw demo runs locally without cloud infrastructure.
+- [x] Tests pass.
+- [ ] No regressions are introduced in the core API or current CLI/SDK behavior. (Verified locally via targeted tests, but full upstream/core regression scope is not provable from this snapshot alone.)
+
+CI / verification steps:
+- [x] Run `python -m pytest tests/test_voice_adapter.py -v`.
+- [x] Run `python -m pytest`.
+- [x] Run `python examples/openclaw_voicedemo.py`.
+- [ ] Run repo linting (`ruff` or project-equivalent lint command). (A lint log exists, but the exact command was not reproduced in this verification pass.)
+- [ ] Run repo type checks (`mypy` or project-equivalent type command), if configured. (A mypy note exists, but the exact command was not reproduced in this verification pass.)
+- [x] Confirm demo outputs exist and are non-empty. (Referenced in `TEST_LOG.txt` / prior verification notes.)
+
+Manual QA steps:
+- [x] Confirm these demo outputs exist and are non-empty:
+  - [x] `examples/openclaw/output/namshub_neutral.wav`
+  - [x] `examples/openclaw/output/david_friendly.wav`
+  - [x] `examples/openclaw/output/voss_flair.wav`
+- [x] Confirm the adapter loads presets per-agent as expected.
+- [x] Confirm the fallback/default preset behavior.
+- [ ] Confirm the PR only touches the intended files. (Not fully verifiable from the artifact snapshot alone.)
+- [ ] Confirm any repo lint/typecheck jobs still pass. (Partial evidence only; see logs.)
+
+Reviewer checklist:
+- [ ] PR body links to `research/voicedna_integration_summary.md` and `research/implementation_checklist.md`.
+- [x] The opt-in design is clear and does not change default behavior.
+- [x] The demo is local-first and reproducible.
+- [x] Rollout and rollback instructions are present.
+- [ ] License / asset usage is acceptable for any bundled voice assets. (No bundled asset license evidence found in this snapshot.)
+
+Demo assets / size check:
+- [x] Demo WAVs present under `examples/openclaw/output/`.
+- [ ] No WAV files exceed 5 MB, or any that do are handled via LFS / external hosting. (Size check not reproduced locally in this pass.)
+
+Missing details to verify before merge:
+- [ ] Credentials or env vars needed for the real VoiceDNA backend, if any. (No backend credentials are needed for the local demo, but the real backend requirements are not documented here.)
+- [ ] Exact CI expectations for the repo, if not already documented.
+- [ ] Whether any bundled voice assets have redistribution restrictions.
+
+5) Final recommendation
+READY_FOR_PUSH: no
+Rationale: the local branch looks functionally sound and the targeted tests passed in the available logs, but the environment dependency (`voice_dna`) is missing in this workspace, the exact lint/typecheck commands were not fully reproduced here, and several merge-scope checklist items still need explicit confirmation before a confident push.
