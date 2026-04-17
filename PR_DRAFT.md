@@ -17,7 +17,7 @@ Introduces `voicedna/openclaw_adapter.py` — a lightweight adapter that maps Op
 ### Test Results
 
 ```
-15 passed, 3 skipped (synthesis backend not installed — intentional)
+17 passed, 3 skipped (synthesis backend not installed — intentional)
 0 failures
 ```
 
@@ -25,7 +25,7 @@ Introduces `voicedna/openclaw_adapter.py` — a lightweight adapter that maps Op
 
 ```bash
 git checkout feature/voicedna-openclaw-per-agent-voices
-python -m pytest tests/test_voice_adapter.py -v
+python -m pytest tests/test_voice_adapter.py tests/test_consistency_engine.py -v
 # Optionally, with synthesis backend:
 python examples/openclaw_voicedemo.py
 ```

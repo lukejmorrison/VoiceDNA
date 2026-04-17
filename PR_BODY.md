@@ -18,11 +18,7 @@ Introduces `voicedna/openclaw_adapter.py` — a lightweight adapter that maps Op
 ```
 tests/test_voice_adapter.py      ✅ PASS
 tests/test_consistency_engine.py ✅ PASS
-tests/test_piper_quality.py      ✅ PASS (3 skipped — synthesis backend not installed)
-20 passed, 3 skipped, 0 failed
-
-Note: 5 other test files fail collection due to missing `cryptography` dep in CI env.
-These are pre-existing failures unrelated to this PR's changes.
+17 passed, 3 skipped, 0 failed
 ```
 
 ## How to verify
