@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here.
 
-## [Unreleased] — feature/voicedna-openclaw-per-agent-voices
+## [3.1.0] - 2026-04-18
 ### Added
 - `voicedna/openclaw_adapter.py`: new `VoiceAdapter` class with `select_preset(agent_id, agent_name)` and `synthesize(text, preset, output_path)` API.
 - Three pilot voice presets: `neutral`, `friendly`, `flair`.
