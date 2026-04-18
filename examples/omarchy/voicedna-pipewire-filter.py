@@ -55,10 +55,21 @@ def synthesize_text(text: str, force_age: float | None) -> bytes:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="PipeWire audio shim that applies VoiceDNA processing")
-    parser.add_argument("--infile", default="-", help="Input audio file path, or '-' for stdin")
-    parser.add_argument("--outfile", default="-", help="Output audio file path, or '-' for stdout")
-    parser.add_argument("--force-age", type=float, default=None, help="Override perceived voice age for testing")
+    parser = argparse.ArgumentParser(
+        description="PipeWire audio shim that applies VoiceDNA processing"
+    )
+    parser.add_argument(
+        "--infile", default="-", help="Input audio file path, or '-' for stdin"
+    )
+    parser.add_argument(
+        "--outfile", default="-", help="Output audio file path, or '-' for stdout"
+    )
+    parser.add_argument(
+        "--force-age",
+        type=float,
+        default=None,
+        help="Override perceived voice age for testing",
+    )
     parser.add_argument(
         "--tts-backend",
         choices=["auto", "simple", "personaplex", "piper"],
@@ -67,7 +78,11 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    raw = sys.stdin.buffer.read() if args.infile == "-" else open(args.infile, "rb").read()
+    raw = (
+        sys.stdin.buffer.read()
+        if args.infile == "-"
+        else open(args.infile, "rb").read()
+    )
 
     if args.tts_backend in {"auto", "personaplex", "piper"}:
         text = raw.decode("utf-8", errors="ignore").strip()

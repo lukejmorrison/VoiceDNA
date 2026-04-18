@@ -44,7 +44,15 @@ def resolve_tts_backend(requested_backend: str, natural_voice: bool = False) -> 
             return "natural_auto"
         return "simple"
 
-    if backend in {"personaplex", "piper", "simple", "elevenlabs", "xtts", "cartesia", "natural_auto"}:
+    if backend in {
+        "personaplex",
+        "piper",
+        "simple",
+        "elevenlabs",
+        "xtts",
+        "cartesia",
+        "natural_auto",
+    }:
         if backend in {"elevenlabs", "xtts", "cartesia"}:
             return "simple"
         return backend
@@ -76,9 +84,13 @@ class NaturalBackendHealth:
     recommended_backend: str
 
 
-def inspect_natural_backend_health(force_low_vram: bool = False) -> NaturalBackendHealth:
+def inspect_natural_backend_health(
+    force_low_vram: bool = False,
+) -> NaturalBackendHealth:
     decision = detect_natural_backend_decision(force_low_vram=force_low_vram)
-    personaplex_ok, personaplex_message = check_personaplex_runtime(low_vram=decision.low_vram_mode)
+    personaplex_ok, personaplex_message = check_personaplex_runtime(
+        low_vram=decision.low_vram_mode
+    )
     piper_ok, piper_message, piper_model_path = check_piper_runtime()
 
     if decision.backend == "personaplex" and personaplex_ok:
@@ -99,11 +111,19 @@ def inspect_natural_backend_health(force_low_vram: bool = False) -> NaturalBacke
     )
 
 
-def detect_natural_backend_decision(force_low_vram: bool = False) -> NaturalBackendDecision:
-    detected_vram_gb, min_vram_gb, vram_status, status_color = describe_personaplex_vram()
+def detect_natural_backend_decision(
+    force_low_vram: bool = False,
+) -> NaturalBackendDecision:
+    detected_vram_gb, min_vram_gb, vram_status, status_color = (
+        describe_personaplex_vram()
+    )
 
     if force_low_vram:
-        detected_text = _format_vram_label(detected_vram_gb) if detected_vram_gb is not None else "unknown"
+        detected_text = (
+            _format_vram_label(detected_vram_gb)
+            if detected_vram_gb is not None
+            else "unknown"
+        )
         return NaturalBackendDecision(
             backend="personaplex",
             status_message=(
@@ -166,11 +186,14 @@ class _SimpleLocalTTS:
         return self._synthesize_with_tone(text, sample_rate=sample_rate)
 
     def _espeak_available(self) -> bool:
-        return subprocess.call(
-            ["sh", "-c", "command -v espeak-ng >/dev/null 2>&1"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        ) == 0
+        return (
+            subprocess.call(
+                ["sh", "-c", "command -v espeak-ng >/dev/null 2>&1"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            == 0
+        )
 
     def _synthesize_with_espeak(self, text: str) -> bytes:
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as handle:
@@ -202,7 +225,11 @@ class _SimpleLocalTTS:
             wav_file.setsampwidth(2)
             wav_file.setframerate(sample_rate)
             for index in range(frame_count):
-                value = int(32767.0 * amplitude * math.sin(2.0 * math.pi * frequency * index / sample_rate))
+                value = int(
+                    32767.0
+                    * amplitude
+                    * math.sin(2.0 * math.pi * frequency * index / sample_rate)
+                )
                 wav_file.writeframesraw(struct.pack("<h", value))
         return buffer.getvalue()
 
@@ -210,7 +237,9 @@ class _SimpleLocalTTS:
 def _build_provider(backend: str, low_vram: bool = False) -> Any:
     if backend == "personaplex":
         return PersonaPlexTTS(
-            model_id=os.getenv("VOICEDNA_PERSONAPLEX_MODEL", "nvidia/personaplex-7b-v1"),
+            model_id=os.getenv(
+                "VOICEDNA_PERSONAPLEX_MODEL", "nvidia/personaplex-7b-v1"
+            ),
             low_vram_model_id=os.getenv(
                 "VOICEDNA_PERSONAPLEX_LOWVRAM_MODEL",
                 "brianmatzelle/personaplex-7b-v1-bnb-4bit",
@@ -218,7 +247,10 @@ def _build_provider(backend: str, low_vram: bool = False) -> Any:
             device=os.getenv("VOICEDNA_PERSONAPLEX_DEVICE", "auto"),
             torch_dtype=os.getenv("VOICEDNA_PERSONAPLEX_DTYPE", "auto"),
             low_vram=low_vram,
-            cpu_offload=os.getenv("VOICEDNA_PERSONAPLEX_CPU_OFFLOAD", "1").strip().lower() in {"1", "true", "yes", "on"},
+            cpu_offload=os.getenv("VOICEDNA_PERSONAPLEX_CPU_OFFLOAD", "1")
+            .strip()
+            .lower()
+            in {"1", "true", "yes", "on"},
         )
     if backend == "piper":
         return PiperTTS(
@@ -257,7 +289,9 @@ def synthesize_and_process(
         personaplex_low_vram_mode = decision.low_vram_mode
     elif resolved_backend == "personaplex" and low_vram:
         personaplex_low_vram_mode = True
-        natural_backend_status = "Low-VRAM flag enabled → loading 4-bit PersonaPlex (low-VRAM mode)."
+        natural_backend_status = (
+            "Low-VRAM flag enabled → loading 4-bit PersonaPlex (low-VRAM mode)."
+        )
         natural_backend_color = "yellow"
 
     try:
@@ -266,9 +300,7 @@ def synthesize_and_process(
             piper_model_path = getattr(provider, "model_path", None)
     except Exception as error:
         if resolved_backend == "piper":
-            natural_backend_status = (
-                f"{piper_natural_message()} unavailable ({error}) -> falling back to simple local voice."
-            )
+            natural_backend_status = f"{piper_natural_message()} unavailable ({error}) -> falling back to simple local voice."
             natural_backend_color = "yellow"
             resolved_backend = "simple"
             provider = _build_provider(resolved_backend)
@@ -291,7 +323,9 @@ def synthesize_and_process(
         process_params["natural_backend_recommendation"] = recommendation
 
     try:
-        processed_audio = processor.synthesize_and_process(text=text, dna=dna, tts_provider=provider, params=process_params)
+        processed_audio = processor.synthesize_and_process(
+            text=text, dna=dna, tts_provider=provider, params=process_params
+        )
     except Exception as error:
         if resolved_backend == "personaplex":
             fallback_status = f"PersonaPlex unavailable ({error}) -> falling back to Piper natural voice."
@@ -301,9 +335,7 @@ def synthesize_and_process(
                 piper_model_path = getattr(fallback_provider, "model_path", None)
                 process_params["base_model"] = "piper"
                 process_params["natural_backend_status"] = fallback_status
-                recommendation = (
-                    "Using Piper fallback. For best 8GB quality, set VOICEDNA_PIPER_MODEL to a high-quality local .onnx voice."
-                )
+                recommendation = "Using Piper fallback. For best 8GB quality, set VOICEDNA_PIPER_MODEL to a high-quality local .onnx voice."
                 process_params["natural_backend_recommendation"] = recommendation
                 processed_audio = processor.synthesize_and_process(
                     text=text,
@@ -315,9 +347,7 @@ def synthesize_and_process(
                 natural_backend_status = fallback_status
                 natural_backend_color = "yellow"
             except Exception as fallback_error:
-                final_status = (
-                    f"{fallback_status} Piper unavailable ({fallback_error}) -> falling back to simple local voice."
-                )
+                final_status = f"{fallback_status} Piper unavailable ({fallback_error}) -> falling back to simple local voice."
                 simple_provider = _build_provider("simple")
                 process_params["base_model"] = "simple"
                 process_params["natural_backend_status"] = final_status
@@ -378,7 +408,9 @@ def play_wav_bytes(audio_bytes: bytes) -> str:
             raw_frames = wav_file.readframes(frame_count)
 
         if sample_width != 2:
-            raise RuntimeError("Only 16-bit PCM WAV playback is supported for sounddevice fallback")
+            raise RuntimeError(
+                "Only 16-bit PCM WAV playback is supported for sounddevice fallback"
+            )
 
         samples = np.frombuffer(raw_frames, dtype=np.int16)
         if channels > 1:
@@ -392,14 +424,22 @@ def play_wav_bytes(audio_bytes: bytes) -> str:
 
     for player in (("pw-play", ["pw-play", "-"]), ("aplay", ["aplay", "-"])):
         name, command = player
-        if subprocess.call(
-            ["sh", "-c", f"command -v {name} >/dev/null 2>&1"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        ) != 0:
+        if (
+            subprocess.call(
+                ["sh", "-c", f"command -v {name} >/dev/null 2>&1"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            != 0
+        ):
             continue
 
-        process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        process = subprocess.Popen(
+            command,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
         assert process.stdin is not None
         process.stdin.write(audio_bytes)
         process.stdin.close()

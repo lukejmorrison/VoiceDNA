@@ -1,0 +1,39 @@
+Push instructions (updated 2026-04-17)
+
+Current status
+- Remote feature branch already exists: `origin/feature/voicedna-openclaw-per-agent-voices`
+- This local checkout is 4 commits behind the remote feature branch
+- A dry-run push was rejected with a non-fast-forward error (`fetch first`)
+- No `.github/workflows/*` files are part of the current branch diff, so `workflow` scope is not required for the current contents
+
+Recommended safe path
+- Import the prepared bundle or patch, then push from the user's machine if desired
+
+Prepared artifacts
+- `release_prep/voicedna-20260417T1720EDT.bundle`
+- `release_prep/voicedna-20260417T1720EDT.patch`
+
+User-side bundle import example
+```bash
+cd /path/to/a/clone/of/VoiceDNA
+git fetch /path/to/voicedna-20260417T1720EDT.bundle feature/voicedna-openclaw-per-agent-voices:feature/voicedna-openclaw-per-agent-voices
+git switch feature/voicedna-openclaw-per-agent-voices
+```
+
+User-side patch import example
+```bash
+cd /path/to/clean/VoiceDNA-clone
+git checkout -b feature/voicedna-openclaw-per-agent-voices origin/main
+git am < /path/to/voicedna-20260417T1720EDT.patch
+```
+
+If you do want to push directly with a PAT
+- Minimal classic PAT scope: `repo`
+- Add `workflow` only if future commits change `.github/workflows/*`
+
+Direct push command
+```bash
+GIT_ASKPASS=echo git push https://<username>:<PAT>@github.com/lukejmorrison/VoiceDNA.git feature/voicedna-openclaw-per-agent-voices
+```
+
+Do not push without Luke's explicit approval.

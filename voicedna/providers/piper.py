@@ -25,12 +25,20 @@ class PiperTTS:
         self.executable = executable
         self.speaker_id = speaker_id or os.getenv("VOICEDNA_PIPER_SPEAKER", "")
         self.length_scale = (
-            float(os.getenv("VOICEDNA_PIPER_LENGTH_SCALE", "0.92")) if length_scale is None else float(length_scale)
+            float(os.getenv("VOICEDNA_PIPER_LENGTH_SCALE", "0.92"))
+            if length_scale is None
+            else float(length_scale)
         )
         self.noise_scale = (
-            float(os.getenv("VOICEDNA_PIPER_NOISE_SCALE", "0.60")) if noise_scale is None else float(noise_scale)
+            float(os.getenv("VOICEDNA_PIPER_NOISE_SCALE", "0.60"))
+            if noise_scale is None
+            else float(noise_scale)
         )
-        self.noise_w = float(os.getenv("VOICEDNA_PIPER_NOISE_W", "0.78")) if noise_w is None else float(noise_w)
+        self.noise_w = (
+            float(os.getenv("VOICEDNA_PIPER_NOISE_W", "0.78"))
+            if noise_w is None
+            else float(noise_w)
+        )
 
         if not self.model_path:
             resolved = _discover_piper_model_path()
@@ -52,27 +60,37 @@ class PiperTTS:
         if not text or not text.strip():
             raise ValueError("Text for Piper synthesis must not be empty")
 
-        resolved_length_scale, resolved_noise_scale, resolved_noise_w = _resolve_prosody_for_text(
-            text=text,
-            length_scale=self.length_scale,
-            noise_scale=self.noise_scale,
-            noise_w=self.noise_w,
+        resolved_length_scale, resolved_noise_scale, resolved_noise_w = (
+            _resolve_prosody_for_text(
+                text=text,
+                length_scale=self.length_scale,
+                noise_scale=self.noise_scale,
+                noise_w=self.noise_w,
+            )
         )
 
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as handle:
             output_wav = Path(handle.name)
 
-        command = [self.executable, "--model", self.model_path, "--output_file", str(output_wav)]
+        command = [
+            self.executable,
+            "--model",
+            self.model_path,
+            "--output_file",
+            str(output_wav),
+        ]
         if self.speaker_id:
             command.extend(["--speaker", self.speaker_id])
-        command.extend([
-            "--length_scale",
-            f"{resolved_length_scale:.3f}",
-            "--noise_scale",
-            f"{resolved_noise_scale:.3f}",
-            "--noise_w",
-            f"{resolved_noise_w:.3f}",
-        ])
+        command.extend(
+            [
+                "--length_scale",
+                f"{resolved_length_scale:.3f}",
+                "--noise_scale",
+                f"{resolved_noise_scale:.3f}",
+                "--noise_w",
+                f"{resolved_noise_w:.3f}",
+            ]
+        )
 
         try:
             completed = subprocess.run(
@@ -133,21 +151,31 @@ def _model_preference_score(model_path: Path) -> tuple[int, int, int, int, int, 
     elif "low" in stem:
         quality = 1
 
-    preferred_voice = int(any(token in stem for token in ["lessac", "amy", "ryan", "jenny"]))
+    preferred_voice = int(
+        any(token in stem for token in ["lessac", "amy", "ryan", "jenny"])
+    )
     non_rt = int("rt" not in stem)
 
     return (is_english, is_us, quality, preferred_voice, non_rt, stem)
 
 
-def _resolve_prosody_for_text(text: str, length_scale: float, noise_scale: float, noise_w: float) -> tuple[float, float, float]:
+def _resolve_prosody_for_text(
+    text: str, length_scale: float, noise_scale: float, noise_w: float
+) -> tuple[float, float, float]:
     stripped = text.strip()
     is_notification_phrase = len(stripped) <= 100 and stripped.count("\n") <= 1
     if not is_notification_phrase:
         return length_scale, noise_scale, noise_w
 
-    notification_length = float(os.getenv("VOICEDNA_PIPER_NOTIFICATION_LENGTH_SCALE", "0.88"))
-    notification_noise = float(os.getenv("VOICEDNA_PIPER_NOTIFICATION_NOISE_SCALE", "0.52"))
-    notification_noise_w = float(os.getenv("VOICEDNA_PIPER_NOTIFICATION_NOISE_W", "0.72"))
+    notification_length = float(
+        os.getenv("VOICEDNA_PIPER_NOTIFICATION_LENGTH_SCALE", "0.88")
+    )
+    notification_noise = float(
+        os.getenv("VOICEDNA_PIPER_NOTIFICATION_NOISE_SCALE", "0.52")
+    )
+    notification_noise_w = float(
+        os.getenv("VOICEDNA_PIPER_NOTIFICATION_NOISE_W", "0.72")
+    )
     return notification_length, notification_noise, notification_noise_w
 
 

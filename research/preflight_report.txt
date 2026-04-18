@@ -1,0 +1,56 @@
+Preflight report — feature/voicedna-openclaw-per-agent-voices
+Generated: 2026-04-17 10:23 EDT
+
+Repository: /home/namshub/.openclaw/workspaces/namshub/main/VoiceDNA
+Branch checked out: feature/voicedna-openclaw-per-agent-voices
+
+Git status (porcelain):
+(none — working tree clean)
+
+Git remote(s):
+origin	https://github.com/lukejmorrison/VoiceDNA.git
+
+Push dry-run:
+Everything up-to-date
+
+Test suite:
+34 passed in 0.47s
+
+Linter (ruff) summary:
+- ruff is installed and ran; it reported many style errors (261 issues found).
+- 16 of those are automatically fixable with `ruff --fix`.
+- The project tests pass; lint failures are style issues (line-length, import ordering, complexity warnings, etc.) and do not block push. See LINT_LOG.txt and ruff full output for details.
+
+Conclusion / Next steps:
+- Dry-run push succeeded (git reports Everything up-to-date). No remote push performed by this agent.
+- Test suite passed completely.
+- Linter reported style issues but they are not failing the CI locally; address separately if you want a clean lint pass.
+
+If you want me to perform the actual push + draft PR (requires a short-lived GitHub PAT with `repo` + `workflow` scope as documented), run the following exact commands after providing the PAT (choose one option):
+
+Option A (preferred — export token for gh and git):
+export GH_TOKEN=TOKEN
+export GITHUB_TOKEN=TOKEN
+cd /home/namshub/.openclaw/workspaces/namshub/main/VoiceDNA
+git push --set-upstream origin feature/voicedna-openclaw-per-agent-voices
+gh pr create \
+  --repo lukejmorrison/VoiceDNA \
+  --base main \
+  --head feature/voicedna-openclaw-per-agent-voices \
+  --draft \
+  --title "feat: per-agent voice pilot — VoiceAdapter + OpenClaw demo (3 presets)" \
+  --body-file /home/namshub/.openclaw/workspaces/namshub/VoiceDNA/research/pr_body.txt
+
+Option B (one-shot HTTPS push with embedded token):
+cd /home/namshub/.openclaw/workspaces/namshub/main/VoiceDNA
+git push --set-upstream https://lukejmorrison:TOKEN@github.com/lukejmorrison/VoiceDNA.git feature/voicedna-openclaw-per-agent-voices
+# Then open the compare URL and create a draft PR manually using research/pr_body.txt as the body.
+
+Notes:
+- I will NOT perform the push or create the PR until you explicitly approve and provide the short-lived PAT (or explicit approval to use existing gh auth).
+- If the remote were to reject the push due to PAT/workflow restrictions, I will create a git bundle and instructions for a manual push; that was not necessary here since dry-run succeeded.
+
+Artifacts produced by this run:
+- /home/namshub/.openclaw/workspaces/namshub/main/VoiceDNA/research/preflight_report.txt (this file)
+
+End of report.

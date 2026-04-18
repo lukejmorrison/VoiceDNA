@@ -46,16 +46,25 @@ class VoiceDNAProcessor:
         for entrypoint in discovered:
             try:
                 plugin_factory = entrypoint.load()
-                plugin = plugin_factory() if callable(plugin_factory) else plugin_factory
+                plugin = (
+                    plugin_factory() if callable(plugin_factory) else plugin_factory
+                )
                 plugin_name = plugin.name()
                 if plugin_name in self.get_filter_names():
                     continue
                 self.register_filter(plugin)
             except Exception as error:
-                logger.warning("Failed loading plugin %s from %s: %s", entrypoint.name, group, error)
+                logger.warning(
+                    "Failed loading plugin %s from %s: %s",
+                    entrypoint.name,
+                    group,
+                    error,
+                )
                 continue
 
-    def process(self, audio_bytes: bytes, dna: VoiceDNA, params: Dict | None = None) -> bytes:
+    def process(
+        self, audio_bytes: bytes, dna: VoiceDNA, params: Dict | None = None
+    ) -> bytes:
         chain_started_at = time.perf_counter()
         current_audio = audio_bytes
         process_params = params or {}
@@ -72,7 +81,9 @@ class VoiceDNAProcessor:
                     {
                         "name": filter_obj.name(),
                         "status": "error",
-                        "duration_ms": round((time.perf_counter() - started_at) * 1000, 3),
+                        "duration_ms": round(
+                            (time.perf_counter() - started_at) * 1000, 3
+                        ),
                         "error": str(error),
                     }
                 )
@@ -91,19 +102,33 @@ class VoiceDNAProcessor:
         self.last_report = {
             "filters": report_filters,
             "filter_count": len(self.filters),
-            "total_duration_ms": round((time.perf_counter() - chain_started_at) * 1000, 3),
+            "total_duration_ms": round(
+                (time.perf_counter() - chain_started_at) * 1000, 3
+            ),
             "input_bytes": len(audio_bytes),
             "output_bytes": len(current_audio),
-            "consistency_score": process_params.get("imprint_converter.consistency_score"),
+            "consistency_score": process_params.get(
+                "imprint_converter.consistency_score"
+            ),
             "rvc_ready": bool(process_params.get("imprint_converter.rvc_ready", False)),
             "rvc_mode": process_params.get("imprint_converter.rvc_mode", "disabled"),
             "imprint_converter": {
                 "mode": process_params.get("imprint_converter.mode", "simple"),
-                "rvc_ready": bool(process_params.get("imprint_converter.rvc_ready", False)),
-                "rvc_mode": process_params.get("imprint_converter.rvc_mode", "disabled"),
-                "consistency_score": process_params.get("imprint_converter.consistency_score"),
-                "consistency_corrected": bool(process_params.get("imprint_converter.consistency_corrected", False)),
-                "watermark_applied": bool(process_params.get("imprint_converter.watermark_applied", False)),
+                "rvc_ready": bool(
+                    process_params.get("imprint_converter.rvc_ready", False)
+                ),
+                "rvc_mode": process_params.get(
+                    "imprint_converter.rvc_mode", "disabled"
+                ),
+                "consistency_score": process_params.get(
+                    "imprint_converter.consistency_score"
+                ),
+                "consistency_corrected": bool(
+                    process_params.get("imprint_converter.consistency_corrected", False)
+                ),
+                "watermark_applied": bool(
+                    process_params.get("imprint_converter.watermark_applied", False)
+                ),
                 "rvc_note": process_params.get("imprint_converter.rvc_note"),
             },
         }
@@ -117,7 +142,9 @@ class VoiceDNAProcessor:
         params: Dict | None = None,
     ) -> bytes:
         if not hasattr(tts_provider, "synthesize"):
-            raise ValueError("tts_provider must implement synthesize(text) -> wav bytes")
+            raise ValueError(
+                "tts_provider must implement synthesize(text) -> wav bytes"
+            )
 
         process_params = dict(params or {})
         process_params["tts.backend"] = tts_provider.__class__.__name__
