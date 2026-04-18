@@ -1,48 +1,46 @@
-# VoiceDNA OpenClaw per-agent voice pilot — Implementation Checklist
+# VoiceDNA → OpenClaw Implementation Checklist
 
-**Branch:** `feature/voicedna-openclaw-per-agent-voices`
+1. **Inventory repo surface**
+   - Confirm actual VoiceDNA package layout, example folders, and test harness.
+   - Output: exact files to edit and any missing directories.
 
-## Scope check
-- [x] `VoiceAdapter` exists in `voicedna/openclaw_adapter.py`
-- [x] Preset routing is deterministic: `agent_id` → `agent_name` → default
-- [x] Pilot presets are limited to `neutral`, `friendly`, and `flair`
-- [x] Feature is opt-in and does not change default VoiceDNA behavior
-- [x] Demo script writes WAV output under `examples/openclaw/output/`
-- [x] Tests cover preset selection, env loading, registration, and synth paths
+2. **Define adapter API**
+   - Specify `VoiceAdapter.select_preset()` and `VoiceAdapter.synthesize()` signatures.
+   - Decide whether config comes from JSON/TOML/YAML or in-memory dict.
 
-## Pre-push verification
-- [ ] Run `python -m pytest tests/test_voice_adapter.py -v`
-- [ ] Run `python -m pytest` in a dependency-complete environment
-- [ ] Run `ruff check voicedna/openclaw_adapter.py examples/openclaw_voicedemo.py tests/test_voice_adapter.py`
-- [ ] Run `python -m py_compile voicedna/openclaw_adapter.py examples/openclaw_voicedemo.py tests/test_voice_adapter.py`
-- [ ] Run `python examples/openclaw_voicedemo.py` in an environment with the VoiceDNA runtime backend installed
-- [ ] Confirm demo WAVs are present and non-empty
-- [ ] Confirm no unintended files are included in the PR
+3. **Add preset registry**
+   - Register pilot presets: `neutral`, `friendly`, `flair`.
+   - Document fallback/default behavior.
 
-## PR content checks
-- [ ] PR body matches the actual preset names in code: `neutral`, `friendly`, `flair`
-- [ ] PR body reflects the reported test outcomes accurately
-- [ ] PR checklist includes rollout and rollback notes
-- [ ] Release notes mention the demo, the opt-in behavior, and the deterministic routing order
-- [ ] Any mention of workflow permissions is limited to future workflow-file changes only
+4. **Implement agent mapping resolution**
+   - Map `agent_id` first, then `agent_name`, then default preset.
+   - Ensure deterministic behavior and clear errors for unknown presets.
 
-## Manual QA steps
-- [ ] Verify `agent:namshub` resolves to `neutral`
-- [ ] Verify `agent:david-hardman` resolves to `friendly`
-- [ ] Verify `agent:dr-voss-thorne` resolves to `flair`
-- [ ] Verify unknown agent ids fall back to the default preset
-- [ ] Verify invalid preset names fail clearly
-- [ ] Verify the demo output files exist:
-  - [ ] `examples/openclaw/output/namshub_neutral.wav`
-  - [ ] `examples/openclaw/output/david_friendly.wav`
-  - [ ] `examples/openclaw/output/voss_flair.wav`
+5. **Build OpenClaw demo**
+   - Create `examples/openclaw_voicedemo.py` showing 3 agents speaking with different presets.
+   - Keep the demo local-first and easy to run.
 
-## Rollout / rollback
-- [ ] Keep the feature disabled by default unless explicitly opted in
-- [ ] Avoid wiring the adapter into broader OpenClaw paths until the pilot is approved
-- [ ] Revert the adapter/demo/test/docs files to roll back the pilot
+6. **Wire configuration**
+   - Add an opt-in config example for per-agent voice routing.
+   - Keep existing CLI/SDK behavior unchanged unless config is enabled.
 
-## Blockers to clear before approval
-- [ ] Re-run or confirm the full repo test suite in a dependency-complete environment
-- [ ] Confirm the local VoiceDNA runtime backend is installed for demo synthesis
-- [ ] Clean the working tree of any stray generated files before pushing
+7. **Add unit tests for selection logic**
+   - Cover explicit mapping, alias fallback, and default preset resolution.
+
+8. **Add smoke test for synthesis**
+   - Verify output file/bytes are generated for at least one preset.
+
+9. **Document usage**
+   - Update README or add a short usage guide with example commands and config.
+
+10. **Check licensing / asset compatibility**
+    - Verify preset voices and any bundled assets are allowed for the target usage.
+    - Flag any restrictions before shipping.
+
+11. **Validate packaging / deps**
+    - Confirm `pyproject.toml` includes any required runtime/test dependencies.
+    - Keep dependency additions minimal.
+
+12. **Prepare handoff for implementation**
+    - Give Dr Voss a branch name and ticket-sized file targets.
+    - Suggested branch: `feature/voicedna-openclaw-per-agent-voices`
