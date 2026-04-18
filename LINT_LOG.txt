@@ -1,0 +1,13 @@
+--- RUFF LINT ---
+2 auto-fixable errors found and fixed automatically:
+  - tests/test_voice_adapter.py:5 - F401 `os` imported but unused
+  - voicedna/consistency.py:8 - F401 `typing.Any` imported but unused
+Post-fix: 0 errors remaining.
+
+--- MYPY (voicedna/openclaw_adapter.py) ---
+4 pre-existing errors in non-adapter files (not blocking):
+  voicedna/providers/personaplex.py:266 - Incompatible types in assignment [assignment]
+  voicedna/providers/piper.py:79 - Argument 1 to "run" has incompatible type [arg-type]
+  voicedna/providers/piper.py:159 - Item "None" of "str | None" has no attribute "strip" [union-attr]
+  voicedna/filters/imprint_converter.py:185 - Argument after ** must be a mapping, not "object" [arg-type]
+NOTE: All 4 mypy errors are pre-existing in non-PR files (providers/filters). The new openclaw_adapter.py itself is clean.

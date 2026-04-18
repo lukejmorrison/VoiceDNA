@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased] — feature/voicedna-openclaw-per-agent-voices
+### Added
+- `voicedna/openclaw_adapter.py`: new `VoiceAdapter` class with `select_preset(agent_id, agent_name)` and `synthesize(text, preset, output_path)` API.
+- Three pilot voice presets: `neutral`, `friendly`, `flair`.
+- `examples/openclaw_voicedemo.py`: runnable demo mapping three OpenClaw agents to distinct presets and producing WAV files under `examples/openclaw/output/`.
+- `tests/test_voice_adapter.py`: 18 smoke/unit tests covering preset selection, fallback, synthesis output, env mapping, and error paths.
+- `IMPLEMENTATION_NOTE.md`: run/test instructions and assumptions.
+- README section: *Per-agent voices for OpenClaw (pilot)* with usage, config, and test commands.
+
+### Non-goals / unchanged
+- No changes to existing CLI, public SDK API, or packaged presets.
+- Feature is opt-in; requires explicit `VOICEDNA_OPENCLAW_PRESETS=1` or direct `VoiceAdapter` import.
+
 ## [3.0.0] - 2026-02-25
 ### Added
 - Added a loadable JUCE VST3 foundation plugin with real host GUI controls for VoiceDNA workflow testing in DAWs.

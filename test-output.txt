@@ -1,0 +1,43 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.0.3, pluggy-1.6.0 -- /usr/bin/python
+cachedir: .pytest_cache
+rootdir: /home/namshub/dev/VoiceDNA
+configfile: pyproject.toml
+collecting ... collected 34 items
+
+tests/test_audio_roundtrip.py::test_audio_pipeline_changes_waveform_and_stays_wav PASSED [  2%]
+tests/test_child_inheritance.py::test_create_child_inherits_traits_and_embedding_shape PASSED [  5%]
+tests/test_child_inheritance.py::test_create_child_rejects_invalid_strength PASSED [  8%]
+tests/test_child_inheritance.py::test_create_child_rejects_empty_name PASSED [ 11%]
+tests/test_consistency_engine.py::test_consistency_engine_fallback_extract_and_enforce PASSED [ 14%]
+tests/test_consistency_engine.py::test_cosine_similarity_handles_shape_mismatch PASSED [ 17%]
+tests/test_natural_backend_lowvram.py::test_detect_natural_backend_lowvram_auto_on_8gb PASSED [ 20%]
+tests/test_natural_backend_lowvram.py::test_detect_natural_backend_full_mode_on_24gb PASSED [ 23%]
+tests/test_natural_backend_lowvram.py::test_detect_natural_backend_lowvram_forced_without_vram PASSED [ 26%]
+tests/test_natural_doctor.py::test_natural_doctor_prefers_personaplex_when_ready PASSED [ 29%]
+tests/test_natural_doctor.py::test_natural_doctor_falls_back_to_piper_when_personaplex_unavailable PASSED [ 32%]
+tests/test_piper_quality.py::test_model_preference_score_prefers_medium_english_voice PASSED [ 35%]
+tests/test_piper_quality.py::test_notification_prosody_defaults_for_short_text PASSED [ 38%]
+tests/test_piper_quality.py::test_notification_prosody_keeps_base_for_long_text PASSED [ 41%]
+tests/test_processor_report.py::test_processor_generates_report_with_filter_details PASSED [ 44%]
+tests/test_processor_report.py::test_processor_rvc_mode_reports_fallback_without_model PASSED [ 47%]
+tests/test_voice_adapter.py::test_pilot_presets_exist PASSED             [ 50%]
+tests/test_voice_adapter.py::test_default_preset_is_valid PASSED         [ 52%]
+tests/test_voice_adapter.py::test_preset_fields PASSED                   [ 55%]
+tests/test_voice_adapter.py::TestSelectPreset::test_select_by_agent_id PASSED [ 58%]
+tests/test_voice_adapter.py::TestSelectPreset::test_select_by_agent_name_alias PASSED [ 61%]
+tests/test_voice_adapter.py::TestSelectPreset::test_fallback_to_default PASSED [ 64%]
+tests/test_voice_adapter.py::TestSelectPreset::test_custom_default PASSED [ 67%]
+tests/test_voice_adapter.py::TestSelectPreset::test_invalid_default_raises PASSED [ 70%]
+tests/test_voice_adapter.py::TestSynthesize::test_synthesize_returns_bytes PASSED [ 73%]
+tests/test_voice_adapter.py::TestSynthesize::test_synthesize_all_presets PASSED [ 76%]
+tests/test_voice_adapter.py::TestSynthesize::test_synthesize_writes_file PASSED [ 79%]
+tests/test_voice_adapter.py::TestSynthesize::test_synthesize_unknown_preset_raises PASSED [ 82%]
+tests/test_voice_adapter.py::TestLoadPresetsFromEnv::test_valid_json_map PASSED [ 85%]
+tests/test_voice_adapter.py::TestLoadPresetsFromEnv::test_invalid_json_is_ignored PASSED [ 88%]
+tests/test_voice_adapter.py::TestLoadPresetsFromEnv::test_unknown_preset_in_env_is_skipped PASSED [ 91%]
+tests/test_voice_adapter.py::test_register_agent PASSED                  [ 94%]
+tests/test_voice_adapter.py::test_register_agent_unknown_preset_raises PASSED [ 97%]
+tests/test_voice_adapter.py::test_presets_property PASSED                [100%]
+
+============================== 34 passed in 1.66s ==============================

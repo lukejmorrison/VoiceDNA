@@ -1,0 +1,39 @@
+# TEST_SUMMARY — VoiceDNA per-agent voice pilot
+
+Branch: `feature/voicedna-openclaw-per-agent-voices`
+Run label: `voiceDNA-research-prep`
+Date: 2026-04-17
+
+## Commands run
+1. `python -m pytest tests/test_voice_adapter.py -v`
+2. `python -m pytest -q`
+3. `ruff check voicedna/openclaw_adapter.py examples/openclaw_voicedemo.py tests/test_voice_adapter.py`
+4. `python examples/openclaw_voicedemo.py`
+5. `python -m py_compile voicedna/openclaw_adapter.py examples/openclaw_voicedemo.py tests/test_voice_adapter.py`
+
+## Results
+### Targeted pilot tests
+- `tests/test_voice_adapter.py`: 15 passed, 3 skipped
+- Exit code: 0
+
+### Repository-wide pytest
+- Failed during collection because the environment is missing `cryptography`
+- Exit code: 2
+
+### Ruff lint
+- Passed
+- Exit code: 0
+
+### Demo script
+- Started correctly and selected the preset for `agent:namshub`
+- Failed at synthesis because VoiceDNA runtime dependencies are not installed in this environment
+- Exit code: 1
+
+### Syntax compilation
+- Passed
+- Exit code: 0
+
+## Notes
+- The targeted OpenClaw per-agent voice pilot code is structurally sound and the focused tests pass.
+- The repo-wide suite needs a proper dependency environment before it can be trusted as a full green signal.
+- Existing demo WAVs are already present and non-empty under `examples/openclaw/output/`.

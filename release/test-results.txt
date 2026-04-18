@@ -1,0 +1,46 @@
+VoiceDNA per-agent voice pilot verification
+Branch: feature/voicedna-openclaw-per-agent-voices
+Date: 2026-04-17
+
+RESULT: FAIL (environmental dependency missing for full test execution)
+
+What ran
+- `python -m pytest -q`
+- `python examples/openclaw_voicedemo.py`
+- WAV validation using Python `wave` module on `examples/openclaw/output/*.wav`
+
+pytest result
+- Collection failed before tests could run.
+- Failing imports / stack trace root cause:
+  - `ModuleNotFoundError: No module named 'cryptography'`
+  - Trace path:
+    - `tests/test_audio_roundtrip.py` -> `from voice_dna import VoiceDNA`
+    - `voice_dna.py:16` -> `from cryptography.fernet import Fernet`
+- Affected test files during collection:
+  - `tests/test_audio_roundtrip.py`
+  - `tests/test_child_inheritance.py`
+  - `tests/test_natural_backend_lowvram.py`
+  - `tests/test_natural_doctor.py`
+  - `tests/test_processor_report.py`
+
+Demo script result
+- `examples/openclaw_voicedemo.py` started and resolved preset selection.
+- It then failed at synthesis time because the runtime VoiceDNA backend is unavailable in this workspace:
+  - `RuntimeError: voice_dna/voicedna packages are not installed; cannot synthesize audio.`
+  - File: `voicedna/openclaw_adapter.py:236`
+
+Demo WAV validation
+- Existing demo outputs are present and valid WAV containers:
+  - `examples/openclaw/output/namshub_neutral.wav` — mono, 22050 Hz, 82326 frames, ~3.734 s
+  - `examples/openclaw/output/david_friendly.wav` — mono, 22050 Hz, 105916 frames, ~4.803 s
+  - `examples/openclaw/output/voss_flair.wav` — mono, 22050 Hz, 104749 frames, ~4.751 s
+- These files were readable via Python `wave` and appear structurally sound.
+
+Adapter / wiring check
+- Present: `voicedna/openclaw_adapter.py`
+- Demo wiring present: `examples/openclaw_voicedemo.py` imports `VoiceAdapter` and uses agent → preset mapping.
+- Test coverage present: `tests/test_voice_adapter.py`
+
+Bottom line
+- The branch is structurally wired, but the local verification environment is incomplete for a full green test run.
+- Missing runtime dependency to unblock full pytest/demo execution: `cryptography` (and the sibling VoiceDNA backend path if synthesis is expected).
