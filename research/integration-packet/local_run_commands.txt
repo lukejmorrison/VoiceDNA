@@ -1,0 +1,24 @@
+cd /home/namshub/dev/VoiceDNA
+
+git status --short --branch
+git branch --list 'feature/voicedna-openclaw-per-agent-voices'
+git rev-parse 69d8d0c^{commit}
+git describe --tags --exact-match 69d8d0c^{commit}
+
+python -m pytest tests/test_voice_adapter.py -v
+python -m pytest tests/test_openclaw_live_voice.py -v
+python -m pytest
+ruff check voicedna/openclaw_adapter.py voicedna/openclaw_live_voice.py examples/openclaw_voicedemo.py tests/test_voice_adapter.py tests/test_openclaw_live_voice.py
+python -m py_compile voicedna/openclaw_adapter.py voicedna/openclaw_live_voice.py examples/openclaw_voicedemo.py tests/test_voice_adapter.py tests/test_openclaw_live_voice.py
+
+VOICEDNA_OPENCLAW_PRESETS=1 PYTHONPATH=. python examples/openclaw_voicedemo.py
+
+python - <<'PY'
+from pathlib import Path
+import wave
+for path in sorted(Path('examples/openclaw/output').glob('*.wav')):
+    with wave.open(str(path), 'rb') as w:
+        print(path, 'channels=', w.getnchannels(), 'rate=', w.getframerate(), 'frames=', w.getnframes())
+PY
+
+stat -c '%n %s bytes' examples/openclaw/output/*.wav

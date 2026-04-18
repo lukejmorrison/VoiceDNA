@@ -1,0 +1,3 @@
+/home/namshub/dev/VoiceDNA/examples/openclaw/output/namshub_neutral.wav | size=164696 | channels=1 | rate=22050 | frames=82326 | sampwidth=2
+/home/namshub/dev/VoiceDNA/examples/openclaw/output/david_friendly.wav | size=211876 | channels=1 | rate=22050 | frames=105916 | sampwidth=2
+/home/namshub/dev/VoiceDNA/examples/openclaw/output/voss_flair.wav | size=209542 | channels=1 | rate=22050 | frames=104749 | sampwidth=2
