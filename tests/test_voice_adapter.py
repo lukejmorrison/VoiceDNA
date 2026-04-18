@@ -51,6 +51,7 @@ def test_preset_fields():
 voice_dna_available = pytest.importorskip.__module__ and False  # evaluated below
 try:
     import voice_dna as _vdna_check  # noqa: F401
+
     _VOICE_DNA_AVAILABLE = True
 except ModuleNotFoundError:
     _VOICE_DNA_AVAILABLE = False
