@@ -47,7 +47,10 @@ def pitch_shift_wav_bytes(audio_bytes: bytes, pitch_factor: float) -> bytes:
     if samples.ndim == 1:
         shifted = _resample_1d(samples, pitch_factor)
     else:
-        shifted_channels = [_resample_1d(samples[:, channel_index], pitch_factor) for channel_index in range(samples.shape[1])]
+        shifted_channels = [
+            _resample_1d(samples[:, channel_index], pitch_factor)
+            for channel_index in range(samples.shape[1])
+        ]
         shifted = np.stack(shifted_channels, axis=1)
 
     return encode_wav_bytes(sample_rate, shifted)
@@ -57,7 +60,10 @@ def imprint_mix_wav_bytes(audio_bytes: bytes, strength: float) -> bytes:
     sample_rate, samples = decode_wav_bytes(audio_bytes)
     bounded_strength = max(0.0, min(1.0, strength))
     wet_gain = 0.2 + 0.8 * bounded_strength
-    mixed = samples.astype(np.float32) * (1.0 - bounded_strength * 0.35) + samples.astype(np.float32) * wet_gain * 0.35
+    mixed = (
+        samples.astype(np.float32) * (1.0 - bounded_strength * 0.35)
+        + samples.astype(np.float32) * wet_gain * 0.35
+    )
     return encode_wav_bytes(sample_rate, mixed)
 
 
@@ -69,6 +75,10 @@ def _resample_1d(signal: np.ndarray, pitch_factor: float) -> np.ndarray:
     new_indices = np.linspace(0, source.shape[0] - 1, target_length, dtype=np.float32)
     resampled = np.interp(new_indices, old_indices, source)
 
-    restore_indices = np.linspace(0, resampled.shape[0] - 1, source.shape[0], dtype=np.float32)
-    restored = np.interp(restore_indices, np.arange(resampled.shape[0], dtype=np.float32), resampled)
+    restore_indices = np.linspace(
+        0, resampled.shape[0] - 1, source.shape[0], dtype=np.float32
+    )
+    restored = np.interp(
+        restore_indices, np.arange(resampled.shape[0], dtype=np.float32), resampled
+    )
     return np.clip(restored, -32768, 32767).astype(np.int16)

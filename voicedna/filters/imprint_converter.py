@@ -23,8 +23,12 @@ class ImprintConverterFilter(IVoiceDNAFilter):
         params["imprint_converter.source"] = dna.imprint_source
         params["imprint_converter.rvc_ready"] = True
         params["imprint_converter.rvc_mode"] = "disabled"
-        params["imprint_converter.consistency_threshold"] = float(params.get("imprint_converter.consistency_threshold", 0.92))
-        params["imprint_converter.consistency_enabled"] = bool(params.get("imprint_converter.consistency_enabled", True))
+        params["imprint_converter.consistency_threshold"] = float(
+            params.get("imprint_converter.consistency_threshold", 0.92)
+        )
+        params["imprint_converter.consistency_enabled"] = bool(
+            params.get("imprint_converter.consistency_enabled", True)
+        )
 
         mode = params.get("imprint_converter.mode", "simple")
         params["imprint_converter.mode"] = mode
@@ -34,7 +38,9 @@ class ImprintConverterFilter(IVoiceDNAFilter):
             return self._enforce_consistency(converted, dna, params)
 
         if mode == "rvc_stub":
-            params["imprint_converter.rvc_note"] = "RVC stub path selected; using placeholder conversion"
+            params["imprint_converter.rvc_note"] = (
+                "RVC stub path selected; using placeholder conversion"
+            )
             params["imprint_converter.rvc_mode"] = "stub"
             converted = self._process_rvc_stub(audio_bytes, dna, params)
             return self._enforce_consistency(converted, dna, params)
@@ -43,7 +49,9 @@ class ImprintConverterFilter(IVoiceDNAFilter):
         try:
             from pydub import AudioSegment
 
-            source = AudioSegment.from_file(io.BytesIO(audio_bytes), format=audio_format)
+            source = AudioSegment.from_file(
+                io.BytesIO(audio_bytes), format=audio_format
+            )
             wet_gain_db = -18 + (12 * strength)
             wet = source.apply_gain(wet_gain_db)
             mixed = source.overlay(wet, gain_during_overlay=-(6 - 4 * strength))
@@ -74,7 +82,9 @@ class ImprintConverterFilter(IVoiceDNAFilter):
         - imprint_converter.rvc_device: "cpu" or "cuda:0"
         - imprint_converter.rvc_pitch: integer semitone shift
         """
-        params["imprint_converter.rvc_backend"] = params.get("imprint_converter.rvc_backend", "rvc-python")
+        params["imprint_converter.rvc_backend"] = params.get(
+            "imprint_converter.rvc_backend", "rvc-python"
+        )
         params["imprint_converter.rvc_reference_path"] = params.get(
             "imprint_converter.rvc_reference_path",
             dna.imprint_source,
@@ -92,13 +102,17 @@ class ImprintConverterFilter(IVoiceDNAFilter):
 
         if not os.path.exists(model_path):
             params["imprint_converter.rvc_mode"] = "fallback"
-            params["imprint_converter.rvc_note"] = f"RVC model file not found: {model_path}"
+            params["imprint_converter.rvc_note"] = (
+                f"RVC model file not found: {model_path}"
+            )
             return audio_bytes
 
         index_path = params.get("imprint_converter.rvc_index_path")
         if index_path and not os.path.exists(index_path):
             params["imprint_converter.rvc_index_path"] = None
-            params["imprint_converter.rvc_note"] = f"RVC index file not found, continuing without index: {index_path}"
+            params["imprint_converter.rvc_note"] = (
+                f"RVC index file not found, continuing without index: {index_path}"
+            )
 
         reference_path = params.get("imprint_converter.rvc_reference_path")
         if not reference_path or not os.path.exists(reference_path):
@@ -129,20 +143,24 @@ class ImprintConverterFilter(IVoiceDNAFilter):
                 )
 
                 if not os.path.exists(output_path):
-                    raise RuntimeError("RVC backend completed but produced no output file")
+                    raise RuntimeError(
+                        "RVC backend completed but produced no output file"
+                    )
 
                 with open(output_path, "rb") as output_file:
                     converted_wav = output_file.read()
 
             params["imprint_converter.rvc_mode"] = "active"
-            params["imprint_converter.rvc_note"] = "RVC conversion active via rvc-python backend"
+            params["imprint_converter.rvc_note"] = (
+                "RVC conversion active via rvc-python backend"
+            )
             return self._restore_format(converted_wav, params)
         except Exception as error:
             params["imprint_converter.rvc_mode"] = "fallback"
             params["imprint_converter.rvc_error"] = str(error)
             params["imprint_converter.rvc_note"] = (
                 "RVC backend failed; falling back to non-RVC processing. "
-                "Install with pip install \"voicedna[rvc]\" and verify model/reference paths."
+                'Install with pip install "voicedna[rvc]" and verify model/reference paths.'
             )
             return audio_bytes
 
@@ -172,11 +190,35 @@ class ImprintConverterFilter(IVoiceDNAFilter):
             engine.load_model(model_name=model_path)
 
         inference_attempts = [
-            {"input_audio_path": input_path, "output_audio_path": output_path, "f0up_key": pitch, "speaker_wav": reference_path},
-            {"input_audio_path": input_path, "output_audio_path": output_path, "pitch": pitch, "speaker_wav": reference_path},
-            {"input_audio_path": input_path, "output_audio_path": output_path, "speaker_wav": reference_path},
-            {"input_path": input_path, "output_path": output_path, "f0up_key": pitch, "speaker_wav": reference_path},
-            {"input_path": input_path, "output_path": output_path, "pitch": pitch, "speaker_wav": reference_path},
+            {
+                "input_audio_path": input_path,
+                "output_audio_path": output_path,
+                "f0up_key": pitch,
+                "speaker_wav": reference_path,
+            },
+            {
+                "input_audio_path": input_path,
+                "output_audio_path": output_path,
+                "pitch": pitch,
+                "speaker_wav": reference_path,
+            },
+            {
+                "input_audio_path": input_path,
+                "output_audio_path": output_path,
+                "speaker_wav": reference_path,
+            },
+            {
+                "input_path": input_path,
+                "output_path": output_path,
+                "f0up_key": pitch,
+                "speaker_wav": reference_path,
+            },
+            {
+                "input_path": input_path,
+                "output_path": output_path,
+                "pitch": pitch,
+                "speaker_wav": reference_path,
+            },
         ]
 
         last_error: Exception | None = None
@@ -216,7 +258,9 @@ class ImprintConverterFilter(IVoiceDNAFilter):
         segment.export(output, format=audio_format)
         return output.getvalue()
 
-    def _enforce_consistency(self, audio_bytes: bytes, dna: VoiceDNA, params: Dict) -> bytes:
+    def _enforce_consistency(
+        self, audio_bytes: bytes, dna: VoiceDNA, params: Dict
+    ) -> bytes:
         if not params.get("imprint_converter.consistency_enabled", True):
             return audio_bytes
 
@@ -233,10 +277,14 @@ class ImprintConverterFilter(IVoiceDNAFilter):
         params["imprint_converter.consistency_corrected"] = correction_applied
         params["imprint_converter.watermark_applied"] = output_audio != audio_bytes
         if correction_applied and params.get("imprint_converter.rvc_note") is None:
-            params["imprint_converter.rvc_note"] = "Applied gentle parametric correction to reinforce core voice identity"
+            params["imprint_converter.rvc_note"] = (
+                "Applied gentle parametric correction to reinforce core voice identity"
+            )
         return output_audio
 
-    def _process_rvc_stub(self, audio_bytes: bytes, dna: VoiceDNA, params: Dict) -> bytes:
+    def _process_rvc_stub(
+        self, audio_bytes: bytes, dna: VoiceDNA, params: Dict
+    ) -> bytes:
         """
         RVC upgrade path (stub):
 
@@ -254,5 +302,7 @@ class ImprintConverterFilter(IVoiceDNAFilter):
             "imprint_converter.rvc_reference_path",
             "<set-path-to-imprint-reference-audio>",
         )
-        params["imprint_converter.rvc_backend"] = params.get("imprint_converter.rvc_backend", "rvc-python")
+        params["imprint_converter.rvc_backend"] = params.get(
+            "imprint_converter.rvc_backend", "rvc-python"
+        )
         return audio_bytes

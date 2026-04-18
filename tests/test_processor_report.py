@@ -16,7 +16,9 @@ def _make_wav_bytes(duration_seconds: float = 0.1, sample_rate: int = 16000) -> 
         wave_file.setframerate(sample_rate)
 
         for index in range(frame_count):
-            sample = int(32767 * 0.25 * math.sin(2 * math.pi * 440 * index / sample_rate))
+            sample = int(
+                32767 * 0.25 * math.sin(2 * math.pi * 440 * index / sample_rate)
+            )
             wave_file.writeframesraw(struct.pack("<h", sample))
     return buffer.getvalue()
 
@@ -25,7 +27,9 @@ def test_processor_generates_report_with_filter_details():
     dna = VoiceDNA.create_new("Report voice", "report")
     processor = VoiceDNAProcessor()
 
-    output = processor.process(_make_wav_bytes(), dna, {"force_age": 12, "audio_format": "wav"})
+    output = processor.process(
+        _make_wav_bytes(), dna, {"force_age": 12, "audio_format": "wav"}
+    )
 
     assert isinstance(output, bytes)
     report = processor.get_last_report()

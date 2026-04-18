@@ -47,7 +47,7 @@ def _legacy_embedding_from_text(imprint_source: str, dims: int = 256) -> list[fl
     while len(chunks) < dims:
         digest = hashlib.sha256(seed + counter.to_bytes(4, "big")).digest()
         for offset in range(0, len(digest), 2):
-            value = int.from_bytes(digest[offset:offset + 2], "big")
+            value = int.from_bytes(digest[offset : offset + 2], "big")
             chunks.append((value / 32767.5) - 1.0)
             if len(chunks) >= dims:
                 break
@@ -103,7 +103,9 @@ class VoiceConsistencyEngine:
         self.correction_strength = correction_strength
         self.watermark_depth = watermark_depth
 
-    def extract_embedding_from_imprint(self, imprint_source: str, dims: int = 256) -> list[float]:
+    def extract_embedding_from_imprint(
+        self, imprint_source: str, dims: int = 256
+    ) -> list[float]:
         path = Path(imprint_source)
         if path.exists() and path.is_file():
             try:
@@ -112,8 +114,14 @@ class VoiceConsistencyEngine:
                 pass
         return _legacy_embedding_from_text(imprint_source, dims=dims)
 
-    def extract_embedding_from_audio(self, audio_bytes: bytes, dims: int = 256) -> list[float]:
-        for extractor in (self._extract_with_resemblyzer, self._extract_with_speechbrain, self._extract_with_numpy):
+    def extract_embedding_from_audio(
+        self, audio_bytes: bytes, dims: int = 256
+    ) -> list[float]:
+        for extractor in (
+            self._extract_with_resemblyzer,
+            self._extract_with_speechbrain,
+            self._extract_with_numpy,
+        ):
             try:
                 embedding = extractor(audio_bytes, dims)
                 if embedding and len(embedding) > 0:
@@ -128,24 +136,35 @@ class VoiceConsistencyEngine:
         core_embedding: Sequence[float],
         voice_fingerprint_id: str,
     ) -> tuple[bytes, float, bool, bool]:
-        current_embedding = self.extract_embedding_from_audio(audio_bytes, dims=len(core_embedding) or 256)
+        current_embedding = self.extract_embedding_from_audio(
+            audio_bytes, dims=len(core_embedding) or 256
+        )
         score = cosine_similarity(current_embedding, core_embedding)
         corrected = audio_bytes
         correction_applied = False
 
         if score < self.threshold:
-            correction_ratio = max(0.0, min(1.0, (self.threshold - score) * (1.0 + self.correction_strength)))
+            correction_ratio = max(
+                0.0,
+                min(1.0, (self.threshold - score) * (1.0 + self.correction_strength)),
+            )
             corrected = self._apply_parametric_correction(audio_bytes, correction_ratio)
             correction_applied = corrected != audio_bytes
             if correction_applied:
-                corrected_embedding = self.extract_embedding_from_audio(corrected, dims=len(core_embedding) or 256)
-                score = max(score, cosine_similarity(corrected_embedding, core_embedding))
+                corrected_embedding = self.extract_embedding_from_audio(
+                    corrected, dims=len(core_embedding) or 256
+                )
+                score = max(
+                    score, cosine_similarity(corrected_embedding, core_embedding)
+                )
 
         watermarked = self.apply_sonic_watermark(corrected, voice_fingerprint_id)
         rvc_ready = score >= self.threshold
         return watermarked, score, rvc_ready, correction_applied
 
-    def apply_sonic_watermark(self, audio_bytes: bytes, voice_fingerprint_id: str) -> bytes:
+    def apply_sonic_watermark(
+        self, audio_bytes: bytes, voice_fingerprint_id: str
+    ) -> bytes:
         try:
             sample_rate, samples = _decode_wav_bytes(audio_bytes)
         except Exception:
@@ -155,7 +174,9 @@ class VoiceConsistencyEngine:
             return audio_bytes
 
         bit_stream = self._fingerprint_bits(voice_fingerprint_id)
-        watermark = self._build_watermark_signal(samples.shape[0], sample_rate, bit_stream)
+        watermark = self._build_watermark_signal(
+            samples.shape[0], sample_rate, bit_stream
+        )
 
         if samples.ndim == 1:
             mixed = samples.astype(np.float32) + watermark
@@ -185,7 +206,9 @@ class VoiceConsistencyEngine:
             target = np.linspace(0.0, 1.0, max(target_length, 1), dtype=np.float32)
             waveform = np.interp(target, source, waveform)
 
-        classifier = EncoderClassifier.from_hparams(source="speechbrain/spkrec-ecapa-voxceleb")
+        classifier = EncoderClassifier.from_hparams(
+            source="speechbrain/spkrec-ecapa-voxceleb"
+        )
         batch = torch.tensor(waveform, dtype=torch.float32).unsqueeze(0)
         embedding = classifier.encode_batch(batch).detach().cpu().numpy().reshape(-1)
         return _fit_embedding_dims(embedding, dims=dims)
@@ -215,10 +238,15 @@ class VoiceConsistencyEngine:
             return _fit_embedding_dims(summary, dims=dims)
         except Exception:
             digest = hashlib.sha256(audio_bytes).digest()
-            values = [((digest[index % len(digest)] / 255.0) * 2.0) - 1.0 for index in range(dims)]
+            values = [
+                ((digest[index % len(digest)] / 255.0) * 2.0) - 1.0
+                for index in range(dims)
+            ]
             return values
 
-    def _apply_parametric_correction(self, audio_bytes: bytes, correction_ratio: float) -> bytes:
+    def _apply_parametric_correction(
+        self, audio_bytes: bytes, correction_ratio: float
+    ) -> bytes:
         try:
             sample_rate, samples = _decode_wav_bytes(audio_bytes)
         except Exception:
@@ -242,7 +270,9 @@ class VoiceConsistencyEngine:
                 bits.append((value >> shift) & 1)
         return bits
 
-    def _build_watermark_signal(self, sample_count: int, sample_rate: int, bit_stream: Sequence[int]) -> np.ndarray:
+    def _build_watermark_signal(
+        self, sample_count: int, sample_rate: int, bit_stream: Sequence[int]
+    ) -> np.ndarray:
         indices = np.arange(sample_count, dtype=np.float32)
         bit_window = max(128, int(sample_rate * 0.015))
         base_frequency = min(7800.0, sample_rate * 0.42)
@@ -254,7 +284,10 @@ class VoiceConsistencyEngine:
                 break
             end = min(sample_count, start + bit_window)
             phase_shift = math.pi / 3 if bit else -math.pi / 3
-            carrier = np.sin((2.0 * math.pi * base_frequency * indices[start:end] / sample_rate) + phase_shift)
+            carrier = np.sin(
+                (2.0 * math.pi * base_frequency * indices[start:end] / sample_rate)
+                + phase_shift
+            )
             signal[start:end] += carrier
 
         amplitude = 32768.0 * max(0.0, min(0.01, self.watermark_depth))

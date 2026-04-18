@@ -1,0 +1,24 @@
+# Missing items / blockers
+
+## Blocking
+1. **Local checkout is behind the remote feature branch**
+   - Evidence: `origin/feature/voicedna-openclaw-per-agent-voices` is 4 commits ahead of this local HEAD.
+   - Remediation: sync this checkout to the remote branch tip, then push any new commits from the synced branch.
+
+2. **The exact requested research docs are missing from this checkout**
+   - Requested links: `research/voicedna_integration_summary.md` and `research/implementation_checklist.md`.
+   - Evidence: those exact files are not present under this repo root.
+   - Remediation: either restore/copy those docs into `research/` or update the PR body to point at the canonical stored paths before opening the draft PR.
+
+3. **The current checkout is not the canonical push target yet**
+   - Evidence: the remote tip already contains the release/test artifact commits, while this local HEAD only has pre-push draft docs.
+   - Remediation: use the remote tip as the base for the PR and verify the final diff before opening the draft PR.
+
+## Non-blocking
+1. **Working tree contains untracked draft artifacts**
+   - Files such as `PR_BODY.md`, `push-checklist.md`, `push-plan.md`, and `research/preflight_report.txt` exist locally as prep artifacts.
+   - Remediation: either commit them intentionally, keep them as local notes, or delete them before a clean push if they are not meant to ship.
+
+2. **Lint status is not fully clean**
+   - The test suite passes, but prior ruff output reported style issues in unrelated areas.
+   - Remediation: run the repo’s lint target later if you want a clean style pass before release.

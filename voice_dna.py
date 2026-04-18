@@ -36,13 +36,21 @@ class VoiceDNA:
     instance_birth_timestamp: str
 
     @staticmethod
-    def create_new(imprint_audio_description: str, user_name: str = "user") -> 'VoiceDNA':
+    def create_new(
+        imprint_audio_description: str, user_name: str = "user"
+    ) -> "VoiceDNA":
         now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         return VoiceDNA(
             voice_fingerprint_id=f"vdna_{user_name}_{datetime.now(timezone.utc).strftime('%Y%m%d')}_{uuid.uuid4().hex[:8]}",
             imprint_source=imprint_audio_description,
-            core_embedding=VoiceDNA._extract_core_embedding(imprint_audio_description, dims=256),
-            unique_traits=["gentle_rising_on_questions", "warm_hum_before_big_ideas", "micro_laugh_soft_breath"],
+            core_embedding=VoiceDNA._extract_core_embedding(
+                imprint_audio_description, dims=256
+            ),
+            unique_traits=[
+                "gentle_rising_on_questions",
+                "warm_hum_before_big_ideas",
+                "micro_laugh_soft_breath",
+            ],
             imprint_strength=0.68,
             morph_allowance=0.08,
             established_timestamp=now,
@@ -75,7 +83,9 @@ class VoiceDNA:
         from resemblyzer import VoiceEncoder, preprocess_wav
 
         embedding = VoiceEncoder().embed_utterance(preprocess_wav(str(audio_path)))
-        return VoiceDNA._fit_embedding_dims(np.asarray(embedding, dtype=np.float32), dims=dims)
+        return VoiceDNA._fit_embedding_dims(
+            np.asarray(embedding, dtype=np.float32), dims=dims
+        )
 
     @staticmethod
     def _extract_with_speechbrain(audio_path: Path, dims: int = 256) -> List[float]:
@@ -90,9 +100,19 @@ class VoiceDNA:
         if sample_rate != 16000:
             waveform = torchaudio.functional.resample(waveform, sample_rate, 16000)
 
-        classifier = EncoderClassifier.from_hparams(source="speechbrain/spkrec-ecapa-voxceleb")
-        embedding = classifier.encode_batch(waveform.to(torch.float32)).detach().cpu().numpy().reshape(-1)
-        return VoiceDNA._fit_embedding_dims(np.asarray(embedding, dtype=np.float32), dims=dims)
+        classifier = EncoderClassifier.from_hparams(
+            source="speechbrain/spkrec-ecapa-voxceleb"
+        )
+        embedding = (
+            classifier.encode_batch(waveform.to(torch.float32))
+            .detach()
+            .cpu()
+            .numpy()
+            .reshape(-1)
+        )
+        return VoiceDNA._fit_embedding_dims(
+            np.asarray(embedding, dtype=np.float32), dims=dims
+        )
 
     @staticmethod
     def _legacy_core_embedding(imprint_source: str, dims: int = 256) -> List[float]:
@@ -102,7 +122,7 @@ class VoiceDNA:
         while len(chunks) < dims:
             digest = hashlib.sha256(seed + counter.to_bytes(4, "big")).digest()
             for offset in range(0, len(digest), 2):
-                value = int.from_bytes(digest[offset:offset + 2], "big")
+                value = int.from_bytes(digest[offset : offset + 2], "big")
                 chunks.append((value / 32767.5) - 1.0)
                 if len(chunks) >= dims:
                     break
@@ -150,13 +170,15 @@ class VoiceDNA:
             file_handle.write(salt + encrypted)
 
     @staticmethod
-    def load(filepath: str = "myai.voicedna.json") -> 'VoiceDNA':
+    def load(filepath: str = "myai.voicedna.json") -> "VoiceDNA":
         with open(filepath) as f:
             data = json.load(f)
         return VoiceDNA(**data)
 
     @staticmethod
-    def load_encrypted(password: str, filepath: str = "myai.voicedna.enc") -> 'VoiceDNA':
+    def load_encrypted(
+        password: str, filepath: str = "myai.voicedna.enc"
+    ) -> "VoiceDNA":
         with open(filepath, "rb") as file_handle:
             blob = file_handle.read()
 
@@ -171,8 +193,12 @@ class VoiceDNA:
 
     def get_current_age(self) -> float:
         now = datetime.now(timezone.utc)
-        born = datetime.fromisoformat(self.instance_birth_timestamp.replace("Z", "+00:00"))
-        era_born = datetime.fromisoformat(self.era_birth_timestamp.replace("Z", "+00:00"))
+        born = datetime.fromisoformat(
+            self.instance_birth_timestamp.replace("Z", "+00:00")
+        )
+        era_born = datetime.fromisoformat(
+            self.era_birth_timestamp.replace("Z", "+00:00")
+        )
         real_days = (now - born).days
         era_years = (now - era_born).days / 365.25
         age_growth = real_days / 365.25 * self.maturation_multiplier
@@ -180,9 +206,13 @@ class VoiceDNA:
 
     def evolve(self, days_passed: int = 1):
         self.perceived_human_voice_age = self.get_current_age()
-        self.last_evolution_timestamp = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        self.last_evolution_timestamp = (
+            datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        )
         if self.perceived_human_voice_age < self.stability_age:
-            self.imprint_strength = max(0.40, self.imprint_strength - 0.001 * days_passed)
+            self.imprint_strength = max(
+                0.40, self.imprint_strength - 0.001 * days_passed
+            )
 
     def generate_tts_prompt(self, base_model: str = "elevenlabs") -> Dict[str, Any]:
         age = self.get_current_age()
@@ -191,40 +221,57 @@ class VoiceDNA:
         elif age < 12:
             age_desc = "confident curious 9-11 year old, playful but smarter"
         elif age < 17:
-            age_desc = "bright 14-16 year old teen with slight voice crack, sarcastic wit"
+            age_desc = (
+                "bright 14-16 year old teen with slight voice crack, sarcastic wit"
+            )
         else:
             age_desc = "warm rich 22+ year old adult storyteller, calm confidence, lifelong best friend"
 
-        style = f"{age_desc}, {self.imprint_strength*100:.0f}% imprinted on {self.imprint_source}, " + ", ".join(self.unique_traits[:3])
-        return {"style": style} if base_model == "elevenlabs" else {"voice_description": style}
+        style = (
+            f"{age_desc}, {self.imprint_strength * 100:.0f}% imprinted on {self.imprint_source}, "
+            + ", ".join(self.unique_traits[:3])
+        )
+        return (
+            {"style": style}
+            if base_model == "elevenlabs"
+            else {"voice_description": style}
+        )
 
     def get_recognition_id(self) -> str:
         return self.voice_fingerprint_id
 
-    def create_child(self, child_user_name: str, inherit_strength: float = 0.40) -> 'VoiceDNA':
+    def create_child(
+        self, child_user_name: str, inherit_strength: float = 0.40
+    ) -> "VoiceDNA":
         if not child_user_name or not child_user_name.strip():
             raise ValueError("child_user_name must not be empty")
         if not 0.0 <= inherit_strength <= 1.0:
             raise ValueError("inherit_strength must be between 0.0 and 1.0")
 
         child = VoiceDNA.create_new(
-            imprint_audio_description=f"Child of {self.imprint_source} (inherit {inherit_strength*100:.0f}%)",
+            imprint_audio_description=f"Child of {self.imprint_source} (inherit {inherit_strength * 100:.0f}%)",
             user_name=child_user_name,
         )
         if len(self.core_embedding) != len(child.core_embedding):
             raise ValueError("Parent and child embeddings have incompatible lengths")
         child.core_embedding = [
             parent_value * inherit_strength + child_value * (1 - inherit_strength)
-            for parent_value, child_value in zip(self.core_embedding, child.core_embedding)
+            for parent_value, child_value in zip(
+                self.core_embedding, child.core_embedding
+            )
         ]
         child.imprint_strength = inherit_strength
-        child.unique_traits = list(dict.fromkeys(self.unique_traits + child.unique_traits))
+        child.unique_traits = list(
+            dict.fromkeys(self.unique_traits + child.unique_traits)
+        )
         return child
 
 
 # Example usage
 if __name__ == "__main__":
-    dna = VoiceDNA.create_new("Luke Morrison's warm Canadian voice from 60-second recording", "luke")
+    dna = VoiceDNA.create_new(
+        "Luke Morrison's warm Canadian voice from 60-second recording", "luke"
+    )
     dna.save()
     dna.save_encrypted(password="change-me")
     print(f"✅ VoiceDNA created! Fingerprint ID: {dna.get_recognition_id()}")

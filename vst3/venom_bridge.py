@@ -17,7 +17,9 @@ class VenomBridgeConfig:
 class VoiceDNAVenomBridge:
     def __init__(self, config: VenomBridgeConfig):
         self.config = config
-        self.dna = VoiceDNA.load_encrypted(password=config.password, filepath=config.dna_path)
+        self.dna = VoiceDNA.load_encrypted(
+            password=config.password, filepath=config.dna_path
+        )
         self.processor = VoiceDNAProcessor()
 
     def process_pcm_bytes(
@@ -64,10 +66,22 @@ class VoiceDNAVenomBridge:
         jitter_scale = max(0.0, min(100.0, float(randomness))) / 100.0 * 0.08
 
         child.core_embedding = [
-            max(-1.0, min(1.0, (a * weight_a) + (b * weight_b) + (random.uniform(-1.0, 1.0) * jitter_scale)))
+            max(
+                -1.0,
+                min(
+                    1.0,
+                    (a * weight_a)
+                    + (b * weight_b)
+                    + (random.uniform(-1.0, 1.0) * jitter_scale),
+                ),
+            )
             for a, b in zip(parent_a.core_embedding, parent_b.core_embedding)
         ]
-        child.unique_traits = list(dict.fromkeys(parent_a.unique_traits + parent_b.unique_traits + child.unique_traits))
+        child.unique_traits = list(
+            dict.fromkeys(
+                parent_a.unique_traits + parent_b.unique_traits + child.unique_traits
+            )
+        )
         child.imprint_strength = max(0.0, min(1.0, (weight_a + weight_b) / 2.0))
 
         save_password = password or self.config.password

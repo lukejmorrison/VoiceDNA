@@ -15,7 +15,9 @@ def _make_wav_bytes(duration_seconds: float = 0.1, sample_rate: int = 16000) -> 
         wave_file.setframerate(sample_rate)
 
         for index in range(frame_count):
-            sample = int(32767 * 0.15 * math.sin(2 * math.pi * 220 * index / sample_rate))
+            sample = int(
+                32767 * 0.15 * math.sin(2 * math.pi * 220 * index / sample_rate)
+            )
             wave_file.writeframesraw(struct.pack("<h", sample))
     return buffer.getvalue()
 

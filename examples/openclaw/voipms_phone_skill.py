@@ -68,7 +68,9 @@ def call_via_twilio(phone_number: str, audio_bytes: bytes) -> dict[str, Any]:
     media_url = os.getenv("TWILIO_MEDIA_URL")
 
     if not all([account_sid, auth_token, from_number, media_url]):
-        raise RuntimeError("Twilio fallback missing env vars (SID, token, from number, media URL)")
+        raise RuntimeError(
+            "Twilio fallback missing env vars (SID, token, from number, media URL)"
+        )
 
     if os.getenv("DRY_RUN", "0") == "1":
         logger.info("DRY_RUN enabled; skipping Twilio call")
@@ -89,7 +91,9 @@ def call_via_twilio(phone_number: str, audio_bytes: bytes) -> dict[str, Any]:
 def make_growing_voice_call(phone_number: str, prompt: str) -> dict[str, Any]:
     text = generate_bot_text(prompt)
     raw_audio = synthesize_raw_tts_bytes(text)
-    processed_audio = voicedna_tts_hook.process_tts_output(raw_audio, text=text, provider_name="openclaw")
+    processed_audio = voicedna_tts_hook.process_tts_output(
+        raw_audio, text=text, provider_name="openclaw"
+    )
 
     print("Ringing you now with your maturing AI voice!")
 
@@ -115,5 +119,7 @@ def make_growing_voice_call(phone_number: str, prompt: str) -> dict[str, Any]:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     os.environ.setdefault("DRY_RUN", "1")
-    result = make_growing_voice_call("+15551234567", "tell me a joke in your growing voice")
+    result = make_growing_voice_call(
+        "+15551234567", "tell me a joke in your growing voice"
+    )
     print(result)

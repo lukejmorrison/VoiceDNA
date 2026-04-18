@@ -64,7 +64,12 @@ def describe_personaplex_vram() -> tuple[float | None, float, str, str]:
             "yellow",
         )
 
-    return detected_vram_gb, min_vram_gb, f"Detected {detected_vram_gb:.1f}GB VRAM", "green"
+    return (
+        detected_vram_gb,
+        min_vram_gb,
+        f"Detected {detected_vram_gb:.1f}GB VRAM",
+        "green",
+    )
 
 
 def check_personaplex_runtime(low_vram: bool = False) -> tuple[bool, str]:
@@ -78,7 +83,10 @@ def check_personaplex_runtime(low_vram: bool = False) -> tuple[bool, str]:
         transformers_version = str(getattr(transformers, "__version__", ""))
         major_token = transformers_version.split(".", maxsplit=1)[0]
         if major_token.isdigit() and int(major_token) >= 5:
-            return False, f"transformers {transformers_version} is unsupported; use transformers<5"
+            return (
+                False,
+                f"transformers {transformers_version} is unsupported; use transformers<5",
+            )
     except Exception:
         return False, "transformers is not installed"
 
@@ -86,7 +94,10 @@ def check_personaplex_runtime(low_vram: bool = False) -> tuple[bool, str]:
         try:
             importlib.import_module("bitsandbytes")
         except Exception:
-            return False, "bitsandbytes is missing; install voicedna[personaplex-lowvram]"
+            return (
+                False,
+                "bitsandbytes is missing; install voicedna[personaplex-lowvram]",
+            )
 
     if not torch.cuda.is_available():
         return True, "CUDA not available; PersonaPlex can run on CPU (slower)"
@@ -152,11 +163,15 @@ class PersonaPlexTTS:
     def _ensure_pipeline_loaded(self) -> None:
         detected_vram_gb = detect_vram_gb()
         min_vram_gb = get_personaplex_min_vram_gb()
-        low_vram_mode = self.config.low_vram or _env_truthy(os.getenv("VOICEDNA_PERSONAPLEX_LOWVRAM"))
+        low_vram_mode = self.config.low_vram or _env_truthy(
+            os.getenv("VOICEDNA_PERSONAPLEX_LOWVRAM")
+        )
         if detected_vram_gb is not None and detected_vram_gb < min_vram_gb:
             low_vram_mode = True
 
-        selected_model = self.config.low_vram_model_id if low_vram_mode else self.config.model_id
+        selected_model = (
+            self.config.low_vram_model_id if low_vram_mode else self.config.model_id
+        )
 
         signature = (
             selected_model,
@@ -165,11 +180,17 @@ class PersonaPlexTTS:
             str(low_vram_mode),
             str(self.config.cpu_offload),
         )
-        if PersonaPlexTTS._shared_pipeline is not None and PersonaPlexTTS._shared_signature == signature:
+        if (
+            PersonaPlexTTS._shared_pipeline is not None
+            and PersonaPlexTTS._shared_signature == signature
+        ):
             return
 
         with PersonaPlexTTS._pipeline_lock:
-            if PersonaPlexTTS._shared_pipeline is not None and PersonaPlexTTS._shared_signature == signature:
+            if (
+                PersonaPlexTTS._shared_pipeline is not None
+                and PersonaPlexTTS._shared_signature == signature
+            ):
                 return
 
             try:
@@ -178,7 +199,7 @@ class PersonaPlexTTS:
                 pipeline = getattr(transformers, "pipeline")
             except Exception as error:
                 raise RuntimeError(
-                    "PersonaPlex backend dependencies are missing. Install with: pip install \"voicedna[personaplex]\""
+                    'PersonaPlex backend dependencies are missing. Install with: pip install "voicedna[personaplex]"'
                 ) from error
 
             transformers_version = str(getattr(transformers, "__version__", ""))
@@ -201,7 +222,11 @@ class PersonaPlexTTS:
             elif self.config.device.startswith("cuda"):
                 pipeline_device = 0
 
-            if not low_vram_mode and detected_vram_gb is not None and detected_vram_gb < min_vram_gb:
+            if (
+                not low_vram_mode
+                and detected_vram_gb is not None
+                and detected_vram_gb < min_vram_gb
+            ):
                 raise RuntimeError(
                     f"Detected {detected_vram_gb:.1f}GB VRAM, but PersonaPlex requires at least {min_vram_gb:.1f}GB."
                 )
@@ -226,13 +251,15 @@ class PersonaPlexTTS:
                 except Exception as error:
                     raise RuntimeError(
                         "Low-VRAM PersonaPlex mode requires bitsandbytes. "
-                        "Install with: pip install \"voicedna[personaplex-lowvram]\""
+                        'Install with: pip install "voicedna[personaplex-lowvram]"'
                     ) from error
 
                 offload_dir = Path(
                     os.getenv(
                         "VOICEDNA_PERSONAPLEX_OFFLOAD_DIR",
-                        str(Path.home() / ".cache" / "voicedna" / "personaplex-offload"),
+                        str(
+                            Path.home() / ".cache" / "voicedna" / "personaplex-offload"
+                        ),
                     )
                 )
                 offload_dir.mkdir(parents=True, exist_ok=True)
@@ -250,10 +277,12 @@ class PersonaPlexTTS:
                     "low_cpu_mem_usage": True,
                 }
                 if self.config.cpu_offload:
-                    model_kwargs.update({
-                        "offload_state_dict": True,
-                        "offload_folder": str(offload_dir),
-                    })
+                    model_kwargs.update(
+                        {
+                            "offload_state_dict": True,
+                            "offload_folder": str(offload_dir),
+                        }
+                    )
 
                 pipeline_kwargs["model_kwargs"] = model_kwargs
                 pipeline_kwargs["device_map"] = "auto"
@@ -285,7 +314,11 @@ class PersonaPlexTTS:
 
         result = self.pipeline(text)
         audio = result.get("audio") if isinstance(result, dict) else None
-        result_rate = result.get("sampling_rate", sample_rate) if isinstance(result, dict) else sample_rate
+        result_rate = (
+            result.get("sampling_rate", sample_rate)
+            if isinstance(result, dict)
+            else sample_rate
+        )
 
         if audio is None:
             raise RuntimeError("PersonaPlex pipeline returned no audio payload")

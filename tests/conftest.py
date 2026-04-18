@@ -19,7 +19,9 @@ def wav_fixture_bytes() -> bytes:
         wave_file.setframerate(sample_rate)
 
         for index in range(frame_count):
-            sample = int(32767 * 0.35 * math.sin(2 * math.pi * 440 * index / sample_rate))
+            sample = int(
+                32767 * 0.35 * math.sin(2 * math.pi * 440 * index / sample_rate)
+            )
             wave_file.writeframesraw(struct.pack("<h", sample))
 
     return buffer.getvalue()

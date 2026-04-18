@@ -1,0 +1,34 @@
+# feat: per-agent voice pilot — VoiceAdapter + OpenClaw demo (3 presets)
+
+## Summary
+This PR delivers the VoiceDNA per-agent voice pilot for OpenClaw. It adds an opt-in `VoiceAdapter` layer so agents can resolve to distinct VoiceDNA presets, plus a runnable demo and test coverage.
+
+## Key points
+- Opt-in only; default VoiceDNA behavior is unchanged.
+- Per-agent routing resolves deterministically by agent id / agent name / default.
+- Demo assets are checked in as WAVs for fast local validation.
+- Existing public API behavior is preserved unless the new mapping is enabled.
+
+## Reference docs
+- [VoiceDNA integration summary](research/voicedna_integration_summary.md)
+- [Implementation checklist](research/implementation_checklist.md)
+
+## What changed
+- `voicedna/openclaw_adapter.py` — `VoiceAdapter` and preset routing
+- `examples/openclaw_voicedemo.py` — OpenClaw demo that produces the pilot WAVs
+- `tests/test_voice_adapter.py` — adapter and synthesis coverage
+- `conftest.py` — pytest path resolution fix
+- `README.md` / `CHANGELOG.md` / `IMPLEMENTATION_NOTE.md` — user-facing docs and release context
+- `examples/openclaw/output/*.wav` — three demo outputs
+
+## Validation
+- `python -m pytest -v --tb=short` → 34 passed
+- Demo WAVs present:
+  - `examples/openclaw/output/namshub_neutral.wav`
+  - `examples/openclaw/output/david_friendly.wav`
+  - `examples/openclaw/output/voss_flair.wav`
+
+## Notes for review
+- This is additive and low-risk.
+- No workflow files are changed in the current branch tip.
+- If the remote feature branch is ahead of this checkout, sync to the remote tip before pushing or opening the draft PR.

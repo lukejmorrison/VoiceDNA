@@ -17,7 +17,11 @@ import time
 from pathlib import Path
 
 from voice_dna import VoiceDNA
-from voicedna.synthesis import detect_natural_backend_decision, select_natural_backend, synthesize_and_process
+from voicedna.synthesis import (
+    detect_natural_backend_decision,
+    select_natural_backend,
+    synthesize_and_process,
+)
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -38,7 +42,9 @@ def _get_password() -> str | None:
 
 
 def _get_dna_path() -> Path:
-    return Path(os.getenv("VOICEDNA_ENC_PATH", str(Path.home() / "myai.voicedna.enc"))).expanduser()
+    return Path(
+        os.getenv("VOICEDNA_ENC_PATH", str(Path.home() / "myai.voicedna.enc"))
+    ).expanduser()
 
 
 def _load_dna() -> VoiceDNA:
@@ -79,7 +85,12 @@ def _resolve_tts_backend(cli_backend: str | None) -> str:
 def _resolve_lowvram(cli_lowvram: bool) -> bool:
     if cli_lowvram:
         return True
-    return os.getenv("VOICEDNA_PERSONAPLEX_LOWVRAM", "0").strip().lower() in {"1", "true", "yes", "on"}
+    return os.getenv("VOICEDNA_PERSONAPLEX_LOWVRAM", "0").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
 
 
 def _play_wav_bytes(audio_bytes: bytes) -> None:
@@ -95,7 +106,9 @@ def _play_wav_bytes(audio_bytes: bytes) -> None:
         process.wait(timeout=15)
 
 
-def _synthesize_natural_test_phrase(dna: VoiceDNA, backend: str, low_vram: bool) -> tuple[bytes, dict]:
+def _synthesize_natural_test_phrase(
+    dna: VoiceDNA, backend: str, low_vram: bool
+) -> tuple[bytes, dict]:
     audio, report, _ = synthesize_and_process(
         text="VoiceDNA natural desktop voice is active on your Omarchy system.",
         dna=dna,
@@ -115,13 +128,17 @@ def _announce_backend(backend: str, dna: VoiceDNA, low_vram: bool) -> None:
         return
 
     try:
-        audio, report = _synthesize_natural_test_phrase(dna, backend=backend, low_vram=low_vram)
+        audio, report = _synthesize_natural_test_phrase(
+            dna, backend=backend, low_vram=low_vram
+        )
         status = report.get("natural_backend_status")
         if status:
             logger.info("%s", status)
         _play_wav_bytes(audio)
     except Exception as error:
-        logger.warning("Natural backend announce failed, falling back to spd-say: %s", error)
+        logger.warning(
+            "Natural backend announce failed, falling back to spd-say: %s", error
+        )
         _announce_once()
 
 
@@ -144,15 +161,21 @@ def main() -> int:
     low_vram = _resolve_lowvram(args.lowvram)
     interval = int(os.getenv("VOICEDNA_DAEMON_INTERVAL_SECONDS", "120"))
     if backend == "auto":
-        selected_backend, natural_status = select_natural_backend(force_low_vram=low_vram)
+        selected_backend, natural_status = select_natural_backend(
+            force_low_vram=low_vram
+        )
         decision = detect_natural_backend_decision(force_low_vram=low_vram)
         logger.info("VoiceDNA daemon backend selected: auto -> %s", selected_backend)
         logger.info("%s", natural_status)
-        logger.info("Tip: run 'voicedna doctor-natural --dna-path <voice>' for a full desktop natural voice health check.")
+        logger.info(
+            "Tip: run 'voicedna doctor-natural --dna-path <voice>' for a full desktop natural voice health check."
+        )
         logger.info(
             "BACKEND STARTUP: backend=%s vram=%sGB required=%sGB lowvram=%s",
             decision.backend,
-            f"{decision.detected_vram_gb:.1f}" if decision.detected_vram_gb is not None else "N/A",
+            f"{decision.detected_vram_gb:.1f}"
+            if decision.detected_vram_gb is not None
+            else "N/A",
             f"{decision.required_vram_gb:.1f}",
             str(decision.low_vram_mode).lower(),
         )
@@ -170,7 +193,10 @@ def main() -> int:
             dna = _load_dna()
             _announce_backend(selected_backend, dna, low_vram=low_vram)
         except Exception as error:
-            logger.warning("Natural backend startup probe failed; continuing with simple fallback: %s", error)
+            logger.warning(
+                "Natural backend startup probe failed; continuing with simple fallback: %s",
+                error,
+            )
             _announce_once()
     else:
         _announce_once()

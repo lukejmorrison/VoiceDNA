@@ -15,13 +15,19 @@ def build_skill(password: str = "my_secret_2026"):
         processor.register_filter(PromptTagFilter())
 
     def voice_dna_tts(text: str, raw_tts_bytes: bytes) -> bytes:
-        return processor.process(raw_tts_bytes, dna, {"text": text, "force_age": None, "prepend_style_tag": True})
+        return processor.process(
+            raw_tts_bytes,
+            dna,
+            {"text": text, "force_age": None, "prepend_style_tag": True},
+        )
 
     return voice_dna_tts
 
 
 if __name__ == "__main__":
-    sample_dna = VoiceDNA.create_new("Luke Morrison's warm Canadian voice from 60-second recording", "luke")
+    sample_dna = VoiceDNA.create_new(
+        "Luke Morrison's warm Canadian voice from 60-second recording", "luke"
+    )
     sample_dna.save_encrypted(password="my_secret_2026", filepath="myai.voicedna.enc")
     tts_hook = build_skill()
     rendered = tts_hook("hello from openclaw", b"RAW_TTS_AUDIO_BYTES")

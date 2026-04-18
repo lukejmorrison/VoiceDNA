@@ -18,7 +18,9 @@ def load_or_create_dna(path: str, password: str) -> VoiceDNA:
     if Path(path).exists():
         return VoiceDNA.load_encrypted(password=password, filepath=path)
 
-    dna = VoiceDNA.create_new("Luke Morrison's warm Canadian voice from 60-second recording", "luke")
+    dna = VoiceDNA.create_new(
+        "Luke Morrison's warm Canadian voice from 60-second recording", "luke"
+    )
     dna.save_encrypted(password=password, filepath=path)
     return dna
 
@@ -41,11 +43,15 @@ def main():
         response.raise_for_status()
     except requests.RequestException:
         print("Voicebox does not appear to be running at http://127.0.0.1:17493.")
-        print("Start Voicebox via Pinokio, wait for the local API, then re-run this demo.")
+        print(
+            "Start Voicebox via Pinokio, wait for the local API, then re-run this demo."
+        )
         return
 
     raw_audio = response.content
-    processed = processor.process(raw_audio, dna, {"text": payload["text"], "audio_format": "wav"})
+    processed = processor.process(
+        raw_audio, dna, {"text": payload["text"], "audio_format": "wav"}
+    )
 
     output_path = "voicebox_matured.wav"
     with open(output_path, "wb") as file_handle:

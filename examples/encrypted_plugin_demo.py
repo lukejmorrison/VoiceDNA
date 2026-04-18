@@ -12,7 +12,9 @@ def main():
     password = "my_secret_2026"
     path = "myai.voicedna.enc"
 
-    dna = VoiceDNA.create_new("Luke Morrison's warm Canadian voice from 60-second recording", "luke")
+    dna = VoiceDNA.create_new(
+        "Luke Morrison's warm Canadian voice from 60-second recording", "luke"
+    )
     dna.save_encrypted(password=password, filepath=path)
 
     loaded = VoiceDNA.load_encrypted(password=password, filepath=path)
@@ -24,7 +26,9 @@ def main():
     print("Active filters:", processor.get_filter_names())
 
     fake_audio = b"RAW_TTS_AUDIO_BYTES_HERE"
-    processed = processor.process(fake_audio, loaded, {"base_model": "xtts", "prepend_style_tag": True})
+    processed = processor.process(
+        fake_audio, loaded, {"base_model": "xtts", "prepend_style_tag": True}
+    )
     print(f"✅ Audio processed through plugin chain ({len(processed)} bytes)")
 
 
