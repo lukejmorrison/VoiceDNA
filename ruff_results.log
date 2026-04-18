@@ -1,0 +1,12 @@
+F401 [*] `subprocess` imported but unused
+  --> tests/test_openclaw_live_voice.py:13:8
+   |
+12 | import sys
+13 | import subprocess
+   |        ^^^^^^^^^^
+14 | from pathlib import Path
+   |
+help: Remove unused import: `subprocess`
+
+Found 1 error.
+[*] 1 fixable with the `--fix` option.

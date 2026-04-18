@@ -1,0 +1,40 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.0.3, pluggy-1.6.0 -- /usr/bin/python
+cachedir: .pytest_cache
+rootdir: /home/namshub/dev/VoiceDNA
+configfile: pyproject.toml
+collecting ... collected 31 items
+
+tests/test_voice_adapter.py::test_pilot_presets_exist PASSED             [  3%]
+tests/test_voice_adapter.py::test_default_preset_is_valid PASSED         [  6%]
+tests/test_voice_adapter.py::test_preset_fields PASSED                   [  9%]
+tests/test_voice_adapter.py::TestSelectPreset::test_select_by_agent_id PASSED [ 12%]
+tests/test_voice_adapter.py::TestSelectPreset::test_select_by_agent_name_alias PASSED [ 16%]
+tests/test_voice_adapter.py::TestSelectPreset::test_fallback_to_default PASSED [ 19%]
+tests/test_voice_adapter.py::TestSelectPreset::test_custom_default PASSED [ 22%]
+tests/test_voice_adapter.py::TestSelectPreset::test_invalid_default_raises PASSED [ 25%]
+tests/test_voice_adapter.py::TestSynthesize::test_synthesize_returns_bytes PASSED [ 29%]
+tests/test_voice_adapter.py::TestSynthesize::test_synthesize_all_presets PASSED [ 32%]
+tests/test_voice_adapter.py::TestSynthesize::test_synthesize_writes_file PASSED [ 35%]
+tests/test_voice_adapter.py::TestSynthesize::test_synthesize_unknown_preset_raises PASSED [ 38%]
+tests/test_voice_adapter.py::TestLoadPresetsFromEnv::test_valid_json_map PASSED [ 41%]
+tests/test_voice_adapter.py::TestLoadPresetsFromEnv::test_invalid_json_is_ignored PASSED [ 45%]
+tests/test_voice_adapter.py::TestLoadPresetsFromEnv::test_unknown_preset_in_env_is_skipped PASSED [ 48%]
+tests/test_voice_adapter.py::test_register_agent PASSED                  [ 51%]
+tests/test_voice_adapter.py::test_register_agent_unknown_preset_raises PASSED [ 54%]
+tests/test_voice_adapter.py::test_presets_property PASSED                [ 58%]
+tests/test_openclaw_live_voice.py::TestOpenClawDemoScript::test_demo_script_exists PASSED [ 61%]
+tests/test_openclaw_live_voice.py::TestOpenClawDemoScript::test_demo_produces_output_dir PASSED [ 64%]
+tests/test_openclaw_live_voice.py::TestOpenClawDemoScript::test_demo_wav_files_exist PASSED [ 67%]
+tests/test_openclaw_live_voice.py::TestOpenClawDemoScript::test_demo_wav_files_are_nonempty PASSED [ 70%]
+tests/test_openclaw_live_voice.py::TestOpenClawDemoScript::test_demo_wav_files_are_wave_format PASSED [ 74%]
+tests/test_openclaw_live_voice.py::TestOpenClawIntegration::test_agent_mapping_exists PASSED [ 77%]
+tests/test_openclaw_live_voice.py::TestOpenClawIntegration::test_agent_id_format_handling PASSED [ 80%]
+tests/test_openclaw_live_voice.py::TestOpenClawIntegration::test_fallback_chain_with_openclaw_ids PASSED [ 83%]
+tests/test_openclaw_live_voice.py::TestOpenClawIntegration::test_live_voice_synthesis_e2e PASSED [ 87%]
+tests/test_openclaw_live_voice.py::TestPresetRegistry::test_all_pilot_presets_registered PASSED [ 90%]
+tests/test_openclaw_live_voice.py::TestPresetRegistry::test_preset_descriptions_nonempty PASSED [ 93%]
+tests/test_openclaw_live_voice.py::TestPresetRegistry::test_preset_traits_nonempty PASSED [ 96%]
+tests/test_openclaw_live_voice.py::TestPresetRegistry::test_preset_numerical_fields_in_range PASSED [100%]
+
+============================== 31 passed in 1.71s ==============================
