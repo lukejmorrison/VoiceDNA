@@ -39,7 +39,7 @@
 - `IMPLEMENTATION_NOTE.md` — implementation details and rollout guidance.
 
 ## Reviewer checklist
-- [ ] PR body links to `research/voicedna_integration_summary.md` and `research/implementation_checklist.md`.
+- [x] PR body links to `research/voicedna_integration_summary.md` and `research/implementation_checklist.md`.
 - [ ] The opt-in design is clear and does not change default behavior.
 - [ ] The demo is local-first and reproducible.
 - [ ] Rollout and rollback instructions are present.
@@ -55,4 +55,4 @@
 - [ ] Whether any bundled voice assets have redistribution restrictions.
 
 ## Status
-- Ready for PR: yes, if no blockers remain.
+- Ready for PR: yes, after review of the current working tree and any remaining environment-dependent verification gaps.

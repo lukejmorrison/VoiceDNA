@@ -9,10 +9,10 @@ Introduces `voicedna/openclaw_adapter.py` — a lightweight adapter that maps Op
 
 ### Changes
 
-- **`voicedna/openclaw_adapter.py`** — `VoiceAdapter` class with `select_preset()`, `synthesize()`, and `load_presets_from_env()`. Ships 3 pilot presets (`voss-authoritative`, `namshub-warm`, `hardman-crisp`).
-- **`examples/openclaw_voicedemo.py`** — Demo: generates 3 agents × 3 presets → WAV files.
-- **`tests/test_voice_adapter.py`** — 18 unit tests (15 pass, 3 skipped pending synthesis backend).
-- **`docs/`** — README section, CHANGELOG entry, IMPLEMENTATION_NOTE.
+- **`voicedna/openclaw_adapter.py`** — `VoiceAdapter` class with `select_preset()`, `synthesize()`, `load_presets_from_env()`, and runtime registration helpers. Ships 3 pilot presets (`neutral`, `friendly`, `flair`).
+- **`examples/openclaw_voicedemo.py`** — Demo: generates 3 agents × 3 presets → WAV files in `examples/openclaw/output/`.
+- **`tests/test_voice_adapter.py`** — focused unit/smoke coverage for preset selection, env loading, runtime registration, and synthesis paths (targeted run: 15 passed, 3 skipped).
+- **`README.md` / `CHANGELOG.md` / `IMPLEMENTATION_NOTE.md`** — user-facing docs and rollout notes.
 
 ### Test Results
 

@@ -1,0 +1,25 @@
+Approval needed:
+- Approve me to push the VoiceDNA per-agent voice pilot branch, or approve the fallback if direct push is not allowed.
+
+Recommended option:
+- First choice: let me do a normal git push and open/update the PR with the current branch.
+- Fallback if push is blocked: I will create a git bundle for you to push/import manually.
+
+If you approve the fallback, I will do this next:
+1. Create a bundle of the branch locally.
+2. Hand you the exact import/push commands.
+3. Avoid creating or using any credentials.
+
+What I need from you if push is allowed:
+- Either confirm I should proceed with a standard push, or provide a short-lived PAT only if your repo policy requires token-based push access.
+- This branch does not touch `.github/workflows/*`, so `workflow` scope should not be needed for the current diff.
+
+Blockers to watch for:
+- Full-repo pytest evidence still needs a final dependency-complete re-run if you want the strongest possible green signal.
+- The demo script depends on the local VoiceDNA runtime backend being installed.
+- There are a few generated/local files in the working tree that should be reviewed before push.
+
+Fallback instructions if I must bundle instead of push:
+1. I create the bundle from the branch.
+2. You or I import it on the target machine.
+3. Open the PR from the imported branch after verifying the tests.

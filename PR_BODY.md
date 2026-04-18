@@ -19,7 +19,7 @@ Introduces `voicedna/openclaw_adapter.py` — a lightweight, opt-in adapter that
 | `voicedna/openclaw_adapter.py` | `VoiceAdapter` class: `select_preset()`, `synthesize()`, `load_presets_from_env()`, plus runtime registration helpers. Ships 3 pilot presets. |
 | `examples/openclaw_voicedemo.py` | Demo: generates 3 agents × 3 presets → WAV output |
 | `tests/test_voice_adapter.py` | Focused unit/smoke coverage for preset selection, env loading, and synthesis guards |
-| `README.md` / `IMPLEMENTATION_NOTE.md` / `research/summary_for_pr.md` | User-facing docs and short PR summary |
+| `README.md` / `CHANGELOG.md` / `IMPLEMENTATION_NOTE.md` / `research/voicedna_integration_summary.md` / `research/implementation_checklist.md` | User-facing docs, rollout notes, and review prep packet |
 
 ## Test Results
 
