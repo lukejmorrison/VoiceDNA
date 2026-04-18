@@ -1,0 +1,11 @@
+[voicedna-demo] Tip: set VOICEDNA_OPENCLAW_PRESETS=1 to signal opt-in mode in production.
+                Running demo regardless.
+
+[agent:namshub] preset='neutral'  → /home/namshub/dev/VoiceDNA/examples/openclaw/output/namshub_neutral.wav
+[agent:david-hardman] preset='friendly'  → /home/namshub/dev/VoiceDNA/examples/openclaw/output/david_friendly.wav
+[agent:dr-voss-thorne] preset='flair'  → /home/namshub/dev/VoiceDNA/examples/openclaw/output/voss_flair.wav
+
+✓ Demo complete. Output files:
+  /home/namshub/dev/VoiceDNA/examples/openclaw/output/namshub_neutral.wav  (164696 bytes)
+  /home/namshub/dev/VoiceDNA/examples/openclaw/output/david_friendly.wav  (211876 bytes)
+  /home/namshub/dev/VoiceDNA/examples/openclaw/output/voss_flair.wav  (209542 bytes)

@@ -1,0 +1,16 @@
+# Blockers / approvals
+
+## No blocker for this prep packet
+- Branch and tag validation succeeded locally.
+- No remote GitHub, CI, or workflow changes were made.
+- No secret access was required to prepare this packet.
+
+## If Dr Voss wires the live OpenClaw seam and needs to push changes
+Request this approval text:
+
+"Please approve a GitHub PAT with repo write access for the OpenClaw repo so I can push the VoiceDNA live voice wiring branch and, if needed, any follow-up workflow or CI file changes."
+
+## If backend synthesis is missing in the target environment
+Request this approval text:
+
+"Please approve access to the local VoiceDNA runtime backend dependencies required to run `python examples/openclaw_voicedemo.py` and regenerate/validate the demo WAVs."

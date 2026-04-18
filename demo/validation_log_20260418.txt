@@ -1,0 +1,46 @@
+=== VoiceDNA OpenClaw Live Voice Validation Log ===
+Date: 2026-04-18T13:11:14
+Branch: feature/voicedna-openclaw-integration
+
+[PASS] agent:namshub
+       text:    'Namshub here — your primary AI assistant, ready to assist.'
+       preset:  neutral
+       bytes:   163754
+       disk:    163754
+       elapsed: 0.998s
+       output:  demo/namshub.wav
+
+[PASS] agent:david-hardman
+       text:    'Hi there! David Hardman here, warm and ready to help.'
+       preset:  friendly
+       bytes:   165516
+       disk:    165516
+       elapsed: 0.058s
+       output:  demo/david-hardman.wav
+
+[PASS] agent:dr-voss-thorne
+       text:    'Dr Voss Thorne speaking. Precision is the only acceptable standard.'
+       preset:  flair
+       bytes:   189688
+       disk:    189688
+       elapsed: 0.059s
+       output:  demo/dr-voss-thorne.wav
+
+--- Preset Registry ---
+  neutral: imprint_strength=0.6, morph_allowance=0.06
+  friendly: imprint_strength=0.72, morph_allowance=0.1
+  flair: imprint_strength=0.85, morph_allowance=0.04
+
+--- Default Agent Preset Map ---
+  agent:david-hardman: friendly
+  agent:dr-voss-thorne: flair
+  agent:namshub: neutral
+  david-hardman: friendly
+  dr-voss-thorne: flair
+  namshub: neutral
+
+RESULT: ALL PASS
+
+--- Pytest summary (run separately) ---
+30 tests passed (test_voice_adapter.py + test_openclaw_live_voice.py)
+46 tests passed (full suite)

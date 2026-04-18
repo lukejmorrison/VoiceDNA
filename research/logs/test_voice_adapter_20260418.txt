@@ -1,0 +1,27 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.0.3, pluggy-1.6.0 -- /usr/bin/python
+cachedir: .pytest_cache
+rootdir: /home/namshub/dev/VoiceDNA
+configfile: pyproject.toml
+collecting ... collected 18 items
+
+tests/test_voice_adapter.py::test_pilot_presets_exist PASSED             [  5%]
+tests/test_voice_adapter.py::test_default_preset_is_valid PASSED         [ 11%]
+tests/test_voice_adapter.py::test_preset_fields PASSED                   [ 16%]
+tests/test_voice_adapter.py::TestSelectPreset::test_select_by_agent_id PASSED [ 22%]
+tests/test_voice_adapter.py::TestSelectPreset::test_select_by_agent_name_alias PASSED [ 27%]
+tests/test_voice_adapter.py::TestSelectPreset::test_fallback_to_default PASSED [ 33%]
+tests/test_voice_adapter.py::TestSelectPreset::test_custom_default PASSED [ 38%]
+tests/test_voice_adapter.py::TestSelectPreset::test_invalid_default_raises PASSED [ 44%]
+tests/test_voice_adapter.py::TestSynthesize::test_synthesize_returns_bytes PASSED [ 50%]
+tests/test_voice_adapter.py::TestSynthesize::test_synthesize_all_presets PASSED [ 55%]
+tests/test_voice_adapter.py::TestSynthesize::test_synthesize_writes_file PASSED [ 61%]
+tests/test_voice_adapter.py::TestSynthesize::test_synthesize_unknown_preset_raises PASSED [ 66%]
+tests/test_voice_adapter.py::TestLoadPresetsFromEnv::test_valid_json_map PASSED [ 72%]
+tests/test_voice_adapter.py::TestLoadPresetsFromEnv::test_invalid_json_is_ignored PASSED [ 77%]
+tests/test_voice_adapter.py::TestLoadPresetsFromEnv::test_unknown_preset_in_env_is_skipped PASSED [ 83%]
+tests/test_voice_adapter.py::test_register_agent PASSED                  [ 88%]
+tests/test_voice_adapter.py::test_register_agent_unknown_preset_raises PASSED [ 94%]
+tests/test_voice_adapter.py::test_presets_property PASSED                [100%]
+
+============================== 18 passed in 1.44s ==============================

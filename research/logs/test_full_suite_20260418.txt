@@ -1,0 +1,18 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.0.3, pluggy-1.6.0
+rootdir: /home/namshub/dev/VoiceDNA
+configfile: pyproject.toml
+testpaths: tests
+collected 46 items
+
+tests/test_audio_roundtrip.py .                                          [  2%]
+tests/test_child_inheritance.py ...                                      [  8%]
+tests/test_consistency_engine.py ..                                      [ 13%]
+tests/test_natural_backend_lowvram.py ...                                [ 19%]
+tests/test_natural_doctor.py ..                                          [ 23%]
+tests/test_openclaw_live_voice.py ............                           [ 50%]
+tests/test_piper_quality.py ...                                          [ 56%]
+tests/test_processor_report.py ..                                        [ 60%]
+tests/test_voice_adapter.py ..................                           [100%]
+
+============================== 46 passed in 1.86s ==============================
