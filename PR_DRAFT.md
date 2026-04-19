@@ -87,7 +87,7 @@ python -c "import wave; w=wave.open('examples/openclaw/output/voss_flair.wav'); 
 - [x] No secrets committed
 - [x] No GitHub Actions workflow changes
 - [x] Documentation complete (INTEGRATION_NOTE, DESIGN_DOC, VERIFICATION_REPORT)
-- [ ] Push to remote (requires PAT — see Push Instructions)
+- [ ] Push to remote (normal repo auth only; workflow-scope PAT not needed unless `.github/workflows/*` changes are added later)
 - [ ] Open GitHub PR
 
 ---
