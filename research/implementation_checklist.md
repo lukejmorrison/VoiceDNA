@@ -77,7 +77,7 @@ PY
 - If a push is needed, use:
 ```bash
 cd /home/namshub/dev/VoiceDNA
-git add research/voicedna_integration_summary.md research/implementation_checklist.md research/integration_packet.md
+git add research/voicedna_integration_summary.md research/implementation_checklist.md research/openclaw_integration_plan.md research/integration_packet.md
 git commit -m "docs: finalize VoiceDNA OpenClaw integration packet"
 git push -u origin feature/voicedna-openclaw-per-agent-voices
 ```
@@ -87,3 +87,4 @@ git push -u origin feature/voicedna-openclaw-per-agent-voices
 2. Preserve `neutral`, `friendly`, `flair` as the only pilot presets.
 3. Verify the fallback chain before wiring any OpenClaw live hook.
 4. Add CI skips for synthesis-only tests if the backend is absent.
+5. Use `research/openclaw_integration_plan.md` as the implementation checklist and update it if the call site changes.

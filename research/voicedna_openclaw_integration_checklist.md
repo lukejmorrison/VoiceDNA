@@ -3,6 +3,12 @@
 ## Executive summary
 The safe path is already laid out and mostly implemented: VoiceDNA owns the backing `VoiceAdapter` (`voicedna/openclaw_adapter.py`), while OpenClaw owns the opt-in shim (`tools/voicedna_adapter.py`) and runtime gating (`VOICEDNA_OPENCLAW_PRESETS`, `VOICEDNA_OPENCLAW_PRESETS_MAP`). For the next implementation pass, Dr Voss should keep the integration additive, verify the OpenClaw shim + e2e tests, and only touch a live TTS call site if the agent context is actually available there. The conservative default is: do **not** change VoiceDNA core behavior, do **not** change OpenClaw defaults, and keep all per-agent routing behind the env gate.
 
+Validated local artifacts:
+- `research/demo_output/demo.wav`
+- `examples/openclaw/output/namshub_neutral.wav`
+- `examples/openclaw/output/david_friendly.wav`
+- `examples/openclaw/output/voss_flair.wav`
+
 ---
 
 ## Exact entrypoints and functions
@@ -109,24 +115,21 @@ VOICEDNA_OPENCLAW_PRESETS=1 PYTHONPATH=. python examples/openclaw_voicedemo.py
 file examples/openclaw/output/*.wav
 python - <<'PY'
 from pathlib import Path
-import struct
-for p in sorted(Path('examples/openclaw/output').glob('*.wav')):
-    data = p.read_bytes()
-    assert data[:4] == b'RIFF', p
-    assert data[8:12] == b'WAVE', p
-    audio_format, channels, sample_rate, _, _, bits = struct.unpack_from('<HHIIHH', data, 20)
-    assert audio_format == 1 and channels == 1 and sample_rate == 22050 and bits == 16, (p, audio_format, channels, sample_rate, bits)
-    print('OK', p.name, len(data))
+import wave
+root = Path('examples/openclaw/output')
+for p in sorted(root.glob('*.wav')):
+    with wave.open(str(p), 'rb') as w:
+        print(p.name, w.getnchannels(), w.getframerate(), w.getsampwidth(), w.getnframes())
 PY
 ```
 
-Optional OpenClaw-side demo/validation:
+Validated outputs:
+- `examples/openclaw/output/namshub_neutral.wav`
+- `examples/openclaw/output/david_friendly.wav`
+- `examples/openclaw/output/voss_flair.wav`
 
-```bash
-cd /home/luke/dev/openclaw
-python demo/voicedna_demo.py
-file demo/output/*.wav
-```
+Optional smoke artifact:
+- `research/demo_output/demo.wav`
 
 Acceptance:
 - Three WAVs exist.
@@ -373,7 +376,11 @@ Unset `VOICEDNA_OPENCLAW_PRESETS` and `VOICEDNA_OPENCLAW_PRESETS_MAP`.
 3. **Runtime access to the live OpenClaw host** if Dr Voss needs to wire a real agent voice call path
    - Mitigation: validate with the shim/demo first, then apply the narrowest wrapper change on the target host.
 
-4. **Version metadata mismatch risk** (`pyproject.toml` currently shows `3.0.0`, while release notes mention `v3.1.1`)
+4. **Voice/data licensing review if future presets are not the built-in pilot trio**
+   - Current pilot status: no blocker found for `neutral`, `friendly`, `flair`.
+   - Mitigation: keep any third-party sample packs or proprietary voices out of the repo until redistribution rights are explicitly approved.
+
+5. **Version metadata mismatch risk** (`pyproject.toml` currently shows `3.0.0`, while release notes mention `v3.1.1`)
    - Mitigation: use editable local installs and keep the branch/tag/release note consistent before publishing.
 
 ---

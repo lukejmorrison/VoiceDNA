@@ -58,6 +58,12 @@ python -m pytest tests/test_voice_adapter.py -q
 python -m pytest tests/test_openclaw_live_voice.py -q
 ```
 
+### Smoke test / demo artifact generation
+```bash
+cd /home/namshub/dev/VoiceDNA
+bash research/smoke_test_tts.sh
+```
+
 ### Demo / artifact generation
 ```bash
 cd /home/namshub/dev/VoiceDNA
@@ -100,6 +106,8 @@ BLOCKER: GitHub PAT/token is needed only if Dr Voss must push or open a PR from 
 - Add `workflow` only if future work touches `.github/workflows/*`
 
 BLOCKER: Any future licensed asset pack or encrypted voice asset would need explicit redistribution approval before being committed.
+
+BLOCKER: A future preset expansion beyond `neutral`, `friendly`, and `flair` may require a license/provenance review before shipping.
 
 ## Suggested implementer checklist
 1. Confirm `VOICEDNA_OPENCLAW_PRESETS` remains the only enable switch.

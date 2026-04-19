@@ -6,10 +6,10 @@ set -euo pipefail
 
 cd /home/namshub/dev/VoiceDNA
 
-# 1) Optional editable install if you are setting up a fresh local env
-python -m pip install -e ".[dev]"
+# Optional: install dependencies in a virtual environment before running.
+# python -m pip install -e ".[dev]"
 
-# 2) Run the adapter and live-voice tests
+# Run the adapter and live-voice tests
 python -m pytest tests/test_voice_adapter.py -q
 python -m pytest tests/test_openclaw_live_voice.py -q
 

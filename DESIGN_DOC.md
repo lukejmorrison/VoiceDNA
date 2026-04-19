@@ -110,6 +110,17 @@ backend skips them cleanly.
 
 ---
 
+## Handoff Note for David (Edge-Case Validation)
+
+**David: before this lands on `main`, please confirm the following edge-case scenarios:
+1. An agent whose `agent_id` is absent from both `VOICEDNA_OPENCLAW_PRESETS_MAP` and the built-in pilot map correctly falls back to the `neutral` default — verify by unsetting the map env var and calling `VoiceAdapter.select_preset("agent:unknown")`.
+2. A malformed or empty `VOICEDNA_OPENCLAW_PRESETS_MAP` JSON string does not crash OpenClaw at startup — `load_presets_from_env()` must log a warning and return the empty dict.
+3. `render_agent_voice()` returns `None` (not an empty bytestring) when `VOICEDNA_OPENCLAW_PRESETS` is unset, so callers can safely gate on truthiness.
+4. Hot-reload: calling `reset_adapter()` between tests or config changes reinitialises the singleton cleanly — confirm no stale preset mappings carry over.
+5. CI smoke job (`VOICEDNA_OPENCLAW_PRESETS=1`) passes without a real TTS backend (synthesis tests must be skipped, not errored, when `voice_dna` package is absent).**
+
+---
+
 ## Non-Goals / Future Work
 
 - No cloud API calls or external secrets are required for the pilot.
