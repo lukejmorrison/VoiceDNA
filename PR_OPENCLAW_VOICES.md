@@ -22,7 +22,7 @@ Wire the VoiceDNA VoiceAdapter into the OpenClaw agent voice pipeline, enabling 
 
 ### Testing
 
-- ✅ 31 tests pass (18 unit + 13 integration)
+- ✅ 36 tests pass (18 unit + 18 integration)
 - ✅ Linting passes (ruff all-clear)
 - ✅ Demo produces 3 valid WAV files (164–211 KB each)
 - ✅ End-to-end synthesis pipeline validated
