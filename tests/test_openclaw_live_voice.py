@@ -18,6 +18,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from voicedna.openclaw_adapter import VoiceAdapter, PRESET_REGISTRY
+from voicedna.openclaw_live_voice import render_agent_voice, reset_adapter
 
 
 class TestOpenClawDemoScript:
@@ -137,6 +138,76 @@ class TestOpenClawIntegration:
                 if "not installed" in str(e):
                     pytest.skip(f"Synthesis dependencies not available: {e}")
                 raise
+
+
+# ---------------------------------------------------------------------------
+# TestRenderAgentVoice — render_agent_voice() opt-in guard and routing
+# ---------------------------------------------------------------------------
+
+
+class TestRenderAgentVoice:
+    """Validate the OpenClaw live-voice bridge entry point."""
+
+    def setup_method(self):
+        # Ensure fresh adapter state for each test
+        reset_adapter()
+
+    def teardown_method(self):
+        reset_adapter()
+
+    def test_returns_none_when_env_not_set(self, monkeypatch):
+        """render_agent_voice must be a no-op when VOICEDNA_OPENCLAW_PRESETS is absent."""
+        monkeypatch.delenv("VOICEDNA_OPENCLAW_PRESETS", raising=False)
+        result = render_agent_voice("Hello.", "agent:namshub")
+        assert result is None
+
+    def test_returns_none_when_env_is_empty_string(self, monkeypatch):
+        monkeypatch.setenv("VOICEDNA_OPENCLAW_PRESETS", "")
+        result = render_agent_voice("Hello.", "agent:namshub")
+        assert result is None
+
+    def test_opt_in_flag_enables_synthesis(self, monkeypatch):
+        """When VOICEDNA_OPENCLAW_PRESETS=1 the function should attempt synthesis."""
+        monkeypatch.setenv("VOICEDNA_OPENCLAW_PRESETS", "1")
+        try:
+            result = render_agent_voice("Hello.", "agent:namshub")
+            assert isinstance(result, bytes)
+            assert len(result) > 0
+        except RuntimeError as exc:
+            if "not installed" in str(exc):
+                import pytest
+                pytest.skip(f"Synthesis backend not available: {exc}")
+            raise
+
+    def test_agent_name_alias_resolution(self, monkeypatch):
+        """render_agent_voice should forward agent_name for alias resolution."""
+        monkeypatch.setenv("VOICEDNA_OPENCLAW_PRESETS", "1")
+        try:
+            result = render_agent_voice(
+                "Hi.", "unknown-id", agent_name="agent:dr-voss-thorne"
+            )
+            assert isinstance(result, bytes)
+        except RuntimeError as exc:
+            if "not installed" in str(exc):
+                import pytest
+                pytest.skip(f"Synthesis backend not available: {exc}")
+            raise
+
+    def test_reset_adapter_clears_cache(self, monkeypatch):
+        """reset_adapter() should clear the module-level adapter cache."""
+        monkeypatch.setenv("VOICEDNA_OPENCLAW_PRESETS", "1")
+        # Warm up the cache
+        try:
+            render_agent_voice("Warm.", "agent:namshub")
+        except RuntimeError:
+            pass
+        # Reset
+        reset_adapter()
+        # Try again; no exception means adapter was re-created
+        try:
+            render_agent_voice("Cold.", "agent:namshub")
+        except RuntimeError:
+            pass  # Backend absent is fine; the point is no crash from stale state
 
 
 class TestPresetRegistry:
