@@ -1,73 +1,119 @@
-# VoiceDNA ↔ OpenClaw per-agent voice pilot
+# VoiceDNA → OpenClaw Per-Agent Voice Integration
 
-## Architecture summary
-Add VoiceDNA as an **opt-in** voice-routing layer at the OpenClaw TTS boundary so agents can speak with distinct presets without changing default behavior. The routing order is deterministic:
+**Author:** Dr Voss Thorne (via subagent)  
+**Date:** 2026-04-19  
+**Branch:** `feature/voicedna-openclaw-per-agent-voices`
 
-1. `agent_id`
-2. `agent_name` alias
-3. default preset (`neutral`)
+---
 
-The pilot stays local-first and additive:
-- no cloud dependency
-- no schema migration
-- no change to default VoiceDNA semantics unless the feature flag is enabled
-- only three pilot presets: `neutral`, `friendly`, `flair`
+## Overview
 
-## Required env vars
-```bash
-VOICEDNA_OPENCLAW_PRESETS=1
-VOICEDNA_OPENCLAW_PRESETS_MAP='{"agent:namshub":"neutral","agent:david-hardman":"friendly","agent:dr-voss-thorne":"flair"}'
+This document describes the additive, opt-in integration that wires VoiceDNA's
+`VoiceAdapter` into the OpenClaw agent voice pipeline so each agent can be
+mapped to a distinct voice preset at runtime.
+
+---
+
+## Architecture
+
 ```
-Optional / situational:
-- `PYTHONPATH=.` if not using editable install
-- any future secret vars only if encrypted/licensed assets are introduced later; none are required for the current pilot
+OpenClaw TTS request
+        │
+        ▼
+VOICEDNA_OPENCLAW_PRESETS=1 set?
+        │
+   No ──┘ (existing TTS path unchanged — backward-compat preserved)
+        │
+   Yes  ▼
+  VoiceAdapter.select_preset(agent_id)
+        │
+        ▼  fallback chain:
+       1. exact agent_id  →  preset name
+       2. agent_name alias →  preset name
+       3. DEFAULT_PRESET ("neutral")
+        │
+        ▼
+  VoiceAdapter.synthesize(text, preset)
+   └─ _SimpleLocalTTS.synthesize(text)       → raw WAV bytes
+   └─ VoiceDNAProcessor.process(raw, dna)    → processed WAV bytes
+        │
+        ▼
+   WAV bytes returned / written to output_path
+```
 
-## Exact changes at the OpenClaw TTS boundary
-Wire the feature only where OpenClaw converts text to speech:
-- call `voicedna.openclaw_live_voice.render_agent_voice(...)` before the existing TTS path
-- if `VOICEDNA_OPENCLAW_PRESETS` is unset or falsey, return `None` and preserve the current OpenClaw TTS path
-- if the flag is on, instantiate/use `VoiceAdapter` and resolve preset via `agent_id -> agent_name -> default`
-- keep the bridge lazy-loaded and side-effect free until the env flag is enabled
-- do not alter default output for non-VoiceDNA users
+---
 
-In practice, only the live voice hook should know about the adapter; the rest of OpenClaw should continue to treat TTS as a normal optional backend.
+## Key Modules
 
-## Local test / CI plan
-### Local
+| File | Purpose |
+|------|---------|
+| `voicedna/openclaw_adapter.py` | `VoiceAdapter` class, preset registry, env-driven mapping |
+| `voicedna/openclaw_live_voice.py` | `render_agent_voice()` — opt-in live pipeline hook |
+| `examples/openclaw_voicedemo.py` | Demo: produces WAVs for three pilot agents |
+| `examples/openclaw/voicedna_tts_hook.py` | Drop-in OpenClaw skill wrapper |
+| `tests/test_voice_adapter.py` | 18 unit/smoke tests (all passing) |
+
+---
+
+## Pilot Presets
+
+| Preset | Agent | Description |
+|--------|-------|-------------|
+| `neutral` | `agent:namshub` | Calm, clear, neutral assistant |
+| `friendly` | `agent:david-hardman` | Warm, upbeat, approachable |
+| `flair` | `agent:dr-voss-thorne` | Expressive, sharp, distinctive |
+
+---
+
+## Configuration
+
+```bash
+export VOICEDNA_OPENCLAW_PRESETS=1
+export VOICEDNA_OPENCLAW_PRESETS_MAP='{"agent:namshub":"neutral","agent:david-hardman":"friendly","agent:dr-voss-thorne":"flair"}'
+```
+
+`VOICEDNA_OPENCLAW_PRESETS` is the master feature flag. When absent, all
+existing OpenClaw TTS behavior is unaffected.
+
+---
+
+## Backward Compatibility
+
+- No existing VoiceDNA code-path imports `openclaw_adapter` or `openclaw_live_voice`.
+- `render_agent_voice()` returns `None` when the feature flag is unset.
+- The `VoiceDNATTSHook` in `voicedna_tts_hook.py` is copy-paste only; it is
+  not auto-loaded.
+- All changes are additive. No existing module signatures were modified.
+
+---
+
+## Testing
+
 ```bash
 cd /home/namshub/dev/VoiceDNA
-python -m pip install -e ".[dev]"
-python -m pytest tests/test_voice_adapter.py -q
-python -m pytest tests/test_openclaw_live_voice.py -q
-python examples/openclaw_voicedemo.py
-file examples/openclaw/output/*.wav
-python - <<'PY'
-from pathlib import Path
-import wave
-for p in sorted(Path('examples/openclaw/output').glob('*.wav')):
-    with wave.open(str(p), 'rb') as w:
-        print(p.name, w.getnchannels(), w.getframerate(), w.getsampwidth(), w.getnframes())
-PY
+pytest tests/test_voice_adapter.py -q   # 18 passed
 ```
 
-### CI
-Recommended CI job steps:
-```bash
-python -m pip install -e ".[dev]"
-python -m pytest tests/test_voice_adapter.py tests/test_openclaw_live_voice.py -q
-```
-If the backend is unavailable in CI, keep synthesis tests skippable and do not fail the whole pipeline for missing local audio dependencies.
+Synthesis tests are guarded with `@requires_voice_dna` so CI without the
+backend skips them cleanly.
 
-## Implementation checklist for Dr Voss
-1. Confirm the feature remains behind `VOICEDNA_OPENCLAW_PRESETS=1`.
-2. Keep only the three pilot presets in scope: `neutral`, `friendly`, `flair`.
-3. Preserve the fallback chain exactly: `agent_id -> agent_name -> default`.
-4. Wire the adapter only at the OpenClaw TTS boundary.
-5. Keep the live-voice bridge returning `None` when disabled.
-6. Verify the demo script still writes WAVs under `examples/openclaw/output/`.
-7. Run the two pytest files locally.
-8. Validate generated WAV headers and basic audio metadata.
-9. If packaging/push is needed, confirm Git auth first; do not introduce PATs or workflow tokens unless explicitly approved.
+---
 
-## Rollback rule
-If anything regresses, unset `VOICEDNA_OPENCLAW_PRESETS` and remove the TTS hook call site. The pilot is designed to be reversible with no data migration.
+## Changelog
+
+| Date | Change |
+|------|--------|
+| 2026-04-19 | Verified `voicedna/openclaw_adapter.py` — `VoiceAdapter` wiring complete |
+| 2026-04-19 | Ran `examples/openclaw_voicedemo.py` — produced 3 WAVs in `examples/openclaw/output/` |
+| 2026-04-19 | Confirmed `pytest tests/test_voice_adapter.py` — 18/18 passed |
+| 2026-04-19 | Added `DESIGN_DOC.md` (this file) with architecture, config, and changelog |
+
+---
+
+## Non-Goals / Future Work
+
+- No cloud API calls or external secrets are required for the pilot.
+- RVC conversion is stubbed; a downstream stage can replace the `simple` mode.
+- Additional presets should be reviewed for redistribution rights before shipping.
+- A CI workflow job for synthesis tests is deferred until a headless TTS
+  backend is confirmed available in the CI environment.
