@@ -105,6 +105,29 @@ cd /path/to/VoiceDNA
 pytest tests/test_voice_adapter.py -q
 ```
 
+### CI smoke step
+
+Use the same local-first smoke path in CI or a pre-merge job:
+
+```bash
+export VOICEDNA_OPENCLAW_PRESETS=1
+export VOICEDNA_OPENCLAW_PRESETS_MAP='{"agent:namshub":"neutral","agent:david-hardman":"friendly","agent:dr-voss-thorne":"flair"}'
+
+python -m pytest tests/test_voice_adapter.py tests/test_openclaw_live_voice.py -q
+PYTHONPATH=. python examples/openclaw_voicedemo.py
+python - <<'PY'
+from pathlib import Path
+import wave
+for p in sorted((Path('examples/openclaw/output')).glob('*.wav')):
+    with wave.open(str(p), 'rb') as w:
+        assert w.getnchannels() == 1
+        assert w.getsampwidth() == 2
+        assert w.getframerate() == 22050
+        assert w.getnframes() > 0
+    print('validated', p)
+PY
+```
+
 ---
 
 Install with low-VRAM PersonaPlex (4-bit quantized + offload):
