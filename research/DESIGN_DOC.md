@@ -1,136 +1,99 @@
-# VoiceDNA → OpenClaw integration design
+# DESIGN_DOC.md — Wiring VoiceDNA per-agent VoiceAdapter into OpenClaw TTS
 
-## Objective
-Add VoiceDNA per-agent voice routing to OpenClaw as an additive, opt-in TTS boundary layer. Default OpenClaw behavior must remain unchanged unless the feature flag is enabled.
+**Status:** draft / implementation guide  
+**Scope:** additive, opt-in only; no default behavior changes  
+**References:** see `voicedna_integration_summary.md` and `implementation_checklist.md`
 
-## Architecture
-```
-OpenClaw agent identity
-  → OpenClaw TTS hook / wrapper
-  → VoiceDNA live bridge (`voicedna/openclaw_live_voice.py`)
-  → VoiceAdapter (`voicedna/openclaw_adapter.py`)
-  → VoiceDNA processor + synthesis backend
-  → WAV bytes / optional file output
-```
+## Goal
+Wire VoiceDNA’s per-agent `VoiceAdapter` into the live OpenClaw TTS pipeline so an agent can speak with a deterministic preset (`neutral`, `friendly`, `flair`) while preserving the existing TTS path when VoiceDNA is disabled or unavailable.
 
-## Canonical VoiceDNA contracts
-- `VoiceAdapter.select_preset(agent_id, agent_name=None) -> str`
-- `VoiceAdapter.synthesize(text, preset, output_path=None) -> bytes`
-- `render_agent_voice(text, agent_id, agent_name=None, output_path=None) -> bytes | None`
-- `load_presets_from_env()` reads `VOICEDNA_OPENCLAW_PRESETS_MAP`
+## Exact integration point
+Use the **TTS output boundary**, not heartbeat or upstream planning logic.
 
-## Preset routing rules
-Resolution order:
-1. exact `agent_id`
-2. exact `agent_name` alias
-3. default preset (`neutral`)
+### Canonical hook chain in OpenClaw
+1. `skills/audio-responder-tts/audio_tts_reply.sh` decides whether to synthesize a reply.
+2. When opt-in is enabled, it calls `tools/voicedna_tts_cli.py`.
+3. `tools/voicedna_tts_cli.py` calls `tools/voicedna_tts_hook.render_agent_voice(...)`.
+4. `render_agent_voice()` delegates into the VoiceDNA repo via `voicedna.openclaw_live_voice`.
+5. If VoiceDNA returns `None` or fails, the shell script falls back to the existing TTS binary.
 
-Pilot presets only:
-- `neutral`
-- `friendly`
-- `flair`
+**Decision:** this is the right boundary because it is the last step before audio generation and keeps the rest of OpenClaw unchanged.
 
 ## Required env vars
-### Feature gate
-- `VOICEDNA_OPENCLAW_PRESETS=1`
-  - Enables the OpenClaw bridge.
-  - If absent or empty, the bridge must pass through and return `None`.
+Keep the feature gated and local-first:
 
-### Optional mapping override
-- `VOICEDNA_OPENCLAW_PRESETS_MAP='{"agent:namshub":"neutral","agent:david-hardman":"friendly","agent:dr-voss-thorne":"flair"}'`
-  - JSON mapping from agent id or alias to preset.
-  - Invalid JSON should fail closed and fall back to built-in pilot defaults.
+```bash
+export VOICEDNA_OPENCLAW_PRESETS=1
+export VOICEDNA_OPENCLAW_PRESETS_MAP='{"agent:namshub":"neutral","agent:david-hardman":"friendly","agent:dr-voss-thorne":"flair"}'
+```
 
-### VoiceDNA runtime inputs
-- `VOICEDNA_ENC_PATH`
-  - Path to the encrypted `.voicedna.enc` file.
-- `VOICEDNA_PASSWORD`
-  - Password for decrypting the VoiceDNA artifact.
-- `VOICEDNA_FORCE_AGE`
-  - Optional age override during processing.
+Optional only if encrypted registry voices are used:
 
-## Required dependencies
-### For local VoiceDNA demo / tests
-- Python 3.10+ (local repo runtime)
-- `voice_dna` / `voicedna` package installed from the VoiceDNA repo, ideally editable:
-  - `pip install -e /home/namshub/dev/VoiceDNA`
-- Core runtime libs already used by VoiceDNA:
-  - `numpy`
-  - `cryptography`
-  - `pydub`
-  - `sounddevice` when playback paths are used
+```bash
+export VOICEDNA_PASSWORD_NAMSHUB=...
+```
 
-### Optional backends
-Only needed when you choose those features:
-- `voicedna[consistency]` for speaker-consistency extras
-- `voicedna[rvc]` for real RVC voice cloning
-- `voicedna[personaplex]` or `voicedna[personaplex-lowvram]` for PersonaPlex natural voice
-- cloud TTS backend API keys if the chosen backend is ElevenLabs / Cartesia / similar
+## Fallback logic
+Resolution order inside VoiceDNA:
+1. exact `agent_id`
+2. `agent_name` alias
+3. default preset (`neutral`)
 
-## Implementation approach
-### Phase 1 — keep it additive
-1. Keep the feature behind `VOICEDNA_OPENCLAW_PRESETS`.
-2. Load the adapter lazily so OpenClaw startup cost stays unchanged.
-3. Preserve the existing OpenClaw TTS path when the flag is off.
+Runtime behavior:
+- If `VOICEDNA_OPENCLAW_PRESETS` is unset or falsy, `render_agent_voice()` returns `None`.
+- If the VoiceDNA package/backend is missing, the hook returns `None` or exits non-fatally.
+- The OpenClaw shell path then uses the existing TTS provider unchanged.
 
-### Phase 2 — narrow live seam wiring
-1. Identify the exact OpenClaw function that already has `agent_id` and optionally `agent_name`.
-2. Call `render_agent_voice(...)` at that TTS boundary.
-3. If it returns bytes, use them.
-4. If it returns `None`, continue with the existing TTS output path.
+This keeps the pilot additive and safe to ship behind a feature flag.
 
-### Phase 3 — validate
-1. Run the VoiceDNA adapter tests.
-2. Run the live bridge tests.
-3. Generate the three demo WAVs.
-4. Verify the WAV headers and file sizes.
+## Minimal OpenClaw code changes needed
+No new dependencies.
 
-### Phase 4 — document rollback
-1. Unset `VOICEDNA_OPENCLAW_PRESETS`.
-2. Unset `VOICEDNA_OPENCLAW_PRESETS_MAP`.
-3. Remove the narrow hook call if needed.
+### Core changes required
+- Keep `tools/voicedna_tts_hook.py` as the single hook API.
+- Ensure the live TTS call site calls `render_agent_voice()` only after text has been finalized for speech.
+- Preserve existing provider fallback when the hook returns `None`.
+- Keep `tools/voicedna_adapter.py` as the opt-in singleton/config shim.
 
-## API contract for OpenClaw
-OpenClaw should pass the following to the bridge when available:
-- `text` — the spoken content
-- `agent_id` — canonical agent identifier
-- `agent_name` — optional alias/human-readable name
-- `output_path` — optional file path for WAV output
+### If OpenClaw core needs any further edits
+Only touch the TTS boundary layer, not agent planning or heartbeat code.
 
-Bridge behavior:
-- returns WAV bytes on success
-- returns `None` when the opt-in flag is not set
-- raises only on genuine configuration/runtime failures
+Recommended touch points:
+- `skills/audio-responder-tts/audio_tts_reply.sh` — caller-side fallback orchestration
+- `tools/voicedna_tts_hook.py` — canonical TTS post-processor
+- `tools/voicedna_adapter.py` — feature flag + preset map loader
 
-## Verification commands
+## Testing plan
+Do not run synthesis tests here; this doc only defines the path.
+
+### VoiceDNA repo checks
 ```bash
 cd /home/namshub/dev/VoiceDNA
 python -m pytest tests/test_voice_adapter.py -q
 python -m pytest tests/test_openclaw_live_voice.py -q
-VOICEDNA_OPENCLAW_PRESETS=1 PYTHONPATH=. python examples/openclaw_voicedemo.py
-file examples/openclaw/output/*.wav
-python - <<'PY'
-from pathlib import Path
-import wave
-root = Path('examples/openclaw/output')
-for p in sorted(root.glob('*.wav')):
-    with wave.open(str(p), 'rb') as w:
-        print(p.name, w.getnchannels(), w.getframerate(), w.getsampwidth(), w.getnframes())
-PY
 ```
 
-## Step-by-step implementation checklist
-1. Confirm the live OpenClaw TTS seam and agent identity source.
-2. Import the bridge only at that seam.
-3. Keep the env gate as the only enable switch.
-4. Preserve fallback to the current OpenClaw TTS path.
-5. Run unit tests and the demo locally.
-6. Validate WAV output headers and sizes.
-7. Only then prepare a push / PR / bundle handoff.
+### Smoke demo
+```bash
+cd /home/namshub/dev/VoiceDNA
+python examples/openclaw_voicedemo.py
+```
 
-## Rollback
-If anything behaves unexpectedly:
-- unset `VOICEDNA_OPENCLAW_PRESETS`
-- unset `VOICEDNA_OPENCLAW_PRESETS_MAP`
-- remove the narrow hook import/call
-- keep the rest of OpenClaw unchanged
+Expected output WAVs:
+- `examples/openclaw/output/namshub_neutral.wav`
+- `examples/openclaw/output/david_friendly.wav`
+- `examples/openclaw/output/voss_flair.wav`
+
+### Format validation
+Confirm mono / 22050 Hz / 16-bit WAV output.
+
+## Acceptance criteria
+- OpenClaw stays unchanged when the env flag is off.
+- VoiceDNA activates only at the TTS boundary.
+- Preset selection follows `agent_id` → `agent_name` → default.
+- Existing TTS remains the fallback path.
+- No secrets or new dependencies are introduced.
+
+## Notes
+- The VoiceDNA side is already implemented in `voicedna/openclaw_adapter.py` and `voicedna/openclaw_live_voice.py`.
+- Keep this pilot local-first and opt-in until the boundary is proven stable.
