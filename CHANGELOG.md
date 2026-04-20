@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented here.
 
+## [3.2.0] - 2026-04-20
+### Added
+- `voicedna/openclaw_tts_post.py`: CLI bridge for sherpa-onnx-tts post-processing wiring into OpenClaw TTS pipeline.
+- `voicedna/openclaw_live_voice.py`: live voice bridge for real-time per-agent voice routing in OpenClaw.
+- `voicedna/openclaw_adapter.py`: `VoiceAdapter` class with `select_preset(agent_id, agent_name)` and `synthesize(text, preset, output_path)` API.
+- Three pilot voice presets: `neutral`, `friendly`, `flair`.
+- Full OpenClaw wiring: VoiceDNA VoiceAdapter integrated into live per-agent voice pipeline.
+- 59 passing tests (unit + integration) covering all new bridges, adapters, and presets.
+
+### Changed
+- Version bumped to `3.2.0`.
+
 ## [Unreleased] — feature/voicedna-openclaw-per-agent-voices
 ### Added
 - `voicedna/openclaw_adapter.py`: new `VoiceAdapter` class with `select_preset(agent_id, agent_name)` and `synthesize(text, preset, output_path)` API.
