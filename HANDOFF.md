@@ -2,7 +2,7 @@
 
 **Subagent:** Dr Voss Thorne  
 **Task:** Wire VoiceDNA VoiceAdapter into OpenClaw agent voice pipeline  
-**Date:** 2026-04-18  
+**Date:** 2026-04-19  
 **Status:** ✅ **COMPLETE & READY_TO_PUSH**
 
 ---
@@ -30,7 +30,7 @@ The VoiceDNA VoiceAdapter has been successfully integrated into the OpenClaw age
 
 ### 3. Verification & Documentation (Added This Session)
 - ✅ `VERIFICATION_REPORT.md` — Full verification showing:
-  - 31/31 tests pass (18 unit + 13 integration)
+  - 36/36 tests pass (18 unit + 18 integration)
   - Linting passes (ruff all-clear)
   - Demo WAV validation (RIFF/WAVE, PCM 16-bit, 22050 Hz)
   - Success criteria checklist
@@ -45,7 +45,7 @@ The VoiceDNA VoiceAdapter has been successfully integrated into the OpenClaw age
 | VoiceDNA presets selectable & usable | ✅ | `test_voice_adapter.py::test_pilot_presets_exist` |
 | Demo produces playable WAV output | ✅ | 3 WAVs in `examples/openclaw/output/` (164–211 KB) |
 | End-to-end demo runs, prints success | ✅ | Demo output shows "✓ Demo complete" |
-| Unit/integration tests pass | ✅ | 31/31 tests pass in 1.71s |
+| Unit/integration tests pass | ✅ | 36/36 tests pass in 1.84s |
 | Linting passes | ✅ | ruff check: "All checks passed!" |
 | Branch ready for push | ✅ | `feature/voicedna-openclaw-per-agent-voices` |
 | No GitHub Actions PAT changes | ✅ | No workflow files modified |
@@ -211,7 +211,7 @@ git checkout feature/voicedna-openclaw-per-agent-voices
 
 **Dr Voss Thorne**  
 Senior Codex Engineer  
-*2026-04-18*
+*2026-04-19*
 
 ```
 Task complete. The VoiceDNA OpenClaw voice adapter is fully implemented,
