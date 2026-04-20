@@ -1,19 +1,26 @@
-Local Test Report — feature/voicedna-openclaw-per-agent-voices
-================================================================
-Date: 2026-04-17
+VoiceDNA per-agent voice pilot — local test report
+Run date: 2026-04-18
 
-Test run: pytest tests/test_voice_adapter.py -v
-Result: 15 passed, 3 skipped, 0 failed
+Environment:
+  Repo: /home/namshub/.openclaw/workspaces/namshub/main/VoiceDNA
+  Branch: feature/voicedna-openclaw-per-agent-voices
+  Python: .venv (3.14.4)
 
-Skipped tests (3): synthesis smoke tests — skipped because the 'voice_dna'
-  synthesis backend is an optional heavy dependency (not installed). All
-  skip guards are intentional and confirmed by test design.
+=== pytest -q ===
+34 passed in 0.42s
 
-Other test files: tests/test_audio_roundtrip.py and others require
-  'cryptography' (ModuleNotFoundError). These are unrelated to this feature
-  branch and pre-exist on main.
+=== ruff check . ===
+All checks passed!
 
-Branch status: feature/voicedna-openclaw-per-agent-voices is in sync with
-  origin/feature/voicedna-openclaw-per-agent-voices (no unpushed commits).
+=== ruff format --check . ===
+47 files already formatted (after running `ruff format .` to fix 31 previously unformatted files)
 
-Conclusion: All feature-specific tests pass. Ready for PR.
+=== Demo script: examples/openclaw_voicedemo.py ===
+[agent:namshub]       preset='neutral'   → examples/openclaw/output/namshub_neutral.wav  (165022 bytes)
+[agent:david-hardman] preset='friendly'  → examples/openclaw/output/david_friendly.wav   (212296 bytes)
+[agent:dr-voss-thorne] preset='flair'   → examples/openclaw/output/voss_flair.wav        (209960 bytes)
+✓ Demo complete — all 3 WAVs produced without error.
+
+=== Summary ===
+All tests pass. All lint/format checks pass. Demo runs cleanly.
+Branch is ready to merge.

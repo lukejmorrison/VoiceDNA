@@ -22,7 +22,9 @@ logger = logging.getLogger("voicedna.openclaw")
 
 
 class VoiceDNATTSHook:
-    def __init__(self, encrypted_path: str = "myai.voicedna.enc", password: str | None = None):
+    def __init__(
+        self, encrypted_path: str = "myai.voicedna.enc", password: str | None = None
+    ):
         self.encrypted_path = encrypted_path
         self.password = password
         self.dna = self._load_dna()
@@ -49,7 +51,9 @@ class VoiceDNATTSHook:
             )
         return VoiceDNA.load_encrypted(password=password, filepath=str(resolved))
 
-    def process_tts_output(self, raw_audio_bytes: bytes, text: str = "", base_model: str = "openclaw") -> bytes:
+    def process_tts_output(
+        self, raw_audio_bytes: bytes, text: str = "", base_model: str = "openclaw"
+    ) -> bytes:
         force_age_env = os.getenv("VOICEDNA_FORCE_AGE")
         force_age = float(force_age_env) if force_age_env else None
 
@@ -89,7 +93,9 @@ def get_voicedna_tts_hook() -> VoiceDNATTSHook:
 
 
 # OpenClaw wiring option B (exported function style):
-def process_tts_output(raw_audio_bytes: bytes, text: str = "", provider_name: str = "openclaw") -> bytes:
+def process_tts_output(
+    raw_audio_bytes: bytes, text: str = "", provider_name: str = "openclaw"
+) -> bytes:
     return get_voicedna_tts_hook().process_tts_output(
         raw_audio_bytes,
         text=text,

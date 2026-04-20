@@ -12,7 +12,9 @@ def load_or_create_dna(path: str, password: str) -> VoiceDNA:
     if Path(path).exists():
         return VoiceDNA.load_encrypted(password=password, filepath=path)
 
-    dna = VoiceDNA.create_new("Luke Morrison's warm Canadian voice from 60-second recording", "luke")
+    dna = VoiceDNA.create_new(
+        "Luke Morrison's warm Canadian voice from 60-second recording", "luke"
+    )
     dna.save_encrypted(password=password, filepath=path)
     return dna
 
@@ -48,7 +50,9 @@ def main():
     )
     response.raise_for_status()
 
-    processed = processor.process(response.content, dna, {"text": text, "audio_format": "wav"})
+    processed = processor.process(
+        response.content, dna, {"text": text, "audio_format": "wav"}
+    )
     with open("cartesia_matured.wav", "wb") as file_handle:
         file_handle.write(processed)
 

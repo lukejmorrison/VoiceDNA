@@ -24,8 +24,13 @@ class AgeMaturationFilter(IVoiceDNAFilter):
         try:
             from pydub import AudioSegment
 
-            source = AudioSegment.from_file(io.BytesIO(audio_bytes), format=audio_format)
-            shifted = source._spawn(source.raw_data, overrides={"frame_rate": int(source.frame_rate * bounded_factor)})
+            source = AudioSegment.from_file(
+                io.BytesIO(audio_bytes), format=audio_format
+            )
+            shifted = source._spawn(
+                source.raw_data,
+                overrides={"frame_rate": int(source.frame_rate * bounded_factor)},
+            )
             normalized = shifted.set_frame_rate(source.frame_rate)
             output = io.BytesIO()
             normalized.export(output, format=audio_format)

@@ -1,58 +1,57 @@
-# VoiceDNA OpenClaw per-agent voice pilot — Integration Summary
+# VoiceDNA → OpenClaw Per-Agent Voice Pilot Summary
 
-**Branch:** `feature/voicedna-openclaw-per-agent-voices`  
-**Scope:** Opt-in per-agent voice routing for OpenClaw agents using VoiceDNA presets  
-**Status:** Pilot-ready, additive, and local-first
+Scope: VoiceDNA repo + OpenClaw example integration for per-agent voices.
 
-## What it does
-- Adds `voicedna.openclaw_adapter.VoiceAdapter` as a small routing layer.
-- Selects a preset deterministically using: `agent_id` → `agent_name` → default preset.
-- Ships three pilot presets only:
-  - `neutral`
-  - `friendly`
-  - `flair`
-- Keeps the feature disabled by default unless explicitly enabled via env/config or direct construction.
-- Adds a local demo that writes WAV files to `examples/openclaw/output/`.
+## Verified files
+Present and correct in the local VoiceDNA tree:
+- `voicedna/openclaw_adapter.py`
+- `voicedna/openclaw_live_voice.py`
+- `examples/openclaw_voicedemo.py`
+- `tests/test_voice_adapter.py`
+- `tests/test_openclaw_live_voice.py`
+- `research/implementation_checklist.md`
 
-## Integration points
-- **Core adapter:** `voicedna/openclaw_adapter.py`
-- **Demo:** `examples/openclaw_voicedemo.py`
-- **Tests:** `tests/test_voice_adapter.py`
-- **Docs:** `README.md`, `PR_BODY.md`, `PR_CHECKLIST.md`, `PR_DRAFT.md`
+## What the integration does
+- Adds an opt-in routing layer so OpenClaw agents can map to VoiceDNA presets.
+- Uses a deterministic fallback order: `agent_id` → `agent_name` alias → default preset.
+- Ships three pilot presets only: `neutral`, `friendly`, `flair`.
+- Keeps default VoiceDNA behavior unchanged unless `VOICEDNA_OPENCLAW_PRESETS=1` is set.
 
-## Expected behavior
-- Existing VoiceDNA behavior remains unchanged unless the adapter is imported or the demo is run.
-- Unknown presets are rejected with a clear error.
-- Env-based routing is opt-in via `VOICEDNA_OPENCLAW_PRESETS_MAP`.
-- The demo can run locally without cloud services.
+## Current status
+- The VoiceDNA source tree is present locally at `/home/namshub/dev/VoiceDNA`.
+- The OpenClaw bridge is implemented as an additive, local-first path.
+- The demo script writes WAVs under `examples/openclaw/output/`.
+- License review found no blocker for the current pilot; VoiceDNA is MIT licensed.
 
-## Validation evidence
-- Targeted adapter tests are present and cover:
-  - preset registry basics
-  - deterministic selection
-  - env loading
-  - runtime registration
-  - synthesis success/error paths
-- Reported local validation includes:
-  - `pytest tests/test_voice_adapter.py -v` → `15 passed, 3 skipped`
-  - `ruff check ...` → pass
-  - `py_compile` → pass
-- A separate readiness report in the repo also records a full suite pass (`34 passed`).
-  Treat the repo-wide suite as the stronger signal, but re-run it in the final dependency-complete environment before merge if anything changed since that report.
+## Implementation notes
+1. `voicedna.openclaw_adapter.VoiceAdapter`
+   - `select_preset(agent_id, agent_name=None)`
+   - `synthesize(text, preset, output_path=None)`
+   - optional runtime mapping from `VOICEDNA_OPENCLAW_PRESETS_MAP`
 
-## Rollout plan
-1. Merge the pilot as an additive, opt-in change.
-2. Keep the README and PR notes aligned with the adapter API and the three presets.
-3. Validate in a dependency-complete environment before final PR approval.
-4. If desired later, wire the adapter into the broader OpenClaw integration points.
+2. `voicedna.openclaw_live_voice.render_agent_voice(...)`
+   - returns `None` when the opt-in env var is not set
+   - preserves OpenClaw’s existing TTS path when disabled
 
-## Rollback plan
-- Remove the OpenClaw adapter import or wiring if added later.
-- Disable the opt-in env path.
-- Revert the demo/test/docs files if the pilot needs to be backed out.
-- Core VoiceDNA flows remain untouched, so rollback risk is low.
+3. `examples/openclaw_voicedemo.py`
+   - demonstrates the three pilot agents
+   - produces:
+     - `namshub_neutral.wav`
+     - `david_friendly.wav`
+     - `voss_flair.wav`
 
-## Main risks / blockers
-- Full-repo pytest evidence is mixed across reports; re-run in the final environment before pushing if possible.
-- Demo synthesis depends on the local VoiceDNA runtime backend being installed.
-- Keep demo WAV artifacts intentional and reviewed before commit.
+## Config surface
+Recommended env vars:
+```bash
+export VOICEDNA_OPENCLAW_PRESETS=1
+export VOICEDNA_OPENCLAW_PRESETS_MAP='{"agent:namshub":"neutral","agent:david-hardman":"friendly","agent:dr-voss-thorne":"flair"}'
+```
+
+## CI / push notes
+- No `.github/workflows/*` changes are required for this pilot.
+- A PAT is **not required** for the current branch unless a later change touches workflows or token-based publishing is needed.
+- If a push is needed, use the branch `feature/voicedna-openclaw-per-agent-voices`.
+
+## Remaining gaps to keep in mind
+- If future presets depend on external sample packs or licensed assets, document redistribution rights before shipping.
+- Keep synthesis tests separate from unit tests so CI can skip them if the backend is unavailable.

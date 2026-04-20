@@ -25,7 +25,9 @@ def openclaw_render_hook(raw_audio_bytes: bytes, dna: VoiceDNA) -> bytes:
 
 
 def main():
-    dna = VoiceDNA.create_new("Luke Morrison's warm Canadian voice from 60-second recording", "luke")
+    dna = VoiceDNA.create_new(
+        "Luke Morrison's warm Canadian voice from 60-second recording", "luke"
+    )
     mock_audio = b"RAW_TTS_AUDIO_BYTES"
     processed = openclaw_render_hook(mock_audio, dna)
 

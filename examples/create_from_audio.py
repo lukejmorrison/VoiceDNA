@@ -13,12 +13,26 @@ def _slugify(value: str) -> str:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Create encrypted VoiceDNA from a local audio recording")
-    parser.add_argument("--audio", required=True, help="Path to your voice recording (wav/mp3/m4a)")
-    parser.add_argument("--voice-name", default="", help="Human-friendly voice name (prompts if omitted)")
-    parser.add_argument("--user", default="", help="Identity/user name (defaults to voice name slug)")
-    parser.add_argument("--out", default="", help="Output file name (always written inside voices/)")
-    parser.add_argument("--password", default=None, help="Encryption password (omit to prompt)")
+    parser = argparse.ArgumentParser(
+        description="Create encrypted VoiceDNA from a local audio recording"
+    )
+    parser.add_argument(
+        "--audio", required=True, help="Path to your voice recording (wav/mp3/m4a)"
+    )
+    parser.add_argument(
+        "--voice-name",
+        default="",
+        help="Human-friendly voice name (prompts if omitted)",
+    )
+    parser.add_argument(
+        "--user", default="", help="Identity/user name (defaults to voice name slug)"
+    )
+    parser.add_argument(
+        "--out", default="", help="Output file name (always written inside voices/)"
+    )
+    parser.add_argument(
+        "--password", default=None, help="Encryption password (omit to prompt)"
+    )
     args = parser.parse_args()
 
     audio_path = Path(args.audio).expanduser().resolve()

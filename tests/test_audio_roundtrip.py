@@ -9,7 +9,9 @@ def test_audio_pipeline_changes_waveform_and_stays_wav(wav_fixture_bytes: bytes)
     dna = VoiceDNA.create_new("Roundtrip voice", "roundtrip")
     processor = VoiceDNAProcessor()
 
-    output = processor.process(wav_fixture_bytes, dna, {"force_age": 15, "audio_format": "wav"})
+    output = processor.process(
+        wav_fixture_bytes, dna, {"force_age": 15, "audio_format": "wav"}
+    )
 
     assert output != wav_fixture_bytes
 

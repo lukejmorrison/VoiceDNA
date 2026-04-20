@@ -9,7 +9,13 @@ from voice_dna import VoiceDNA
 from voicedna import VoiceDNAProcessor
 
 
-def _blend_embeddings(parent_a: VoiceDNA, parent_b: VoiceDNA, inherit_a: float, inherit_b: float, randomness: float) -> list[float]:
+def _blend_embeddings(
+    parent_a: VoiceDNA,
+    parent_b: VoiceDNA,
+    inherit_a: float,
+    inherit_b: float,
+    randomness: float,
+) -> list[float]:
     total = max(0.0001, inherit_a + inherit_b)
     weight_a = inherit_a / total
     weight_b = inherit_b / total
@@ -43,7 +49,11 @@ def run_process(args: argparse.Namespace) -> int:
     Path(args.output_wav).write_bytes(output_bytes)
 
     report = processor.get_last_report()
-    print(json.dumps({"status": "ok", "mode": "process", "report": report}, ensure_ascii=False))
+    print(
+        json.dumps(
+            {"status": "ok", "mode": "process", "report": report}, ensure_ascii=False
+        )
+    )
     return 0
 
 
@@ -64,9 +74,17 @@ def run_birth(args: argparse.Namespace) -> int:
         randomness=args.randomness,
     )
 
-    child.unique_traits = list(dict.fromkeys(parent_a.unique_traits + parent_b.unique_traits + child.unique_traits))
-    child.imprint_strength = max(0.0, min(1.0, (args.inherit_a + args.inherit_b) / 200.0))
-    child.morph_allowance = max(0.02, min(0.35, 0.05 + (args.randomness / 100.0) * 0.20))
+    child.unique_traits = list(
+        dict.fromkeys(
+            parent_a.unique_traits + parent_b.unique_traits + child.unique_traits
+        )
+    )
+    child.imprint_strength = max(
+        0.0, min(1.0, (args.inherit_a + args.inherit_b) / 200.0)
+    )
+    child.morph_allowance = max(
+        0.02, min(0.35, 0.05 + (args.randomness / 100.0) * 0.20)
+    )
 
     output = Path(args.out)
     if output.suffixes[-2:] != [".voicedna", ".enc"]:
@@ -92,7 +110,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="VoiceDNA VST3 runtime bridge")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    process_parser = subparsers.add_parser("process", help="Run real-time filter processing")
+    process_parser = subparsers.add_parser(
+        "process", help="Run real-time filter processing"
+    )
     process_parser.add_argument("--dna-path", required=True)
     process_parser.add_argument("--password", required=True)
     process_parser.add_argument("--input-wav", required=True)
@@ -102,7 +122,9 @@ def build_parser() -> argparse.ArgumentParser:
     process_parser.add_argument("--imprint-strength", type=float, default=0.68)
     process_parser.set_defaults(func=run_process)
 
-    birth_parser = subparsers.add_parser("birth", help="Create child VoiceDNA from two parent audio files")
+    birth_parser = subparsers.add_parser(
+        "birth", help="Create child VoiceDNA from two parent audio files"
+    )
     birth_parser.add_argument("--parent-a", required=True)
     birth_parser.add_argument("--parent-b", required=True)
     birth_parser.add_argument("--child-user", required=True)
