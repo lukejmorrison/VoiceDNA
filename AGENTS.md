@@ -13,3 +13,7 @@ Lifelong sonic identity SDK published to PyPI (`pip install voicedna`). TTS back
 - The `VoiceAdapter` class is the integration surface with OpenClaw
 - Use repo-local venv (`python -m venv .venv`)
 - Follow the fix-or-feature doc discipline
+
+## README
+
+- This repo is public. When a change alters anything a user can see, add or refresh a screenshot in README.md (images in docs/screenshots/, relative links). The README is the marketing.
